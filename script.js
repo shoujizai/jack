@@ -106,23 +106,23 @@ function updateSelectedIds() {
             li.textContent = game.name;
             li.style.cursor = 'pointer';
             li.style.position = 'relative';
-            li.style.padding = '8px 35px 8px 12px';
-            li.style.marginBottom = '8px';
+            li.style.padding = '4px 25px 4px 8px';
+            li.style.marginBottom = '4px';
             
             // 添加取消按钮
             const cancelBtn = document.createElement('span');
             cancelBtn.textContent = '×';
             cancelBtn.style.position = 'absolute';
-            cancelBtn.style.right = '10px';
+            cancelBtn.style.right = '6px';
             cancelBtn.style.top = '50%';
             cancelBtn.style.transform = 'translateY(-50%)';
-            cancelBtn.style.fontSize = '18px';
+            cancelBtn.style.fontSize = '14px';
             cancelBtn.style.fontWeight = 'bold';
             cancelBtn.style.color = 'rgba(0,0,0,0.7)';
             cancelBtn.style.cursor = 'pointer';
             cancelBtn.style.userSelect = 'none';
-            cancelBtn.style.width = '20px';
-            cancelBtn.style.height = '20px';
+            cancelBtn.style.width = '16px';
+            cancelBtn.style.height = '16px';
             cancelBtn.style.display = 'flex';
             cancelBtn.style.alignItems = 'center';
             cancelBtn.style.justifyContent = 'center';
