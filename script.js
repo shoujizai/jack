@@ -379,7 +379,7 @@ function initGameTable(searchTerm = '') {
         row.innerHTML = `
             <td>${formattedId}</td>
             <td>${game.name}</td>
-            <td>${sizeInGB} GB</td>
+            <td>${sizeIn} GB</td>
             <td><input type="checkbox" class="game-checkbox" data-id="${game.id}" data-size="${game.size}"></td>
         `;
         gameTableBody.appendChild(row);
@@ -398,7 +398,7 @@ function updateStats() {
     const sizeInGB = selectedSize.toFixed(2);
     
     selectedCountElement.textContent = selectedCount;
-    selectedSizeElement.textContent = `${sizeInGB} GB`;
+    selectedSizeElement.textContent = `${sizeIn} GB`;
     
     // 更新选中的游戏序号
     updateSelectedIds();
@@ -596,3 +596,4 @@ function initApp() {
 // 启动应用
 
 initApp();
+
