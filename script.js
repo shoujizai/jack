@@ -353,6 +353,7 @@ const selectedIdsElement = document.querySelector('#selected-ids');
 const copyButton = document.querySelector('#copy-button');
 const searchInput = document.querySelector('#search-input');
 const searchButton = document.querySelector('#search-button');
+const clearButton = document.querySelector('#clear-button');
 
 // 全局变量存储选中的游戏ID
 let selectedGameIds = [];
@@ -597,3 +598,4 @@ function initApp() {
 // 启动应用
 
 initApp();
+
