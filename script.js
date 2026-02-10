@@ -602,5 +602,5 @@ function initApp() {
 }
 
 // 启动应用
-
 initApp();
+
