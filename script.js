@@ -581,6 +581,12 @@ function setupSearch() {
             performSearch();
         }
     });
+        
+    // 点击清除按钮
+    clearButton.addEventListener('click', function() {
+        searchInput.value = '';
+        performSearch();
+    });
 }
 
 // 初始化应用
@@ -598,4 +604,5 @@ function initApp() {
 // 启动应用
 
 initApp();
+
 
