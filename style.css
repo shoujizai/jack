@@ -102,21 +102,6 @@ h1 {
     box-sizing: border-box;
 }
 
-#search-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 4px 8px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 10px;
-    transition: background-color 0.3s;
-}
-
-#search-button:hover {
-    background-color: #45a049;
-}
-
 .clear-button {
     position: absolute;
     right: 4px;
@@ -135,6 +120,26 @@ h1 {
     border-radius: 50%;
     transition: all 0.2s;
 }
+
+.clear-button:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+#search-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 10px;
+    transition: background-color 0.3s;
+}
+
+#search-button:hover {
+    background-color: #45a049;
+}
+
 
 .clear-button:hover {
     background-color: #f0f0f0;
