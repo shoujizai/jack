@@ -247,6 +247,7 @@ const games = [
 { id: "248", name: "超级房车赛：汽车运动", size: 9.35 },
 { id: "249", name: "波斯王子：失落的王冠", size: 1.00 },
 { id: "250", name: "大富翁11", size: 2.70 },
+{ id: "251", name: "小丑牌-巴拉特罗", size: 0.10 },
 { id: "300", name: "我的秘密", size: 0.28 },
 { id: "301", name: "My Memory of US", size: 2.50 },
 { id: "302", name: "战国LJ", size: 7.44 },
@@ -601,4 +602,5 @@ function initApp() {
 }
 
 // 启动应用
+
 initApp();
