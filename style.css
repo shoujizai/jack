@@ -195,6 +195,24 @@ h1 {
     font-size: 11px;
 }
 
+.ids-output {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 11px;
+    min-height: 100px;
+    width: 100%;
+    max-width: none;
+    background-color: #fff;
+    color: #333;
+    resize: vertical;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    line-height: 1.4;
+    margin-top: 8px;
+    box-sizing: border-box;
+}
+
 #copy-button {
     background-color: #4CAF50;
     color: white;
@@ -248,7 +266,7 @@ input[type="checkbox"] {
 }
 
 .selected-ids-container {
-    max-height: 300px;
+    max-height: 150px;
     overflow-y: auto;
     margin-top: 6px;
     border: 1px solid #ddd;

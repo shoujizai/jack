@@ -354,6 +354,7 @@ const copyButton = document.querySelector('#copy-button');
 const searchInput = document.querySelector('#search-input');
 const searchButton = document.querySelector('#search-button');
 const clearButton = document.querySelector('#clear-button');
+const idsOutput = document.querySelector('#ids-output');
 
 // 全局变量存储选中的游戏ID
 let selectedGameIds = [];
@@ -401,6 +402,11 @@ function updateStats() {
     
     selectedCountElement.textContent = selectedCount;
     selectedSizeElement.textContent = `${sizeInGB} GB`;
+    
+    // 更新输出框中的序号
+    const sortedIds = [...selectedGameIds].sort((a, b) => a - b);
+    const formattedIds = sortedIds.map(id => formatId(id));
+    idsOutput.value = formattedIds.join(' ');
     
     // 更新选中的游戏序号
     updateSelectedIds();
@@ -495,10 +501,20 @@ function setupGameCheckboxes() {
 function setupCopyButton() {
     copyButton.addEventListener('click', function(e) {
         e.preventDefault();
-        // 使用全局selectedGameIds变量
-        const sortedIds = [...selectedGameIds].sort((a, b) => a - b);
-        const formattedIds = sortedIds.map(id => formatId(id));
-        const idsText = formattedIds.join(' ');
+        
+        const idsText = idsOutput.value;
+        
+        if (!idsText.trim()) {
+            const originalText = copyButton.textContent;
+            copyButton.textContent = '无选中项';
+            copyButton.style.backgroundColor = '#ff9800';
+            
+            setTimeout(() => {
+                copyButton.textContent = originalText;
+                copyButton.style.backgroundColor = '#4CAF50';
+            }, 2000);
+            return;
+        }
         
         function showSuccess() {
             const originalText = copyButton.textContent;
