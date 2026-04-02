@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏预选 - 微修通讯的预选预选</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .games-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            flex-wrap: nowrap;
+            position: relative;
+            z-index: 10;
+        }
+
+        .left-panel {
+            flex: 0 0 320px;
+            min-width: 280px;
+        }
+
+        .right-panel {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .search-box {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            box-shadow: 0 4px 12px rgba(123, 44, 191, 0.3);
+        }
+
+        .search-box input::placeholder {
+            color: #999;
+        }
+
+        .clear-search-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .clear-search-btn:hover {
+            color: #7b2cbf;
+        }
+
+        .search-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+        }
+
+        .search-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .table-container {
+            background: transparent;
+            border-radius: 15px;
+            border: none;
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .games-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .games-table th {
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            color: white;
+            padding: 12px 10px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-size: 12px;
+        }
+
+        .games-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 11px;
+        }
+
+        .games-table td span {
+            background: rgba(135, 206, 250, 0.95);
+            color: #333;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+        }
+
+        .games-table td span.selected {
+            background: rgba(30, 60, 150, 0.95);
+            color: #fff;
+        }
+
+        .games-table td span.special-pink {
+            background: rgba(255, 182, 193, 0.95);
+        }
+
+        .games-table tr.selected-row {
+            background: rgba(100, 180, 255, 0.15);
+        }
+
+        .games-table tr:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .games-table input[type="checkbox"] {
+            transform: scale(1.3);
+            cursor: pointer;
+            accent-color: #00d4ff;
+        }
+
+        .selected-games {
+            background: transparent;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            position: sticky;
+            top: 100px;
+        }
+
+        .selected-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .selected-header h2 {
+            background: rgba(255, 255, 255, 0.9);
+            color: #7b2cbf;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            margin: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .selected-ids-container {
+            min-height: 150px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            background: transparent;
+        }
+
+        #selectedIds {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #selectedIds li {
+            padding: 6px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #selectedIds li:last-child {
+            border-bottom: none;
+        }
+
+        #selectedIds li .game-name {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 4px 12px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            flex: 1;
+            margin-right: 10px;
+            font-weight: 500;
+        }
+
+        #selectedIds li .game-id {
+            color: #7b2cbf;
+            margin-right: 8px;
+        }
+
+        #selectedIds li .cancel-btn {
+            color: #ff6b6b;
+            cursor: pointer;
+            margin-left: 10px;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        #selectedIds li .cancel-btn:hover {
+            color: #ff0000;
+        }
+
+        .empty-hint {
+            background: rgba(255, 255, 255, 0.9);
+            color: #666;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            text-align: center;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 13px;
+        }
+
+        .stats div {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 6px 14px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+        }
+
+        .stats span {
+            color: #7b2cbf;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .games-container {
+                flex-direction: column;
+                flex-wrap: wrap;
+            }
+
+            .left-panel, .right-panel {
+                min-width: 100%;
+                width: 100%;
+            }
+
+            .selected-games {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="starfield" id="starfield"></div>
+
+    <nav>
+        <div class="nav-container">
+            <div class="logo">微修通讯的预选预选</div>  
+            <div class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">首页</a>
+                <a href="getting-started.html">入坑指南</a>
+                <a href="tutorial.html">入门教程</a>
+                <a href="install.html">安装游戏</a>
+                <a href="plugins.html">插件指南</a>
+                <a href="download.html">资源下载</a>
+                <a href="games.html" class="active">游戏预选</a>
+                <a href="faq.html">常见问题</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-header">
+            <h1>📝 游戏预选</h1>
+            <p>勾选您想要的游戏，复制序号发给客服，256GB只能预装180GB以下的游戏，512GB只能预装420GB以下的游戏</p>
+        </div>
+
+        <div class="games-container">
+            <div class="left-panel">
+                <div class="selected-games">
+                    <div class="selected-header">
+                        <h2>已选择的游戏</h2>
+                        <button class="copy-btn" id="copyBtn">复制序号</button>
+                    </div>
+                    <div class="selected-ids-container">
+                        <ul id="selectedIds"></ul>
+                    </div>
+                    <div class="stats">
+                        <div>已选: <span id="countDisplay">0</span> 个游戏</div>
+                        <div>总计: <span id="sizeDisplay">0.00</span> </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="search-box">
+                    <div class="search-input-wrapper">
+                        <input type="text" id="searchInput" placeholder="搜索游戏名称或序号...">
+                        <button class="clear-search-btn" id="clearSearchBtn">x</button>
+                    </div>
+                    <button class="search-btn" id="searchBtn">搜索</button>
+                </div>
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        <table class="games-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;"><input type="checkbox" id="selectAll"></th>
+                                    <th style="width: 60px;">序号</th>
+                                    <th>游戏名称</th>
+                                    <th style="width: 80px;">大小(GB)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gameTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2024 微修通讯的Blog | taobao店：微修通讯 | 站长：sjz</p>
+        <p style="margin-top: 10px; font-size: 0.9rem;">本站仅供学习交流，请支持正版游戏</p>
+    </footer>
+
+    <button class="back-to-top" id="backToTop">↑</button>
+
+    <script src="games-data.js"></script>
+    <script>
+        var starfield = document.getElementById('starfield');
+        
+        var constellation = document.createElement('div');
+        constellation.className = 'constellation';
+        
+        var constellationStars = [
+            { x: 20, y: 30 },
+            { x: 50, y: 25 },
+            { x: 80, y: 35 },
+            { x: 110, y: 50 },
+            { x: 140, y: 70 },
+            { x: 160, y: 100 },
+            { x: 130, y: 130 }
+        ];
+        
+        for (var c = 0; c < constellationStars.length; c++) {
+            var cStar = document.createElement('div');
+            cStar.className = 'constellation-star';
+            cStar.style.left = constellationStars[c].x + 'px';
+            cStar.style.top = constellationStars[c].y + 'px';
+            cStar.style.width = '4px';
+            cStar.style.height = '4px';
+            cStar.style.animationDelay = (c * 0.5) + 's';
+            constellation.appendChild(cStar);
+        }
+        
+        var constellationLines = [
+            { x1: 20, y1: 30, x2: 50, y2: 25 },
+            { x1: 50, y1: 25, x2: 80, y2: 35 },
+            { x1: 80, y1: 35, x2: 110, y2: 50 },
+            { x1: 110, y1: 50, x2: 140, y2: 70 },
+            { x1: 140, y1: 70, x2: 160, y2: 100 },
+            { x1: 160, y1: 100, x2: 130, y2: 130 },
+            { x1: 130, y1: 130, x2: 110, y2: 50 }
+        ];
+        
+        for (var l = 0; l < constellationLines.length; l++) {
+            var line = document.createElement('div');
+            line.className = 'constellation-line';
+            var dx = constellationLines[l].x2 - constellationLines[l].x1;
+            var dy = constellationLines[l].y2 - constellationLines[l].y1;
+            var length = Math.sqrt(dx * dx + dy * dy);
+            var angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            line.style.left = constellationLines[l].x1 + 'px';
+            line.style.top = constellationLines[l].y1 + 'px';
+            line.style.width = length + 'px';
+            line.style.transform = 'rotate(' + angle + 'deg)';
+            constellation.appendChild(line);
+        }
+        
+        starfield.appendChild(constellation);
+        
+        var nebula = document.createElement('div');
+        nebula.className = 'nebula';
+        
+        var nebulaGlows = [
+            { x: 30, y: 30, size: 180, color: 'rgba(75, 0, 130, 0.3)' },
+            { x: 50, y: 60, size: 150, color: 'rgba(138, 43, 226, 0.25)' },
+            { x: 70, y: 40, size: 160, color: 'rgba(147, 112, 219, 0.2)' }
+        ];
+        
+        for (var g = 0; g < nebulaGlows.length; g++) {
+            var glow = document.createElement('div');
+            glow.className = 'nebula-glow';
+            glow.style.left = nebulaGlows[g].x + 'px';
+            glow.style.top = nebulaGlows[g].y + 'px';
+            glow.style.width = nebulaGlows[g].size + 'px';
+            glow.style.height = nebulaGlows[g].size + 'px';
+            glow.style.background = 'radial-gradient(circle, ' + nebulaGlows[g].color + ', transparent)';
+            nebula.appendChild(glow);
+        }
+        
+        var nebulaCores = [
+            { x: 80, y: 70, size: 80, color1: 'rgba(186, 85, 211, 0.6)', color2: 'rgba(75, 0, 130, 0.3)' },
+            { x: 100, y: 90, size: 60, color1: 'rgba(218, 112, 214, 0.5)', color2: 'rgba(138, 43, 226, 0.2)' },
+            { x: 120, y: 80, size: 50, color1: 'rgba(255, 182, 193, 0.4)', color2: 'rgba(186, 85, 211, 0.2)' }
+        ];
+        
+        for (var nc = 0; nc < nebulaCores.length; nc++) {
+            var core = document.createElement('div');
+            core.className = 'nebula-core';
+            core.style.left = nebulaCores[nc].x + 'px';
+            core.style.top = nebulaCores[nc].y + 'px';
+            core.style.width = nebulaCores[nc].size + 'px';
+            core.style.height = nebulaCores[nc].size + 'px';
+            core.style.background = 'radial-gradient(circle at 30% 30%, ' + nebulaCores[nc].color1 + ', ' + nebulaCores[nc].color2 + ', transparent)';
+            nebula.appendChild(core);
+        }
+        
+        var nebulaClouds = [
+            { x: 60, y: 50, size: 100, color: 'rgba(147, 112, 219, 0.4)' },
+            { x: 90, y: 80, size: 120, color: 'rgba(138, 43, 226, 0.35)' },
+            { x: 110, y: 60, size: 90, color: 'rgba(186, 85, 211, 0.4)' },
+            { x: 130, y: 100, size: 80, color: 'rgba(153, 50, 204, 0.35)' },
+            { x: 70, y: 110, size: 70, color: 'rgba(148, 0, 211, 0.3)' },
+            { x: 140, y: 70, size: 60, color: 'rgba(139, 0, 139, 0.35)' },
+            { x: 80, y: 130, size: 75, color: 'rgba(75, 0, 130, 0.3)' },
+            { x: 150, y: 90, size: 55, color: 'rgba(218, 112, 214, 0.3)' }
+        ];
+        
+        for (var n = 0; n < nebulaClouds.length; n++) {
+            var cloud = document.createElement('div');
+            cloud.className = 'nebula-cloud';
+            cloud.style.left = nebulaClouds[n].x + 'px';
+            cloud.style.top = nebulaClouds[n].y + 'px';
+            cloud.style.width = nebulaClouds[n].size + 'px';
+            cloud.style.height = nebulaClouds[n].size + 'px';
+            cloud.style.background = 'radial-gradient(ellipse at ' + (30 + Math.random() * 40) + '% ' + (30 + Math.random() * 40) + '%, ' + nebulaClouds[n].color + ', transparent)';
+            cloud.style.filter = 'blur(' + (5 + Math.random() * 10) + 'px)';
+            nebula.appendChild(cloud);
+        }
+        
+        starfield.appendChild(nebula);
+        
+        for (var i = 0; i < 150; i++) {
+            var star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = Math.random() * 3 + 1 + 'px';
+            star.style.height = star.style.width;
+            star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+            star.style.animationDelay = Math.random() * 5 + 's';
+            starfield.appendChild(star);
+        }
+
+        for (var j = 0; j < 5; j++) {
+            var shootingStar = document.createElement('div');
+            shootingStar.className = 'shooting-star';
+            shootingStar.style.left = (Math.random() * 80 + 20) + '%';
+            shootingStar.style.top = Math.random() * 40 + '%';
+            shootingStar.style.animationDelay = (j * 3 + Math.random() * 5) + 's';
+            shootingStar.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            starfield.appendChild(shootingStar);
+        }
+
+        for (var k = 0; k < 8; k++) {
+            var asteroid = document.createElement('div');
+            asteroid.className = 'asteroid';
+            asteroid.style.left = Math.random() * 100 + '%';
+            asteroid.style.top = Math.random() * 100 + '%';
+            var size = Math.random() * 8 + 3;
+            asteroid.style.width = size + 'px';
+            asteroid.style.height = size * 0.8 + 'px';
+            asteroid.style.setProperty('--float-duration', (Math.random() * 30 + 20) + 's');
+            asteroid.style.setProperty('--drift-x', (Math.random() * 200 - 100) + 'px');
+            asteroid.style.setProperty('--drift-y', (Math.random() * 200 - 100) + 'px');
+            asteroid.style.animationDelay = Math.random() * 10 + 's';
+            starfield.appendChild(asteroid);
+        }
+
+        var menuToggle = document.getElementById('menuToggle');
+        var navLinks = document.getElementById('navLinks');
+        menuToggle.onclick = function() {
+            navLinks.classList.toggle('active');
+        };
+
+        var backToTop = document.getElementById('backToTop');
+        window.onscroll = function() {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        };
+        backToTop.onclick = function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        var selectedGameIds = [];
+        var gameTbody = document.getElementById('gameTbody');
+        var selectedIdsElement = document.getElementById('selectedIds');
+        var countDisplay = document.getElementById('countDisplay');
+        var sizeDisplay = document.getElementById('sizeDisplay');
+        var selectAllCheckbox = document.getElementById('selectAll');
+        var searchInput = document.getElementById('searchInput');
+        var searchBtn = document.getElementById('searchBtn');
+        var clearSearchBtn = document.getElementById('clearSearchBtn');
+        var copyBtn = document.getElementById('copyBtn');
+
+        function initGameTable(searchTerm) {
+            searchTerm = searchTerm || '';
+            gameTbody.innerHTML = '';
+            
+            var filteredGames = [];
+            for (var i = 0; i < games.length; i++) {
+                var game = games[i];
+                if (!searchTerm || 
+                    game.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1 ||
+                    game.id.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+                    filteredGames.push(game);
+                }
+            }
+            
+            for (var i = 0; i < filteredGames.length; i++) {
+                var game = filteredGames[i];
+                var row = document.createElement('tr');
+                
+                var tdCheck = document.createElement('td');
+                var checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'game-checkbox';
+                checkbox.setAttribute('data-id', game.id);
+                
+                for (var j = 0; j < selectedGameIds.length; j++) {
+                    if (selectedGameIds[j] == game.id) {
+                        checkbox.checked = true;
+                        break;
+                    }
+                }
+                
+                tdCheck.appendChild(checkbox);
+                
+                var isSelected = false;
+                for (var j = 0; j < selectedGameIds.length; j++) {
+                    if (selectedGameIds[j] == game.id) {
+                        isSelected = true;
+                        break;
+                    }
+                }
+                
+                var tdId = document.createElement('td');
+                var spanId = document.createElement('span');
+                spanId.textContent = game.id;
+                var idNum = parseInt(game.id);
+                if (isSelected) {
+                    spanId.className = 'selected';
+                } else if (idNum >= 300) {
+                    spanId.className = 'special-pink';
+                }
+                tdId.appendChild(spanId);
+                
+                var tdName = document.createElement('td');
+                var spanName = document.createElement('span');
+                spanName.textContent = game.name;
+                if (isSelected) {
+                    spanName.className = 'selected';
+                } else if (idNum >= 300) {
+                    spanName.className = 'special-pink';
+                }
+                tdName.appendChild(spanName);
+                
+                var tdSize = document.createElement('td');
+                var spanSize = document.createElement('span');
+                spanSize.textContent = game.size.toFixed(2);
+                if (isSelected) {
+                    spanSize.className = 'selected';
+                } else if (idNum >= 300) {
+                    spanSize.className = 'special-pink';
+                }
+                tdSize.appendChild(spanSize);
+                
+                if (isSelected) {
+                    row.className = 'selected-row';
+                }
+                
+                row.appendChild(tdCheck);
+                row.appendChild(tdId);
+                row.appendChild(tdName);
+                row.appendChild(tdSize);
+                gameTbody.appendChild(row);
+            }
+        }
+
+        function updateStats() {
+            var selectedCount = selectedGameIds.length;
+            var selectedSize = 0;
+            
+            for (var i = 0; i < selectedGameIds.length; i++) {
+                for (var j = 0; j < games.length; j++) {
+                    if (games[j].id == selectedGameIds[i]) {
+                        selectedSize += games[j].size;
+                        break;
+                    }
+                }
+            }
+            
+            countDisplay.textContent = selectedCount;
+            sizeDisplay.textContent = selectedSize.toFixed(2) + ' GB';
+            
+            updateSelectedIds();
+        }
+
+        function updateSelectedIds() {
+            selectedIdsElement.innerHTML = '';
+            
+            if (selectedGameIds.length === 0) {
+                var hint = document.createElement('li');
+                hint.className = 'empty-hint';
+                hint.textContent = '请从右侧列表勾选游戏...';
+                selectedIdsElement.appendChild(hint);
+                return;
+            }
+            
+            for (var i = 0; i < selectedGameIds.length; i++) {
+                var id = selectedGameIds[i];
+                var game = null;
+                
+                for (var j = 0; j < games.length; j++) {
+                    if (games[j].id == id) {
+                        game = games[j];
+                        break;
+                    }
+                }
+                
+                if (game) {
+                    var li = document.createElement('li');
+                    
+                    var gameName = document.createElement('span');
+                    gameName.className = 'game-name';
+                    gameName.textContent = game.name;
+                    li.appendChild(gameName);
+                    
+                    var cancelBtn = document.createElement('span');
+                    cancelBtn.className = 'cancel-btn';
+                    cancelBtn.textContent = 'x';
+                    cancelBtn.setAttribute('data-id', id);
+                    
+                    cancelBtn.onclick = function(e) {
+                        var targetId = this.getAttribute('data-id');
+                        var newIds = [];
+                        for (var k = 0; k < selectedGameIds.length; k++) {
+                            if (selectedGameIds[k] != targetId) {
+                                newIds.push(selectedGameIds[k]);
+                            }
+                        }
+                        selectedGameIds = newIds;
+                        
+                        var checkbox = document.querySelector('.game-checkbox[data-id="' + targetId + '"]');
+                        if (checkbox) {
+                            checkbox.checked = false;
+                            var row = checkbox.closest('tr');
+                            var spans = row.querySelectorAll('td span');
+                            var targetIdNum = parseInt(targetId);
+                            for (var i = 0; i < spans.length; i++) {
+                                spans[i].classList.remove('selected');
+                                if (targetIdNum >= 300) {
+                                    spans[i].classList.add('special-pink');
+                                }
+                            }
+                            row.classList.remove('selected-row');
+                        }
+                        
+                        updateStats();
+                    };
+                    
+                    li.appendChild(cancelBtn);
+                    selectedIdsElement.appendChild(li);
+                }
+            }
+        }
+
+        function updateSelectedGameIds() {
+            var checkboxes = document.querySelectorAll('.game-checkbox');
+            var newSelectedIds = [];
+            
+            for (var i = 0; i < checkboxes.length; i++) {
+                var checkbox = checkboxes[i];
+                if (checkbox.checked) {
+                    var id = checkbox.getAttribute('data-id');
+                    var found = false;
+                    for (var j = 0; j < newSelectedIds.length; j++) {
+                        if (newSelectedIds[j] == id) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        newSelectedIds.push(id);
+                    }
+                }
+            }
+            
+            selectedGameIds = newSelectedIds;
+        }
+
+        function getSelectedIdsText() {
+            var ids = [];
+            for (var i = 0; i < selectedGameIds.length; i++) {
+                ids.push(selectedGameIds[i]);
+            }
+            return ids.join(' ');
+        }
+
+        function copyToClipboard(text, onSuccess, onError) {
+            var textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            textArea.style.top = '0';
+            textArea.setAttribute('readonly', '');
+            document.body.appendChild(textArea);
+            
+            try {
+                var isIOS = navigator.userAgent.match(/ipad|ipod|iphone/i);
+                if (isIOS) {
+                    var range = document.createRange();
+                    range.selectNodeContents(textArea);
+                    var selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    textArea.setSelectionRange(0, 999999);
+                } else {
+                    textArea.select();
+                }
+                
+                var successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                if (successful) {
+                    if (onSuccess) onSuccess();
+                } else {
+                    if (onError) onError();
+                }
+            } catch (err) {
+                document.body.removeChild(textArea);
+                if (onError) onError();
+            }
+        }
+
+        function performSearch() {
+            var searchTerm = searchInput.value;
+            initGameTable(searchTerm);
+        }
+
+        function init() {
+            initGameTable();
+            updateStats();
+            
+            selectAllCheckbox.onclick = function() {
+                var checkboxes = document.querySelectorAll('.game-checkbox');
+                for (var i = 0; i < checkboxes.length; i++) {
+                    checkboxes[i].checked = this.checked;
+                }
+                
+                var allSpans = document.querySelectorAll('.games-table td span');
+                for (var i = 0; i < allSpans.length; i++) {
+                    if (this.checked) {
+                        allSpans[i].classList.remove('special-pink');
+                        allSpans[i].classList.add('selected');
+                    } else {
+                        allSpans[i].classList.remove('selected');
+                    }
+                }
+                
+                var allRows = document.querySelectorAll('.games-table tbody tr');
+                for (var i = 0; i < allRows.length; i++) {
+                    if (this.checked) {
+                        allRows[i].classList.add('selected-row');
+                    } else {
+                        allRows[i].classList.remove('selected-row');
+                    }
+                }
+                
+                if (!this.checked) {
+                    for (var i = 0; i < checkboxes.length; i++) {
+                        var id = checkboxes[i].getAttribute('data-id');
+                        var idNum = parseInt(id);
+                        if (idNum >= 300) {
+                            var row = checkboxes[i].closest('tr');
+                            var spans = row.querySelectorAll('td span');
+                            for (var j = 0; j < spans.length; j++) {
+                                spans[j].classList.add('special-pink');
+                            }
+                        }
+                    }
+                }
+                
+                updateSelectedGameIds();
+                updateStats();
+            };
+
+            gameTbody.onclick = function(e) {
+                if (e.target.className === 'game-checkbox') {
+                    var checkbox = e.target;
+                    var row = checkbox.closest('tr');
+                    var spans = row.querySelectorAll('td span');
+                    var gameId = checkbox.getAttribute('data-id');
+                    var idNum = parseInt(gameId);
+                    
+                    for (var i = 0; i < spans.length; i++) {
+                        if (checkbox.checked) {
+                            spans[i].classList.remove('special-pink');
+                            spans[i].classList.add('selected');
+                        } else {
+                            spans[i].classList.remove('selected');
+                            if (idNum >= 300) {
+                                spans[i].classList.add('special-pink');
+                            }
+                        }
+                    }
+                    
+                    if (checkbox.checked) {
+                        row.classList.add('selected-row');
+                    } else {
+                        row.classList.remove('selected-row');
+                    }
+                    
+                    updateSelectedGameIds();
+                    updateStats();
+                    
+                    var allCheckboxes = document.querySelectorAll('.game-checkbox');
+                    var checkedCheckboxes = document.querySelectorAll('.game-checkbox:checked');
+                    selectAllCheckbox.checked = allCheckboxes.length === checkedCheckboxes.length;
+                }
+            };
+
+            copyBtn.onclick = function(e) {
+                e.preventDefault();
+                
+                var idsText = getSelectedIdsText();
+                
+                if (!idsText || idsText.trim() === '') {
+                    alert('请先选择游戏！');
+                    return;
+                }
+                
+                copyToClipboard(idsText, function() {
+                    copyBtn.textContent = '复制成功！';
+                    setTimeout(function() {
+                        copyBtn.textContent = '复制序号';
+                    }, 2000);
+                }, function() {
+                    alert('复制失败，请手动复制：' + idsText);
+                });
+            };
+
+            searchInput.oninput = function() {
+                performSearch();
+            };
+
+            searchBtn.onclick = function() {
+                performSearch();
+            };
+
+            searchInput.onkeypress = function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            };
+
+            clearSearchBtn.onclick = function() {
+                searchInput.value = '';
+                performSearch();
+            };
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>

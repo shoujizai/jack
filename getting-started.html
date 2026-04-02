@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>入坑指南 - 微修的Blog</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="starfield" id="starfield"></div>
+
+    <nav>
+        <div class="nav-container">
+            <div class="logo">微修的Blog</div>
+            <div class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">首页</a>
+                <a href="getting-started.html" class="active">入坑指南</a>
+                <a href="tutorial.html">入门教程</a>
+                <a href="install.html">安装游戏</a>
+                <a href="plugins.html">插件指南</a>
+                <a href="download.html">资源下载</a>
+                <a href="games.html">游戏预选</a>
+                <a href="faq.html">常见问题</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-header">
+            <h1>🚀 入坑指南</h1>
+            <p>新手必看！了解大气层，准备入坑</p>
+        </div>
+
+        <div class="content-section">
+            <h2>什么是大气层？</h2>
+            <p>大气层（Atmosphere）是一款开源的Nintendo Switch自制系统固件，是目前最流行、最稳定的Switch破解方案。</p>
+            <p>它允许你在Switch上运行自制软件、游戏备份、模拟器等，同时保持原机系统的完整性。</p>
+        </div>
+
+        <div class="content-section">
+            <h2>为什么选择大气层？</h2>
+            <ul>
+                <li><strong>免费开源</strong> - 完全免费，代码公开透明</li>
+                <li><strong>安全稳定</strong> - 支持虚拟系统(EMUMMC)，不影响原机</li>
+                <li><strong>功能强大</strong> - 支持游戏备份、金手指、主题、插件等</li>
+                <li><strong>持续更新</strong> - 开发者活跃，及时跟进系统版本</li>
+                <li><strong>社区支持</strong> - 大量教程和插件资源</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>入坑前需要了解的风险</h2>
+            <div class="warning-box">
+                <h4>⚠️ 重要提示</h4>
+                <ul>
+                    <li>需要抛开你的信仰，接受新的概念</li>
+                    <li>在别人的操作下，操作不当可能会导致机器变砖，但手机仔永远不会</li>
+                    <li>请支持正版游戏，破解仅供学习研究</li>
+                    <li>部分新游戏可能需要更新大气层版本和系统固件版本</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>你需要准备什么？</h2>
+            
+            <h3>硬件准备</h3>
+            <ul>
+                <li><strong>Switch主机</strong> - 须在正版系统上正常运作及充电的Switch主机</li>
+                <li><strong>内存卡</strong> - 建议128GB或更大（游戏较大），用于安装大气层的文件系统及游戏</li>
+                <li><strong>电脑</strong> - Windows/Mac均可</li>
+                <li><strong>USB数据线</strong>(建议使用3.0的USB-C到USB-A) - 用于连接Switch和电脑</li>
+                <li><strong>读卡器</strong>（可选，不适用于安装游戏，仅用于救黑砖） - 用于将文件写入内存卡</li>
+                <li><strong>投屏电视</strong>(知识盲点提示) - 改机不会影响或增加投屏功能，无论投屏时还是充电需要用原装充电器</li>
+            </ul>
+
+            <h3 style="color: #ff6b9d;">内存卡以及数据线真伪分辨</h3>
+            <p>市面上有很多假冒的内存卡和伪劣的数据线，使用这些产品可能会导致无法制作大气层及数据丢失或传输不稳定。以下是一些辨别真伪的方法：</p>
+            
+            <h4>闪迪内存卡真伪辨别</h4>
+            <ul>
+                <li><strong style="color: #ff6b9d;">包装检查</strong> - 正品包装印刷清晰，防伪标签完整，防伪标为<span style="color: #ff6b9d;">九段金属蚀刻</span>，没有或不是金属蚀刻的则为假</li>
+                <li><strong style="color: #ff6b9d;">产地</strong> - 正品产地为<span style="color: #ff6b9d;">中国china，马来西亚malaysia，</span>，台湾taiwan或别的则为假</li>
+                <li><strong style="color: #ff6b9d;">外观细节</strong> - 正品做工精细，字迹清晰</li>
+            </ul>
+            <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin: 20px 0;">
+                <div style="text-align: center; flex: 1; min-width: 200px; max-width: 45%;">
+                    <img src="images/sd1.png" alt="内存卡真伪辨别1" style="max-width: 100%; border-radius: 10px;">
+                </div>
+                <div style="text-align: center; flex: 1; min-width: 200px; max-width: 45%;">
+                    <img src="images/sd2.png" alt="内存卡真伪辨别2" style="max-width: 100%; border-radius: 10px;">
+                </div>
+            </div>
+            <p style="text-align: center; font-size: 0.9rem; color: #888; margin-top: 10px;">内存卡真伪辨别示意图</p>
+            
+            <h4>数据线伪劣辨别</h4>
+            <ul>
+                <li><strong style="color: #ff6b9d;">是否具备数据传输功能</strong> - 市面上很多便宜的线(内部只2线芯)不具备数据传输功能，USB 2.0（内部4线芯），USB 3.0(内部9线芯)，所以USB 3.0一定可以传输数据(华为的线不行)</li>
+            </ul>
+            <div style="text-align: center; margin: 20px 0;">
+                <img src="images/usb.png" alt="数据线伪劣辨别" style="max-width: 100%; border-radius: 10px;">
+                <p style="font-size: 0.9rem; color: #888; margin-top: 10px;">数据线伪劣辨别示意图</p>
+            </div>
+
+        </div>
+
+        <div class="content-section">
+            <h2>微修Switch机型工艺说明</h2>
+            <table class="info-table">
+                <tr>
+                    <th>机型</th>
+                    <th>图片展示</th>
+                    <th>工艺说明</th>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold; color: #00d4ff;">Switch OLED</td>
+                    <td><img src="images/oled.png" alt="OLED工艺" style="max-width: 200px; border-radius: 8px; cursor: pointer; transition: transform 0.3s;" onclick="openModal(this.src)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></td>
+                    <td style="text-align: left; line-height: 1.8;">
+                        <strong style="color: #ff6b9d;">工艺难度：</strong>⭐⭐⭐⭐ 困难<br>
+                        <strong style="color: #ff6b9d;">芯片类型：</strong>订制版树莓派rp2040<br>
+                        <strong style="color: #ff6b9d;">焊接要求：</strong>贴吧首创，不剪框，精准挖孔，C点无飞线<br>
+                        
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold; color: #00d4ff;">续航版/普通版/Switch Lite</td>
+                    <td><img src="images/lite.png" alt="续航版/普通版/Lite工艺" style="max-width: 200px; border-radius: 8px; cursor: pointer; transition: transform 0.3s;" onclick="openModal(this.src)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></td>
+                    <td style="text-align: left; line-height: 1.8;">
+                        <strong style="color: #ff6b9d;">工艺难度：</strong>⭐⭐⭐⭐ 困难<br>
+                        <strong style="color: #ff6b9d;">芯片类型：</strong>订制版树莓派rp2040<br>
+                        <strong style="color: #ff6b9d;">焊接要求：</strong>贴吧首创，不剪框，不移动EMMC，无损方案<br>
+                       
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="content-section">
+            <h2>为什么选择微修通讯？<span style="color: #ff6b9d;">独家仅有</span></h2>
+            
+            <h3 style="color: #ff6b9d;">硬件技术水平</h3>
+            <ul>
+                <li><strong style="color: #ff6b9d;">焊接能力</strong> - 有直播，有最细节的返图</li>
+                <li><strong style="color: #ff6b9d;">线路板检测</strong> - 有资深的线路板检测维修能力，能够快速定位问题</li>
+                <li><strong style="color: #ff6b9d;">芯片级维修</strong> - 各种掌机，PC，内存颗粒更换</li>
+                <li><strong style="color: #ff6b9d;">较同行水平</strong> - 修复无数次同行翻车的记录</li>
+                </ul>
+
+            <h3 style="color: #ff6b9d;">软件技术水平</h3>
+            <ul>
+                <li><strong style="color: #ff6b9d;">略懂各种计算机语言</strong> - 能够应付你所有的软件问题</li>
+                <li><strong style="color: #ff6b9d;">熟练各种环境搭建</strong> - devkitPro等工具链+编译环境+调试环境，自制系统固件，能够独立完成软件开发</li>
+                <li><strong style="color: #ff6b9d;">自制一站式APP</strong> - 提供网络维护，在线更新大气层及系统固件，安装游戏、管理工具、备份存档，金手指、在线主题、在线插件等功能</li>
+                </ul>
+
+            <h3 style="color: #ff6b9d;">售后支持</h3>
+            <ul>
+                 <li><strong style="color: #ff6b9d;">更多售后权益</strong> - taobao店比闲鱼更完善售后支持，支持更长的<span style="color: #ff6b9d;">3年</span>改机芯片售后期，兼具更靠谱的线下实体店</li>
+            </ul>
+            <p>准备好了？前往 <a href="https://m.tb.cn/h.iQXA93ydLTtHphE" target="_blank" style="color: #ff9500;">联系手机仔</a> 开始你的折腾之旅！</p>
+        </div>
+
+        <div class="content-section">
+            <h2>常见问题</h2>
+            <h3>Q: 破解后还能玩正版游戏吗？</h3>
+            <p>A: 可以！大气层支持双系统，可以在正版系统和破解系统之间切换。</p>
+            
+            <h3>Q: 破解后会被ban吗？</h3>
+            <p>A: 机仔已做了屏蔽真实系统处理，几千群友的测试，都没有被ban过。</p>
+            
+            <h3>Q: 破解系统能连网络吗？能联机吗</h3>
+            <p>A: 可以连WiFi,可以连网络,也可以连私人服务器lanplay，同时还可以进行网络维护，但是不可以连接老任的服务器</p>
+            
+            <h3>Q: 还有别的问题吗？</h3>
+            <p>A: 请直接联系机仔。</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2024 微修通讯的Blog | taobao店：微修通讯 | 站长：sjz</p>
+        <p style="margin-top: 10px; font-size: 0.9rem;">本站仅供学习交流，请支持正版游戏</p>
+    </footer>
+
+    <div id="imageModal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); justify-content: center; align-items: center;" onclick="closeModal()">
+        <img id="modalImage" style="max-width: 90%; max-height: 90%; border-radius: 10px; box-shadow: 0 0 30px rgba(0,212,255,0.5);">
+        <p style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: #888; font-size: 0.9rem;">点击任意处关闭</p>
+    </div>
+
+    <button class="back-to-top" id="backToTop">↑</button>
+
+    <script>
+        function openModal(src) {
+            var modal = document.getElementById('imageModal');
+            var modalImg = document.getElementById('modalImage');
+            modal.style.display = 'flex';
+            modalImg.src = src;
+        }
+        
+        function closeModal() {
+            var modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+        }
+
+        var starfield = document.getElementById('starfield');
+        
+        var constellation = document.createElement('div');
+        constellation.className = 'constellation';
+        
+        var constellationStars = [
+            { x: 20, y: 30 },
+            { x: 50, y: 25 },
+            { x: 80, y: 35 },
+            { x: 110, y: 50 },
+            { x: 140, y: 70 },
+            { x: 160, y: 100 },
+            { x: 130, y: 130 }
+        ];
+        
+        for (var c = 0; c < constellationStars.length; c++) {
+            var cStar = document.createElement('div');
+            cStar.className = 'constellation-star';
+            cStar.style.left = constellationStars[c].x + 'px';
+            cStar.style.top = constellationStars[c].y + 'px';
+            cStar.style.width = '4px';
+            cStar.style.height = '4px';
+            cStar.style.animationDelay = (c * 0.5) + 's';
+            constellation.appendChild(cStar);
+        }
+        
+        var constellationLines = [
+            { x1: 20, y1: 30, x2: 50, y2: 25 },
+            { x1: 50, y1: 25, x2: 80, y2: 35 },
+            { x1: 80, y1: 35, x2: 110, y2: 50 },
+            { x1: 110, y1: 50, x2: 140, y2: 70 },
+            { x1: 140, y1: 70, x2: 160, y2: 100 },
+            { x1: 160, y1: 100, x2: 130, y2: 130 }
+        ];
+        
+        for (var l = 0; l < constellationLines.length; l++) {
+            var line = document.createElement('div');
+            line.className = 'constellation-line';
+            var dx = constellationLines[l].x2 - constellationLines[l].x1;
+            var dy = constellationLines[l].y2 - constellationLines[l].y1;
+            var length = Math.sqrt(dx * dx + dy * dy);
+            var angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            line.style.left = constellationLines[l].x1 + 'px';
+            line.style.top = constellationLines[l].y1 + 'px';
+            line.style.width = length + 'px';
+            line.style.transform = 'rotate(' + angle + 'deg)';
+            constellation.appendChild(line);
+        }
+        
+        starfield.appendChild(constellation);
+        
+        var nebula = document.createElement('div');
+        nebula.className = 'nebula';
+        
+        var nebulaGlows = [
+            { x: 30, y: 30, size: 180, color: 'rgba(75, 0, 130, 0.3)' },
+            { x: 50, y: 60, size: 150, color: 'rgba(138, 43, 226, 0.25)' },
+            { x: 70, y: 40, size: 160, color: 'rgba(147, 112, 219, 0.2)' }
+        ];
+        
+        for (var g = 0; g < nebulaGlows.length; g++) {
+            var glow = document.createElement('div');
+            glow.className = 'nebula-glow';
+            glow.style.left = nebulaGlows[g].x + 'px';
+            glow.style.top = nebulaGlows[g].y + 'px';
+            glow.style.width = nebulaGlows[g].size + 'px';
+            glow.style.height = nebulaGlows[g].size + 'px';
+            glow.style.background = 'radial-gradient(circle, ' + nebulaGlows[g].color + ', transparent)';
+            nebula.appendChild(glow);
+        }
+        
+        var nebulaCores = [
+            { x: 80, y: 70, size: 80, color1: 'rgba(186, 85, 211, 0.6)', color2: 'rgba(75, 0, 130, 0.3)' },
+            { x: 100, y: 90, size: 60, color1: 'rgba(218, 112, 214, 0.5)', color2: 'rgba(138, 43, 226, 0.2)' },
+            { x: 120, y: 80, size: 50, color1: 'rgba(255, 182, 193, 0.4)', color2: 'rgba(186, 85, 211, 0.2)' }
+        ];
+        
+        for (var nc = 0; nc < nebulaCores.length; nc++) {
+            var core = document.createElement('div');
+            core.className = 'nebula-core';
+            core.style.left = nebulaCores[nc].x + 'px';
+            core.style.top = nebulaCores[nc].y + 'px';
+            core.style.width = nebulaCores[nc].size + 'px';
+            core.style.height = nebulaCores[nc].size + 'px';
+            core.style.background = 'radial-gradient(circle at 30% 30%, ' + nebulaCores[nc].color1 + ', ' + nebulaCores[nc].color2 + ', transparent)';
+            nebula.appendChild(core);
+        }
+        
+        var nebulaClouds = [
+            { x: 60, y: 50, size: 100, color: 'rgba(147, 112, 219, 0.4)' },
+            { x: 90, y: 80, size: 120, color: 'rgba(138, 43, 226, 0.35)' },
+            { x: 110, y: 60, size: 90, color: 'rgba(186, 85, 211, 0.4)' },
+            { x: 130, y: 100, size: 80, color: 'rgba(153, 50, 204, 0.35)' },
+            { x: 70, y: 110, size: 70, color: 'rgba(148, 0, 211, 0.3)' },
+            { x: 140, y: 70, size: 60, color: 'rgba(139, 0, 139, 0.35)' },
+            { x: 80, y: 130, size: 75, color: 'rgba(75, 0, 130, 0.3)' },
+            { x: 150, y: 90, size: 55, color: 'rgba(218, 112, 214, 0.3)' }
+        ];
+        
+        for (var n = 0; n < nebulaClouds.length; n++) {
+            var cloud = document.createElement('div');
+            cloud.className = 'nebula-cloud';
+            cloud.style.left = nebulaClouds[n].x + 'px';
+            cloud.style.top = nebulaClouds[n].y + 'px';
+            cloud.style.width = nebulaClouds[n].size + 'px';
+            cloud.style.height = nebulaClouds[n].size + 'px';
+            cloud.style.background = 'radial-gradient(ellipse at ' + (30 + Math.random() * 40) + '% ' + (30 + Math.random() * 40) + '%, ' + nebulaClouds[n].color + ', transparent)';
+            cloud.style.filter = 'blur(' + (5 + Math.random() * 10) + 'px)';
+            nebula.appendChild(cloud);
+        }
+        
+        starfield.appendChild(nebula);
+        
+        for (var i = 0; i < 150; i++) {
+            var star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = Math.random() * 2 + 1 + 'px';
+            star.style.height = star.style.width;
+            star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+            starfield.appendChild(star);
+        }
+        
+        for (var s = 0; s < 3; s++) {
+            var shootingStar = document.createElement('div');
+            shootingStar.className = 'shooting-star';
+            shootingStar.style.left = Math.random() * 100 + '%';
+            shootingStar.style.top = Math.random() * 50 + '%';
+            shootingStar.style.animationDelay = (Math.random() * 10 + s * 5) + 's';
+            starfield.appendChild(shootingStar);
+        }
+        
+        var menuToggle = document.getElementById('menuToggle');
+        var navLinks = document.getElementById('navLinks');
+        menuToggle.onclick = function() {
+            navLinks.classList.toggle('active');
+        };
+        
+        var backToTop = document.getElementById('backToTop');
+        window.onscroll = function() {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        };
+        backToTop.onclick = function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+    </script>
+</body>
+</html>
