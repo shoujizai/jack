@@ -91,10 +91,10 @@
             </ul>
             <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin: 20px 0;">
                 <div style="text-align: center; flex: 1; min-width: 200px; max-width: 45%;">
-                    <img src="images/sd1.png" alt="内存卡真伪辨别1" style="max-width: 100%; border-radius: 10px;">
+                    <img src="images/sd1.png" alt="内存卡真伪辨别1" style="max-width: 100%; max-height: 250px; border-radius: 10px; cursor: pointer; transition: transform 0.3s;" onclick="openModal(this.src)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                 </div>
                 <div style="text-align: center; flex: 1; min-width: 200px; max-width: 45%;">
-                    <img src="images/sd2.png" alt="内存卡真伪辨别2" style="max-width: 100%; border-radius: 10px;">
+                    <img src="images/sd2.png" alt="内存卡真伪辨别2" style="max-width: 100%; max-height: 250px; border-radius: 10px; cursor: pointer; transition: transform 0.3s;" onclick="openModal(this.src)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                 </div>
             </div>
             <p style="text-align: center; font-size: 0.9rem; color: #888; margin-top: 10px;">内存卡真伪辨别示意图</p>
@@ -104,23 +104,24 @@
                 <li><strong style="color: #ff6b9d;">是否具备数据传输功能</strong> - 市面上很多便宜的线(内部只2线芯)不具备数据传输功能，USB 2.0（内部4线芯），USB 3.0(内部9线芯)，所以USB 3.0一定可以传输数据(华为的线不行)</li>
             </ul>
             <div style="text-align: center; margin: 20px 0;">
-                <img src="images/usb.png" alt="数据线伪劣辨别" style="max-width: 100%; border-radius: 10px;">
-                <p style="font-size: 0.9rem; color: #888; margin-top: 10px;">数据线伪劣辨别示意图</p>
+                <img src="images/usb.png" alt="数据线伪劣辨别" style="max-width: 100%; max-height: 250px; border-radius: 10px; cursor: pointer; transition: transform 0.3s;" onclick="openModal(this.src)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <p style="font-size: 0.9rem; color: #888; margin-top: 10px;">数据线伪劣辨别示意图（点击图片可放大查看）</p>
             </div>
 
         </div>
 
         <div class="content-section">
             <h2>微修Switch机型工艺说明</h2>
-            <table class="info-table">
+            <div style="overflow-x: auto;">
+            <table class="info-table" style="min-width: 500px;">
                 <tr>
-                    <th>机型</th>
-                    <th>图片展示</th>
+                    <th style="width: 80px; white-space: nowrap;">机型</th>
+                    <th style="width: 120px;">图片展示</th>
                     <th>工艺说明</th>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold; color: #00d4ff;">Switch OLED</td>
-                    <td><img src="images/oled.png" alt="OLED工艺" style="max-width: 200px; border-radius: 8px; cursor: pointer; transition: transform 0.3s;" onclick="openModal(this.src)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></td>
+                    <td style="font-weight: bold; color: #00d4ff; white-space: nowrap;">Switch OLED</td>
+                    <td><img src="images/oled.png" alt="OLED工艺" style="max-width: 100px; border-radius: 8px; cursor: pointer; transition: transform 0.3s;" onclick="openModal(this.src)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></td>
                     <td style="text-align: left; line-height: 1.8;">
                         <strong style="color: #ff6b9d;">工艺难度：</strong>⭐⭐⭐⭐ 困难<br>
                         <strong style="color: #ff6b9d;">芯片类型：</strong>订制版树莓派rp2040<br>
@@ -129,8 +130,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold; color: #00d4ff;">续航版/普通版/Switch Lite</td>
-                    <td><img src="images/lite.png" alt="续航版/普通版/Lite工艺" style="max-width: 200px; border-radius: 8px; cursor: pointer; transition: transform 0.3s;" onclick="openModal(this.src)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></td>
+                    <td style="font-weight: bold; color: #00d4ff; white-space: nowrap;">续航版/普通版/Lite</td>
+                    <td><img src="images/lite.png" alt="续航版/普通版/Lite工艺" style="max-width: 100px; border-radius: 8px; cursor: pointer; transition: transform 0.3s;" onclick="openModal(this.src)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></td>
                     <td style="text-align: left; line-height: 1.8;">
                         <strong style="color: #ff6b9d;">工艺难度：</strong>⭐⭐⭐⭐ 困难<br>
                         <strong style="color: #ff6b9d;">芯片类型：</strong>订制版树莓派rp2040<br>
@@ -139,6 +140,8 @@
                     </td>
                 </tr>
             </table>
+            </div>
+            <p style="text-align: center; font-size: 0.85rem; color: #888; margin-top: 10px;">点击图片可放大查看</p>
         </div>
 
         <div class="content-section">
