@@ -1,12 +1,16 @@
 name = "blog-api"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
+no_bundle = false
+
+[build]
+command = ""
 
 [[d1_databases]]
 binding = "DB"
 database_name = "blog-db"
-database_id = "your-database-id-here"
+database_id = "08a3652b-d0d1-4d8a-b651-300310dd3108"
 
 [vars]
-JWT_SECRET = "your-jwt-secret-change-this"
+JWT_SECRET = "sjz-blog-2024-secret-key-x9k2m7p4q1"
 ORDER_JSON_URL = "https://raw.gitcode.com/jack-sjz/sjz-aio/raw/main/resources/list.json"
