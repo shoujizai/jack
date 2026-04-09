@@ -1,6 +1,6 @@
-name = "blog-api"
-main = "src/index.ts"
+name = "jacksjz"
 compatibility_date = "2024-01-01"
+pages_build_output_dir = "."
 
 [[d1_databases]]
 binding = "DB"
