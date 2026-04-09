@@ -28,6 +28,15 @@
                 <a href="games.html">游戏预选</a>
                 <a href="faq.html">常见问题</a>
             </div>
+            <div class="nav-auth">
+                <button id="authLoginBtn" class="btn btn-secondary" onclick="showAuthModal('login')">登录</button>
+                <div id="authUserMenu" class="user-menu" style="display: none;">
+                    <span id="authUserNickname" class="user-nickname"></span>
+                    <span id="authCustomerBadge" class="customer-badge" style="display: none;">客户</span>
+                    <button class="btn btn-secondary" onclick="showActivateModal()">激活订单</button>
+                    <button class="btn btn-secondary" onclick="logout()">退出</button>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -89,6 +98,38 @@
             <h2>🌟 关于本站</h2>
             <p>本站由「手机仔」创建，致力于为Switch玩家提供最全面、最详细的大气层使用教程。无论你是刚接触Switch破解的新手，还是想要深入了解插件功能的老玩家，都能在这里找到你需要的内容。</p>
             <p>如有任何问题，欢迎联系：<strong>微修通讯</strong></p>
+        </div>
+
+        <div id="activateSection" class="activate-section" style="display: none;">
+            <p>🎯 您已登录，激活订单后可查看专属内容</p>
+            <button class="btn btn-primary" onclick="showActivateModal()">立即激活</button>
+        </div>
+
+        <div class="customer-content" style="display: none;">
+            <h4>🔐 客户专属内容</h4>
+            <p>感谢您的支持！这里是客户专属的隐藏内容区域。</p>
+            <p>您可以在这里找到：</p>
+            <ul>
+                <li>高级教程和技巧</li>
+                <li>独家资源下载链接</li>
+                <li>优先技术支持</li>
+            </ul>
+        </div>
+
+        <div class="comments-section">
+            <h3>💬 评论区</h3>
+            <div id="commentForm" class="comment-form" style="display: none;">
+                <textarea id="commentInput" placeholder="写下你的评论..." maxlength="500"></textarea>
+                <div class="comment-form-actions">
+                    <button class="btn btn-primary" onclick="submitComment(event)">发送</button>
+                </div>
+            </div>
+            <div id="commentsList" class="comments-list">
+                <p style="color: #a0a0a0;">加载中...</p>
+            </div>
+            <div id="loginHint" class="login-hint" style="display: none;">
+                <p><a onclick="showAuthModal('login')">登录</a> 后参与评论</p>
+            </div>
         </div>
     </main>
 
@@ -269,5 +310,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
     </script>
+    <script src="auth.js"></script>
 </body>
 </html>

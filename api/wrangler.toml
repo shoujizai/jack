@@ -1,0 +1,12 @@
+name = "blog-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "blog-db"
+database_id = "your-database-id-here"
+
+[vars]
+JWT_SECRET = "your-jwt-secret-change-this"
+ORDER_JSON_URL = "https://raw.gitcode.com/jack-sjz/sjz-aio/raw/main/resources/list.json"

@@ -758,3 +758,255 @@ footer a:hover {
 ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(135deg, #7b2cbf, #00d4ff);
 }
+
+.auth-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.auth-modal-content {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border-radius: 15px;
+    padding: 30px;
+    width: 90%;
+    max-width: 400px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+.auth-modal h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.auth-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #a0a0a0;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.auth-close:hover {
+    color: #ff6b6b;
+}
+
+.auth-field {
+    margin-bottom: 20px;
+}
+
+.auth-field label {
+    display: block;
+    margin-bottom: 8px;
+    color: #b0b0b0;
+    font-size: 0.9rem;
+}
+
+.auth-field input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e0e0e0;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.auth-field input:focus {
+    outline: none;
+    border-color: #00d4ff;
+}
+
+.auth-submit {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.auth-switch {
+    text-align: center;
+    margin-top: 20px;
+    color: #a0a0a0;
+    font-size: 0.9rem;
+}
+
+.auth-switch a {
+    color: #00d4ff;
+    text-decoration: none;
+}
+
+.auth-switch a:hover {
+    text-decoration: underline;
+}
+
+.nav-auth {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nav-auth .btn {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-nickname {
+    color: #00d4ff;
+    font-size: 0.9rem;
+}
+
+.customer-badge {
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #000;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.comments-section {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 15px;
+    padding: 30px;
+    margin: 40px 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.comments-section h3 {
+    color: #00d4ff;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+}
+
+.comment-form {
+    margin-bottom: 25px;
+}
+
+.comment-form textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e0e0e0;
+    font-size: 1rem;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.comment-form textarea:focus {
+    outline: none;
+    border-color: #00d4ff;
+}
+
+.comment-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.comment-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.comment-author {
+    color: #00d4ff;
+    font-weight: bold;
+}
+
+.comment-time {
+    color: #808080;
+    font-size: 0.85rem;
+}
+
+.comment-delete {
+    background: none;
+    border: none;
+    color: #ff6b6b;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-left: auto;
+}
+
+.comment-delete:hover {
+    text-decoration: underline;
+}
+
+.comment-content {
+    color: #c0c0c0;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+.activate-section {
+    background: rgba(255, 215, 0, 0.1);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.activate-section p {
+    color: #ffd700;
+    margin-bottom: 15px;
+}
+
+.customer-content {
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.customer-content h4 {
+    color: #00d4ff;
+    margin-bottom: 15px;
+}
+
+.login-hint {
+    text-align: center;
+    padding: 30px;
+    color: #a0a0a0;
+}
+
+.login-hint a {
+    color: #00d4ff;
+    cursor: pointer;
+}
