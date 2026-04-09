@@ -1,0 +1,10 @@
+api/
+.wrangler/
+node_modules/
+*.json
+*.sql
+*.ts
+*.md
+.git/
+.gitignore
+.wranglerignore

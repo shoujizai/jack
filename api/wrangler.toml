@@ -1,10 +1,9 @@
 name = "blog-api"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
-no_bundle = false
 
-[build]
-command = ""
+[assets]
+directory = "../"
 
 [[d1_databases]]
 binding = "DB"
