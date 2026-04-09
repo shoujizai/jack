@@ -1,0 +1,6 @@
+api/node_modules/
+api/.wrangler/
+.wrangler/
+node_modules/
+*.log
+.git/
