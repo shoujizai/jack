@@ -175,6 +175,7 @@ export default {
                     nickname: user.nickname,
                     is_customer: user.is_customer === 1,
                     order_id: user.order_id,
+                    serial_numbers: user.serial_numbers,
                 });
             }
 
@@ -196,13 +197,32 @@ export default {
                 if (orderValue === undefined) {
                     return errorResponse('订单号不存在');
                 }
+                const existingUser = await env.DB.prepare(
+                    'SELECT id FROM users WHERE order_id = ? AND id != ?'
+                ).bind(body.order_id, user.id).first();
+                if (existingUser) {
+                    return errorResponse('该订单号已被其他用户激活');
+                }
+                if (user.is_customer === 1 && user.order_id && user.order_id !== body.order_id) {
+                    return errorResponse('您已激活过其他订单，无法更换');
+                }
+                // 合并现有序列号和新序列号
+                let finalSerialList = serialList;
+                if (user.serial_numbers) {
+                    const existingSerials = user.serial_numbers.split(',');
+                    const mergedSerials = [...new Set([...existingSerials, ...serialList])];
+                    if (mergedSerials.length > 3) {
+                        return errorResponse('序列号总数不能超过3个');
+                    }
+                    finalSerialList = mergedSerials;
+                }
                 await env.DB.prepare(
                     'UPDATE users SET is_customer = 1, order_id = ?, serial_numbers = ? WHERE id = ?'
-                ).bind(body.order_id, serialList.join(','), user.id).run();
+                ).bind(body.order_id, finalSerialList.join(','), user.id).run();
                 return jsonResponse({
                     success: true,
                     message: '激活成功',
-                    serial_numbers: serialList,
+                    serial_numbers: finalSerialList,
                 });
             }
 

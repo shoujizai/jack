@@ -60,6 +60,9 @@ function updateAuthUI() {
     const userMenu = document.getElementById('authUserMenu');
     const userNickname = document.getElementById('authUserNickname');
     const customerBadge = document.getElementById('authCustomerBadge');
+    const userKeys = document.getElementById('authUserKeys');
+    const activateBtn = document.getElementById('authActivateBtn');
+    const dropdown = document.getElementById('userDropdown');
     const commentForm = document.getElementById('commentForm');
     const activateSection = document.getElementById('activateSection');
     const loginHint = document.getElementById('loginHint');
@@ -73,11 +76,27 @@ function updateAuthUI() {
             if (customerBadge) {
                 customerBadge.style.display = currentUser.is_customer ? 'inline' : 'none';
             }
+            if (userKeys) {
+                if (currentUser.is_customer && currentUser.serial_numbers) {
+                    userKeys.style.display = 'block';
+                    userKeys.innerHTML = `<span class="key-label">密钥:</span> <span class="key-value">${currentUser.serial_numbers}</span>`;
+                } else {
+                    userKeys.style.display = 'none';
+                }
+            }
+            if (activateBtn) {
+                const serialCount = currentUser.serial_numbers ? currentUser.serial_numbers.split(',').length : 0;
+                activateBtn.style.display = serialCount >= 3 ? 'none' : 'block';
+                activateBtn.textContent = currentUser.is_customer ? '添加密钥' : '激活订单';
+            }
+            if (dropdown) {
+                dropdown.style.display = 'none';
+            }
         }
         if (commentForm) commentForm.style.display = 'block';
         if (loginHint) loginHint.style.display = 'none';
         if (activateSection) {
-            activateSection.style.display = currentUser.is_customer ? 'none' : 'block';
+            activateSection.style.display = 'none';
         }
         hiddenContent.forEach(el => {
             el.style.display = currentUser.is_customer ? 'block' : 'none';
@@ -185,27 +204,33 @@ function showActivateModal() {
     let modal = document.getElementById('activateModal');
     if (modal) modal.remove();
 
+    const isCustomer = currentUser && currentUser.is_customer;
+    const serialCount = currentUser?.serial_numbers ? currentUser.serial_numbers.split(',').length : 0;
+    const title = isCustomer ? '添加密钥' : '订单激活';
+    const currentOrderId = currentUser?.order_id || '';
+    const currentSerial = currentUser?.serial_numbers || '';
+
     modal = document.createElement('div');
     modal.id = 'activateModal';
     modal.className = 'auth-modal';
     modal.innerHTML = `
         <div class="auth-modal-content">
             <button class="auth-close" onclick="closeActivateModal()">&times;</button>
-            <h2>订单激活</h2>
+            <h2>${title}</h2>
             <p style="color: #a0a0a0; margin-bottom: 20px; font-size: 0.9rem;">
                 输入您的订单号和Switch序列号后4位，激活后可查看专属内容。<br>
-                一个订单最多绑定3个序列号。
+                一个订单最多绑定3个序列号。${isCustomer ? `<br>当前已有 ${serialCount} 个密钥。` : ''}
             </p>
             <form id="activateForm" onsubmit="handleActivateSubmit(event)">
                 <div class="auth-field">
                     <label>订单号</label>
-                    <input type="text" id="activateOrderId" placeholder="请输入订单号" required>
+                    <input type="text" id="activateOrderId" placeholder="请输入订单号" value="${currentOrderId}" required>
                 </div>
                 <div class="auth-field">
                     <label>序列号后4位（多个用逗号分隔，最多3个）</label>
-                    <input type="text" id="activateSerial" placeholder="如：XKJ7 或 XKJ7,AB12,3F09" required>
+                    <input type="text" id="activateSerial" placeholder="如：XKJ7 或 XKJ7,AB12,3F09" value="${currentSerial}" required>
                 </div>
-                <button type="submit" class="btn btn-primary auth-submit">激活</button>
+                <button type="submit" class="btn btn-primary auth-submit">${isCustomer ? '保存' : '激活'}</button>
             </form>
         </div>
     `;
@@ -231,9 +256,10 @@ async function handleActivateSubmit(event) {
             method: 'POST',
             body: JSON.stringify({ order_id: orderId, serial_numbers: serialNumbers }),
         });
-        alert('激活成功！');
+        alert(currentUser.is_customer ? '密钥更新成功！' : '激活成功！');
         currentUser.is_customer = true;
         currentUser.order_id = orderId;
+        currentUser.serial_numbers = data.serial_numbers || serialNumbers;
         closeActivateModal();
         updateAuthUI();
     } catch (e) {
@@ -316,6 +342,30 @@ async function deleteComment(commentId) {
         alert(e.message);
     }
 }
+
+function toggleUserDropdown() {
+    const dropdown = document.getElementById('userDropdown');
+    const arrow = document.querySelector('.dropdown-arrow');
+    if (dropdown) {
+        if (dropdown.style.display === 'none') {
+            dropdown.style.display = 'flex';
+            if (arrow) arrow.style.transform = 'rotate(180deg)';
+        } else {
+            dropdown.style.display = 'none';
+            if (arrow) arrow.style.transform = 'rotate(0deg)';
+        }
+    }
+}
+
+document.addEventListener('click', function(e) {
+    const userMenu = document.getElementById('authUserMenu');
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown && userMenu && !userMenu.contains(e.target)) {
+        dropdown.style.display = 'none';
+        const arrow = document.querySelector('.dropdown-arrow');
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+    }
+});
 
 function initAuth() {
     checkAuth();

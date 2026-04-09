@@ -867,9 +867,45 @@ footer a:hover {
 }
 
 .user-menu {
+    position: relative;
     display: flex;
     align-items: center;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.user-info:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-arrow {
+    color: #a0a0a0;
+    font-size: 0.7rem;
+    transition: transform 0.3s ease;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: rgba(20, 20, 30, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
     gap: 10px;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .user-nickname {
@@ -884,6 +920,31 @@ footer a:hover {
     border-radius: 10px;
     font-size: 0.75rem;
     font-weight: bold;
+}
+
+.user-keys {
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+}
+
+.user-keys .key-label {
+    color: #a0a0a0;
+    margin-right: 5px;
+}
+
+.user-keys .key-value {
+    color: #00d4ff;
+    font-family: monospace;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8rem;
 }
 
 .comments-section {

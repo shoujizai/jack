@@ -31,10 +31,16 @@
             <div class="nav-auth">
                 <button id="authLoginBtn" class="btn btn-secondary" onclick="showAuthModal('login')">登录</button>
                 <div id="authUserMenu" class="user-menu" style="display: none;">
-                    <span id="authUserNickname" class="user-nickname"></span>
-                    <span id="authCustomerBadge" class="customer-badge" style="display: none;">客户</span>
-                    <button class="btn btn-secondary" onclick="showActivateModal()">激活订单</button>
-                    <button class="btn btn-secondary" onclick="logout()">退出</button>
+                    <div class="user-info" onclick="toggleUserDropdown()">
+                        <span id="authUserNickname" class="user-nickname"></span>
+                        <span id="authCustomerBadge" class="customer-badge" style="display: none;">客户</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div id="userDropdown" class="user-dropdown" style="display: none;">
+                        <div id="authUserKeys" class="user-keys" style="display: none;"></div>
+                        <button id="authActivateBtn" class="btn btn-secondary btn-sm" onclick="showActivateModal()">激活订单</button>
+                        <button class="btn btn-secondary btn-sm" onclick="logout()">退出</button>
+                    </div>
                 </div>
             </div>
         </div>
