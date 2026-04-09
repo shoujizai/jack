@@ -1,4 +1,4 @@
-const API_BASE = 'https://blog-api.318886406.workers.dev';
+const API_BASE = 'https://api.wxsjz.qzz.io';
 
 let currentUser = null;
 
