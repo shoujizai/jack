@@ -259,6 +259,7 @@ var games = [
     { id: "261", name: "杀戮尖塔", size: 0.58 },
     { id: "262", name: "土豆兄弟", size: 0.39 },
     { id: "263", name: "勇者斗恶龙7：重制版", size: 0.54 },
+    { id: "264", name: "朋友收集：梦想生活", size: 6.21 },
     { id: "300", name: "我的秘密", size: 0.28 },
     { id: "301", name: "My Memory of US", size: 2.50 },
     { id: "302", name: "战国LJ", size: 7.44 },
