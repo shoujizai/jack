@@ -1,12 +1,5 @@
 name = "jack"
 compatibility_date = "2024-01-01"
-pages_build_output_dir = "."
 
-[[d1_databases]]
-binding = "DB"
-database_name = "blog-db"
-database_id = "f6b0dbbb-bb17-41e4-926e-6a0c70e800b2"
-
-[vars]
-JWT_SECRET = "sjz-blog-2024-secret-key-x9k2m7p4q1"
-ORDER_JSON_URL = "https://raw.gitcode.com/jack-sjz/sjz-aio/raw/main/resources/list.json"
+[assets]
+directory = "."
