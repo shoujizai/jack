@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安装游戏 - 微修的Blog</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="starfield" id="starfield"></div>
+
+    <nav>
+        <div class="nav-container">
+            <div class="logo">微修的Blog</div>      
+            <div class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">首页</a>
+                <a href="getting-started.html">入坑指南</a>
+                <a href="tutorial.html">入门教程</a>
+                <a href="download.html">资源下载</a>
+                <a href="install.html" class="active">安装游戏</a>
+                <a href="plugins.html">插件指南</a>
+                <a href="update.html">系统更新</a>
+                <a href="games.html">游戏预选</a>
+                <a href="faq.html">常见问题</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-header">
+            <h1>🎮 安装游戏</h1>
+            <p>了解各种游戏格式，掌握多种安装方法，轻松管理你的游戏库</p>
+        </div>
+
+        <div class="content-section">
+            <h2>游戏下载分类介绍</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>分类名称</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong style="color: #00d4ff;">本体</strong></td>
+                        <td>游戏主体文件，包含游戏的基础内容，是运行游戏的必需文件</td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: #00d4ff;">Update 升级包</strong></td>
+                        <td>游戏更新补丁，修复bug、优化性能、添加新功能，建议安装最新版本</td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: #00d4ff;">DLC</strong></td>
+                        <td>下载内容扩展包，包含额外剧情、角色、道具、关卡等付费内容</td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color: #00d4ff;">整合</strong></td>
+                        <td>包含本体+升级包+DLC的完整版本，不需要和分体下载重复，通常为XCI整合，签名稳定性不如分体下载。</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box">
+                <h4>💡 下载格式选择建议</h4>
+                <p>推荐使用 <strong>NSP</strong> 原版格式，兼容性最好，安装最方便。<strong>XCI</strong> 整合格式有一些升级后会失效。</p>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>安装方法</h2>
+
+            <div class="step-box">
+                <h4>方法一：SJZ更新(桌面打开)（炫酷，方便）</h4>
+                <p>SJZ更新是手机仔制做的一个在switch上一站式APP</p>
+                <ol>
+                    <li>选择MTP工具——点击mtp启动—用数据线连接电脑(按y键可以打开控制台)</li>
+                    <li>打开我的电脑,选择nintendo switch盘，打开5号盘(5.install SDcard)</li>
+                    <li>按提示把游戏文件或者文件夹拉到文件夹(游戏格式要正确,不可以使用zip,rar其他格式的压缩包)</li>
+                    <li>查看进度条，显示安装成功即可，无需其他操作。桌面便可生成游戏</li>
+                </ol>
+                <div style="margin-top: 20px;">
+                    <p><strong>📺 视频教程：</strong></p>
+                    <iframe 
+                        src="//player.bilibili.com/player.html?bvid=BV11waPzJE5A&page=1&high_quality=1&danmaku=0&autoplay=0" 
+                        scrolling="no" 
+                        border="0" 
+                        frameborder="no" 
+                        framespacing="0" 
+                        allowfullscreen="true"
+                        width="100%"
+                        height="500px"
+                        sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts">
+                    </iframe>
+                </div>
+            </div>
+
+            <div class="step-box">
+                <h4>方法二：DBI（权限模式）</h4>
+                <p>switch小程序中的神</p>
+                <ol>
+                    <li>按住R键不要放，直到用a键打开一个游戏进入小程序界面再松开R键</li>
+                    <li>选择打开DBI（此时DPI的背景为黑色，不用管弹出的提示）</li>
+                    <li>选择运行MTP程序或者按X键，会提示你用数据线连接电脑</li>
+                    <li>打开我的电脑,选择switch盘，打开5号盘(5.SD card install)</li>
+                    <li>按提示把游戏文件或者文件夹拉到文件夹(游戏格式要正确,不可以使用zip,rar其他格式的压缩包)</li>
+                    <li>查看进度条，显示安装成功即可，无需其他操作。桌面便可生成游戏</li>
+                </ol>
+            </div>
+
+            <div class="step-box">
+                <h4>方法三：U盘安装</h4>
+                <p>将游戏文件拖拽到U盘上，插入Switch，用DBI安装。</p>
+                <ol>
+                    <li>按住R键不要放，直到用a键打开一个游戏进入小程序界面再松开R键</li>
+                    <li>选择打开DBI（此时DPI的背景为黑色，不用管弹出的提示）</li>
+                    <li>插上U盘稍等会弹出浏览USB驱动器，选择打开</li>
+                    <li>找到你的游戏文件并安装，选择安装位置sd,进行安装(只能安装文件，不可以选择文件夹)</li>
+                    <li>查看进度条，显示安装成功即可，无需其他操作。桌面便可生成游戏</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>DLC和更新包安装</h2>
+            
+            <div class="info-box">
+                <h4>💡 DLC和更新包方法</h4>
+                <p>和装游戏一样，格式一定要正确</p>
+            </div>
+
+            <div class="warning-box">
+                <h4>⚠️ 注意事项</h4>
+                <ul>
+                    <li>DLC和更新包的版本需要与游戏版本匹配</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>游戏管理技巧</h2>
+            <ul>
+                <li><strong>存档备份</strong> - 使用存档管理器定期备份重要存档</li>
+                <li><strong>空间规划</strong> - 建议预留20GB空闲空间</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2024 微修通讯的Blog | taobao店：微修通讯 | 站长：sjz</p>
+        <p style="margin-top: 10px; font-size: 0.9rem;">本站仅供学习交流，请支持正版游戏</p>
+    </footer>
+
+    <button class="back-to-top" id="backToTop">↑</button>
+
+    <script>
+        var starfield = document.getElementById('starfield');
+        
+        var constellation = document.createElement('div');
+        constellation.className = 'constellation';
+        
+        var constellationStars = [
+            { x: 20, y: 30 },
+            { x: 50, y: 25 },
+            { x: 80, y: 35 },
+            { x: 110, y: 50 },
+            { x: 140, y: 70 },
+            { x: 160, y: 100 },
+            { x: 130, y: 130 }
+        ];
+        
+        for (var c = 0; c < constellationStars.length; c++) {
+            var cStar = document.createElement('div');
+            cStar.className = 'constellation-star';
+            cStar.style.left = constellationStars[c].x + 'px';
+            cStar.style.top = constellationStars[c].y + 'px';
+            cStar.style.width = '4px';
+            cStar.style.height = '4px';
+            cStar.style.animationDelay = (c * 0.5) + 's';
+            constellation.appendChild(cStar);
+        }
+        
+        var constellationLines = [
+            { x1: 20, y1: 30, x2: 50, y2: 25 },
+            { x1: 50, y1: 25, x2: 80, y2: 35 },
+            { x1: 80, y1: 35, x2: 110, y2: 50 },
+            { x1: 110, y1: 50, x2: 140, y2: 70 },
+            { x1: 140, y1: 70, x2: 160, y2: 100 },
+            { x1: 160, y1: 100, x2: 130, y2: 130 },
+            { x1: 130, y1: 130, x2: 110, y2: 50 }
+        ];
+        
+        for (var l = 0; l < constellationLines.length; l++) {
+            var line = document.createElement('div');
+            line.className = 'constellation-line';
+            var dx = constellationLines[l].x2 - constellationLines[l].x1;
+            var dy = constellationLines[l].y2 - constellationLines[l].y1;
+            var length = Math.sqrt(dx * dx + dy * dy);
+            var angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            line.style.left = constellationLines[l].x1 + 'px';
+            line.style.top = constellationLines[l].y1 + 'px';
+            line.style.width = length + 'px';
+            line.style.transform = 'rotate(' + angle + 'deg)';
+            constellation.appendChild(line);
+        }
+        
+        starfield.appendChild(constellation);
+        
+        var nebula = document.createElement('div');
+        nebula.className = 'nebula';
+        
+        var nebulaGlows = [
+            { x: 30, y: 30, size: 180, color: 'rgba(75, 0, 130, 0.3)' },
+            { x: 50, y: 60, size: 150, color: 'rgba(138, 43, 226, 0.25)' },
+            { x: 70, y: 40, size: 160, color: 'rgba(147, 112, 219, 0.2)' }
+        ];
+        
+        for (var g = 0; g < nebulaGlows.length; g++) {
+            var glow = document.createElement('div');
+            glow.className = 'nebula-glow';
+            glow.style.left = nebulaGlows[g].x + 'px';
+            glow.style.top = nebulaGlows[g].y + 'px';
+            glow.style.width = nebulaGlows[g].size + 'px';
+            glow.style.height = nebulaGlows[g].size + 'px';
+            glow.style.background = 'radial-gradient(circle, ' + nebulaGlows[g].color + ', transparent)';
+            nebula.appendChild(glow);
+        }
+        
+        var nebulaCores = [
+            { x: 80, y: 70, size: 80, color1: 'rgba(186, 85, 211, 0.6)', color2: 'rgba(75, 0, 130, 0.3)' },
+            { x: 100, y: 90, size: 60, color1: 'rgba(218, 112, 214, 0.5)', color2: 'rgba(138, 43, 226, 0.2)' },
+            { x: 120, y: 80, size: 50, color1: 'rgba(255, 182, 193, 0.4)', color2: 'rgba(186, 85, 211, 0.2)' }
+        ];
+        
+        for (var nc = 0; nc < nebulaCores.length; nc++) {
+            var core = document.createElement('div');
+            core.className = 'nebula-core';
+            core.style.left = nebulaCores[nc].x + 'px';
+            core.style.top = nebulaCores[nc].y + 'px';
+            core.style.width = nebulaCores[nc].size + 'px';
+            core.style.height = nebulaCores[nc].size + 'px';
+            core.style.background = 'radial-gradient(circle at 30% 30%, ' + nebulaCores[nc].color1 + ', ' + nebulaCores[nc].color2 + ', transparent)';
+            nebula.appendChild(core);
+        }
+        
+        var nebulaClouds = [
+            { x: 60, y: 50, size: 100, color: 'rgba(147, 112, 219, 0.4)' },
+            { x: 90, y: 80, size: 120, color: 'rgba(138, 43, 226, 0.35)' },
+            { x: 110, y: 60, size: 90, color: 'rgba(186, 85, 211, 0.4)' },
+            { x: 130, y: 100, size: 80, color: 'rgba(153, 50, 204, 0.35)' },
+            { x: 70, y: 110, size: 70, color: 'rgba(148, 0, 211, 0.3)' },
+            { x: 140, y: 70, size: 60, color: 'rgba(139, 0, 139, 0.35)' },
+            { x: 80, y: 130, size: 75, color: 'rgba(75, 0, 130, 0.3)' },
+            { x: 150, y: 90, size: 55, color: 'rgba(218, 112, 214, 0.3)' }
+        ];
+        
+        for (var n = 0; n < nebulaClouds.length; n++) {
+            var cloud = document.createElement('div');
+            cloud.className = 'nebula-cloud';
+            cloud.style.left = nebulaClouds[n].x + 'px';
+            cloud.style.top = nebulaClouds[n].y + 'px';
+            cloud.style.width = nebulaClouds[n].size + 'px';
+            cloud.style.height = nebulaClouds[n].size + 'px';
+            cloud.style.background = 'radial-gradient(ellipse at ' + (30 + Math.random() * 40) + '% ' + (30 + Math.random() * 40) + '%, ' + nebulaClouds[n].color + ', transparent)';
+            cloud.style.filter = 'blur(' + (5 + Math.random() * 10) + 'px)';
+            nebula.appendChild(cloud);
+        }
+        
+        starfield.appendChild(nebula);
+        
+        for (var i = 0; i < 150; i++) {
+            var star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = Math.random() * 3 + 1 + 'px';
+            star.style.height = star.style.width;
+            star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+            star.style.animationDelay = Math.random() * 5 + 's';
+            starfield.appendChild(star);
+        }
+
+        for (var j = 0; j < 5; j++) {
+            var shootingStar = document.createElement('div');
+            shootingStar.className = 'shooting-star';
+            shootingStar.style.left = (Math.random() * 80 + 20) + '%';
+            shootingStar.style.top = Math.random() * 40 + '%';
+            shootingStar.style.animationDelay = (j * 3 + Math.random() * 5) + 's';
+            shootingStar.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            starfield.appendChild(shootingStar);
+        }
+
+        for (var k = 0; k < 8; k++) {
+            var asteroid = document.createElement('div');
+            asteroid.className = 'asteroid';
+            asteroid.style.left = Math.random() * 100 + '%';
+            asteroid.style.top = Math.random() * 100 + '%';
+            var size = Math.random() * 8 + 3;
+            asteroid.style.width = size + 'px';
+            asteroid.style.height = size * 0.8 + 'px';
+            asteroid.style.setProperty('--float-duration', (Math.random() * 30 + 20) + 's');
+            asteroid.style.setProperty('--drift-x', (Math.random() * 200 - 100) + 'px');
+            asteroid.style.setProperty('--drift-y', (Math.random() * 200 - 100) + 'px');
+            asteroid.style.animationDelay = Math.random() * 10 + 's';
+            starfield.appendChild(asteroid);
+        }
+
+        var menuToggle = document.getElementById('menuToggle');
+        var navLinks = document.getElementById('navLinks');
+        menuToggle.onclick = function() {
+            navLinks.classList.toggle('active');
+        };
+
+        var backToTop = document.getElementById('backToTop');
+        window.onscroll = function() {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        };
+        backToTop.onclick = function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+    </script>
+</body>
+</html>

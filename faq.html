@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>常见问题 - 微修的Blog</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="starfield" id="starfield"></div>
+
+    <nav>
+        <div class="nav-container">
+            <div class="logo">微修的Blog</div>
+            <div class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">首页</a>
+                <a href="getting-started.html">入坑指南</a>
+                <a href="tutorial.html">入门教程</a>
+                <a href="download.html">资源下载</a>
+                <a href="install.html">安装游戏</a>
+                <a href="plugins.html">插件指南</a>
+                <a href="update.html">系统更新</a>
+                <a href="games.html">游戏预选</a>
+                <a href="faq.html" class="active">常见问题</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-header">
+            <h1>❓ 常见问题</h1>
+            <p>遇到问题？先看看FAQ，可能已经有你需要的答案</p>
+        </div>
+
+        <div class="content-section">
+            <h2>基础问题</h2>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h4>我的Switch可以破解吗？</h4>
+                    <span>+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>只要是Switch一代，都可以破解。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h4>破解后会被ban吗？</h4>
+                    <span>+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>不会，已经屏蔽了，除非你用了别人的资料，或者米格烧录卡，或者使用黑号。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h4>破解后还能玩正版游戏吗？</h4>
+                    <span>+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>可以。大气层支持双系统，你可以在原机系统(OFW)上玩正版游戏联机，在虚拟系统(EMUMMC)上玩破解游戏。。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>游戏问题</h2>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h4>游戏安装后无法启动？</h4>
+                    <span>+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>可能是游戏文件损坏，尝试重新下载游戏文件。查看控制台日志，确认是否有错误信息。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h4>如何安装中文游戏？</h4>
+                    <span>+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>大多数游戏自带中文，安装后在游戏内或系统设置中切换语言即可。部分游戏需要下载额外的中文语言包。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h4>DLC和更新包如何安装？</h4>
+                    <span>+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>与游戏安装方法相同。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>系统问题</h2>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h4>如何更新大气层版本？</h4>
+                    <span>+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>使用SJZ更新，在线推送最新版本，或者也可以用电脑更新。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h4>支持多大的TF卡？</h4>
+                    <span>+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>理论上支持最大2TB的TF卡，推荐使用128GB-512GB的高速A2卡。注意TF卡需要格式化为FAT32格式。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>其他问题</h2>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h4>可以联网玩游戏吗？</h4>
+                    <span>+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>正版还是可以支持官方联机，但是破解游戏联不了官方。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h4>游戏存档在哪里？</h4>
+                    <span>+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>存档存在用户下，删除游戏重新安装不影响存档，可用SJZ更新小程序进行备份以恢复。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h4>遇到其他问题怎么办？</h4>
+                    <span>+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>可以联系「微修通讯」群组中寻求帮助。</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2024 微修通讯的Blog | taobao店：微修通讯 | 站长：sjz</p>
+        <p style="margin-top: 10px; font-size: 0.9rem;">本站仅供学习交流，请支持正版游戏</p>
+    </footer>
+
+    <button class="back-to-top" id="backToTop">↑</button>
+
+    <script>
+        var starfield = document.getElementById('starfield');
+        
+        var constellation = document.createElement('div');
+        constellation.className = 'constellation';
+        
+        var constellationStars = [
+            { x: 20, y: 30 },
+            { x: 50, y: 25 },
+            { x: 80, y: 35 },
+            { x: 110, y: 50 },
+            { x: 140, y: 70 },
+            { x: 160, y: 100 },
+            { x: 130, y: 130 }
+        ];
+        
+        for (var c = 0; c < constellationStars.length; c++) {
+            var cStar = document.createElement('div');
+            cStar.className = 'constellation-star';
+            cStar.style.left = constellationStars[c].x + 'px';
+            cStar.style.top = constellationStars[c].y + 'px';
+            cStar.style.width = '4px';
+            cStar.style.height = '4px';
+            cStar.style.animationDelay = (c * 0.5) + 's';
+            constellation.appendChild(cStar);
+        }
+        
+        var constellationLines = [
+            { x1: 20, y1: 30, x2: 50, y2: 25 },
+            { x1: 50, y1: 25, x2: 80, y2: 35 },
+            { x1: 80, y1: 35, x2: 110, y2: 50 },
+            { x1: 110, y1: 50, x2: 140, y2: 70 },
+            { x1: 140, y1: 70, x2: 160, y2: 100 },
+            { x1: 160, y1: 100, x2: 130, y2: 130 },
+            { x1: 130, y1: 130, x2: 110, y2: 50 }
+        ];
+        
+        for (var l = 0; l < constellationLines.length; l++) {
+            var line = document.createElement('div');
+            line.className = 'constellation-line';
+            var dx = constellationLines[l].x2 - constellationLines[l].x1;
+            var dy = constellationLines[l].y2 - constellationLines[l].y1;
+            var length = Math.sqrt(dx * dx + dy * dy);
+            var angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            line.style.left = constellationLines[l].x1 + 'px';
+            line.style.top = constellationLines[l].y1 + 'px';
+            line.style.width = length + 'px';
+            line.style.transform = 'rotate(' + angle + 'deg)';
+            constellation.appendChild(line);
+        }
+        
+        starfield.appendChild(constellation);
+        
+        var nebula = document.createElement('div');
+        nebula.className = 'nebula';
+        
+        var nebulaGlows = [
+            { x: 30, y: 30, size: 180, color: 'rgba(75, 0, 130, 0.3)' },
+            { x: 50, y: 60, size: 150, color: 'rgba(138, 43, 226, 0.25)' },
+            { x: 70, y: 40, size: 160, color: 'rgba(147, 112, 219, 0.2)' }
+        ];
+        
+        for (var g = 0; g < nebulaGlows.length; g++) {
+            var glow = document.createElement('div');
+            glow.className = 'nebula-glow';
+            glow.style.left = nebulaGlows[g].x + 'px';
+            glow.style.top = nebulaGlows[g].y + 'px';
+            glow.style.width = nebulaGlows[g].size + 'px';
+            glow.style.height = nebulaGlows[g].size + 'px';
+            glow.style.background = 'radial-gradient(circle, ' + nebulaGlows[g].color + ', transparent)';
+            nebula.appendChild(glow);
+        }
+        
+        var nebulaCores = [
+            { x: 80, y: 70, size: 80, color1: 'rgba(186, 85, 211, 0.6)', color2: 'rgba(75, 0, 130, 0.3)' },
+            { x: 100, y: 90, size: 60, color1: 'rgba(218, 112, 214, 0.5)', color2: 'rgba(138, 43, 226, 0.2)' },
+            { x: 120, y: 80, size: 50, color1: 'rgba(255, 182, 193, 0.4)', color2: 'rgba(186, 85, 211, 0.2)' }
+        ];
+        
+        for (var nc = 0; nc < nebulaCores.length; nc++) {
+            var core = document.createElement('div');
+            core.className = 'nebula-core';
+            core.style.left = nebulaCores[nc].x + 'px';
+            core.style.top = nebulaCores[nc].y + 'px';
+            core.style.width = nebulaCores[nc].size + 'px';
+            core.style.height = nebulaCores[nc].size + 'px';
+            core.style.background = 'radial-gradient(circle at 30% 30%, ' + nebulaCores[nc].color1 + ', ' + nebulaCores[nc].color2 + ', transparent)';
+            nebula.appendChild(core);
+        }
+        
+        var nebulaClouds = [
+            { x: 60, y: 50, size: 100, color: 'rgba(147, 112, 219, 0.4)' },
+            { x: 90, y: 80, size: 120, color: 'rgba(138, 43, 226, 0.35)' },
+            { x: 110, y: 60, size: 90, color: 'rgba(186, 85, 211, 0.4)' },
+            { x: 130, y: 100, size: 80, color: 'rgba(153, 50, 204, 0.35)' },
+            { x: 70, y: 110, size: 70, color: 'rgba(148, 0, 211, 0.3)' },
+            { x: 140, y: 70, size: 60, color: 'rgba(139, 0, 139, 0.35)' },
+            { x: 80, y: 130, size: 75, color: 'rgba(75, 0, 130, 0.3)' },
+            { x: 150, y: 90, size: 55, color: 'rgba(218, 112, 214, 0.3)' }
+        ];
+        
+        for (var n = 0; n < nebulaClouds.length; n++) {
+            var cloud = document.createElement('div');
+            cloud.className = 'nebula-cloud';
+            cloud.style.left = nebulaClouds[n].x + 'px';
+            cloud.style.top = nebulaClouds[n].y + 'px';
+            cloud.style.width = nebulaClouds[n].size + 'px';
+            cloud.style.height = nebulaClouds[n].size + 'px';
+            cloud.style.background = 'radial-gradient(ellipse at ' + (30 + Math.random() * 40) + '% ' + (30 + Math.random() * 40) + '%, ' + nebulaClouds[n].color + ', transparent)';
+            cloud.style.filter = 'blur(' + (5 + Math.random() * 10) + 'px)';
+            nebula.appendChild(cloud);
+        }
+        
+        starfield.appendChild(nebula);
+        
+        for (var i = 0; i < 150; i++) {
+            var star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = Math.random() * 3 + 1 + 'px';
+            star.style.height = star.style.width;
+            star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+            star.style.animationDelay = Math.random() * 5 + 's';
+            starfield.appendChild(star);
+        }
+
+        for (var j = 0; j < 5; j++) {
+            var shootingStar = document.createElement('div');
+            shootingStar.className = 'shooting-star';
+            shootingStar.style.left = (Math.random() * 80 + 20) + '%';
+            shootingStar.style.top = Math.random() * 40 + '%';
+            shootingStar.style.animationDelay = (j * 3 + Math.random() * 5) + 's';
+            shootingStar.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            starfield.appendChild(shootingStar);
+        }
+
+        for (var k = 0; k < 8; k++) {
+            var asteroid = document.createElement('div');
+            asteroid.className = 'asteroid';
+            asteroid.style.left = Math.random() * 100 + '%';
+            asteroid.style.top = Math.random() * 100 + '%';
+            var size = Math.random() * 8 + 3;
+            asteroid.style.width = size + 'px';
+            asteroid.style.height = size * 0.8 + 'px';
+            asteroid.style.setProperty('--float-duration', (Math.random() * 30 + 20) + 's');
+            asteroid.style.setProperty('--drift-x', (Math.random() * 200 - 100) + 'px');
+            asteroid.style.setProperty('--drift-y', (Math.random() * 200 - 100) + 'px');
+            asteroid.style.animationDelay = Math.random() * 10 + 's';
+            starfield.appendChild(asteroid);
+        }
+
+        var menuToggle = document.getElementById('menuToggle');
+        var navLinks = document.getElementById('navLinks');
+        menuToggle.onclick = function() {
+            navLinks.classList.toggle('active');
+        };
+
+        var backToTop = document.getElementById('backToTop');
+        window.onscroll = function() {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        };
+        backToTop.onclick = function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        function toggleFaq(element) {
+            var answer = element.nextElementSibling;
+            var icon = element.querySelector('span');
+            answer.classList.toggle('active');
+            icon.textContent = answer.classList.contains('active') ? '−' : '+';
+        }
+    </script>
+</body>
+</html>
