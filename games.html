@@ -352,7 +352,9 @@
             <div class="left-panel">
                 <div class="selected-games">
                     <div class="selected-header">
-                        <h2>已选择的游戏</h2>
+                        <div class="selected-ids-text" id="selectedIdsText" style="background: rgba(255, 255, 255, 0.95); color: #7b2cbf; padding: 8px 20px; border-radius: 20px; font-size: 1rem; margin: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-weight: 600; cursor: text; user-select: all; max-width: 300px; word-wrap: break-word; line-height: 1.5;">
+                            暂未选择游戏
+                        </div>
                         <button class="copy-btn" id="copyBtn">复制序号</button>
                     </div>
                     <div class="selected-ids-container">
@@ -681,6 +683,13 @@
             countDisplay.textContent = selectedCount;
             sizeDisplay.textContent = selectedSize.toFixed(2) + ' GB';
             
+            var selectedIdsTextElement = document.getElementById('selectedIdsText');
+            if (selectedGameIds.length === 0) {
+                selectedIdsTextElement.textContent = '暂未选择游戏';
+            } else {
+                selectedIdsTextElement.textContent = getSelectedIdsText();
+            }
+            
             updateSelectedIds();
         }
 
@@ -755,22 +764,44 @@
 
         function updateSelectedGameIds() {
             var checkboxes = document.querySelectorAll('.game-checkbox');
-            var newSelectedIds = [];
+            var displayedGameIds = [];
+            var checkedGameIds = [];
             
             for (var i = 0; i < checkboxes.length; i++) {
                 var checkbox = checkboxes[i];
+                var id = checkbox.getAttribute('data-id');
+                displayedGameIds.push(id);
                 if (checkbox.checked) {
-                    var id = checkbox.getAttribute('data-id');
-                    var found = false;
-                    for (var j = 0; j < newSelectedIds.length; j++) {
-                        if (newSelectedIds[j] == id) {
-                            found = true;
-                            break;
-                        }
+                    checkedGameIds.push(id);
+                }
+            }
+            
+            var newSelectedIds = [];
+            for (var i = 0; i < selectedGameIds.length; i++) {
+                var id = selectedGameIds[i];
+                var isDisplayed = false;
+                for (var j = 0; j < displayedGameIds.length; j++) {
+                    if (displayedGameIds[j] == id) {
+                        isDisplayed = true;
+                        break;
                     }
-                    if (!found) {
-                        newSelectedIds.push(id);
+                }
+                if (!isDisplayed) {
+                    newSelectedIds.push(id);
+                }
+            }
+            
+            for (var i = 0; i < checkedGameIds.length; i++) {
+                var id = checkedGameIds[i];
+                var found = false;
+                for (var j = 0; j < newSelectedIds.length; j++) {
+                    if (newSelectedIds[j] == id) {
+                        found = true;
+                        break;
                     }
+                }
+                if (!found) {
+                    newSelectedIds.push(id);
                 }
             }
             
@@ -786,11 +817,32 @@
         }
 
         function copyToClipboard(text, onSuccess, onError) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() {
+                    if (onSuccess) onSuccess();
+                }).catch(function(err) {
+                    fallbackCopy(text, onSuccess, onError);
+                });
+            } else {
+                fallbackCopy(text, onSuccess, onError);
+            }
+        }
+
+        function fallbackCopy(text, onSuccess, onError) {
             var textArea = document.createElement('textarea');
             textArea.value = text;
             textArea.style.position = 'fixed';
-            textArea.style.left = '-9999px';
-            textArea.style.top = '0';
+            textArea.style.left = '50%';
+            textArea.style.top = '50%';
+            textArea.style.transform = 'translate(-50%, -50%)';
+            textArea.style.opacity = '0';
+            textArea.style.width = '2em';
+            textArea.style.height = '2em';
+            textArea.style.padding = '0';
+            textArea.style.border = 'none';
+            textArea.style.outline = 'none';
+            textArea.style.boxShadow = 'none';
+            textArea.style.background = 'transparent';
             textArea.setAttribute('readonly', '');
             document.body.appendChild(textArea);
             
@@ -804,6 +856,7 @@
                     selection.addRange(range);
                     textArea.setSelectionRange(0, 999999);
                 } else {
+                    textArea.focus();
                     textArea.select();
                 }
                 
