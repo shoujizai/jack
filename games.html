@@ -8,21 +8,11 @@
     <style>
         .games-container {
             display: flex;
+            flex-direction: column;
             gap: 20px;
             padding: 20px;
-            flex-wrap: nowrap;
             position: relative;
             z-index: 10;
-        }
-
-        .left-panel {
-            flex: 0 0 320px;
-            min-width: 280px;
-        }
-
-        .right-panel {
-            flex: 1;
-            min-width: 0;
         }
 
         .search-box {
@@ -160,11 +150,6 @@
 
         .selected-games {
             background: transparent;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            position: sticky;
-            top: 100px;
         }
 
         .selected-header {
@@ -174,34 +159,6 @@
             margin-bottom: 15px;
             flex-wrap: wrap;
             gap: 10px;
-        }
-
-        .selected-header h2 {
-            background: rgba(255, 255, 255, 0.9);
-            color: #7b2cbf;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 1.2rem;
-            margin: 0;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            font-weight: 600;
-        }
-
-        .copy-btn {
-            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-
-        .copy-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
         }
 
         .selected-ids-container {
@@ -245,11 +202,6 @@
             font-weight: 500;
         }
 
-        #selectedIds li .game-id {
-            color: #7b2cbf;
-            margin-right: 8px;
-        }
-
         #selectedIds li .cancel-btn {
             color: #ff6b6b;
             cursor: pointer;
@@ -277,27 +229,21 @@
             font-weight: 500;
         }
 
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 13px;
-        }
-
-        .stats div {
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            padding: 6px 14px;
+        .copy-btn {
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            color: white;
+            border: none;
+            padding: 10px 20px;
             border-radius: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-weight: 600;
         }
 
-        .stats span {
-            color: #7b2cbf;
-            font-weight: bold;
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
         }
 
         @media (max-width: 768px) {
@@ -349,46 +295,43 @@
         </div>
 
         <div class="games-container">
-            <div class="left-panel">
-                <div class="selected-games">
-                    <div class="selected-header">
-                        <div class="selected-ids-text" id="selectedIdsText" style="background: rgba(255, 255, 255, 0.95); color: #7b2cbf; padding: 8px 20px; border-radius: 20px; font-size: 1rem; margin: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-weight: 600; cursor: text; user-select: all; max-width: 300px; word-wrap: break-word; line-height: 1.5;">
-                            暂未选择游戏
-                        </div>
-                        <button class="copy-btn" id="copyBtn">复制序号</button>
+            <div class="selected-games">
+                <div class="selected-ids-container">
+                    <ul id="selectedIds"></ul>
+                </div>
+                <div class="selected-header">
+                    <div class="selected-ids-summary" id="selectedIdsSummary" style="background: rgba(255, 255, 255, 0.95); color: #7b2cbf; padding: 8px 20px; border-radius: 20px; font-size: 1rem; margin: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-weight: 600; cursor: pointer; line-height: 1.5; transition: all 0.3s ease;">
+                        <span id="summaryText">暂未选择游戏</span>
+                        <span id="expandIcon" style="margin-left: 8px; font-size: 0.8rem; opacity: 0.6;">▼</span>
                     </div>
-                    <div class="selected-ids-container">
-                        <ul id="selectedIds"></ul>
-                    </div>
-                    <div class="stats">
-                        <div>已选: <span id="countDisplay">0</span> 个游戏</div>
-                        <div>总计: <span id="sizeDisplay">0.00</span> </div>
-                    </div>
+                    <button class="copy-btn" id="copyBtn">复制序号</button>
+                </div>
+                <div class="selected-ids-full" id="selectedIdsFull" style="display: none; background: rgba(255, 255, 255, 0.95); color: #7b2cbf; padding: 12px 20px; border-radius: 20px; font-size: 0.9rem; margin-top: 15px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-weight: 600; cursor: text; user-select: all; word-wrap: break-word; line-height: 1.6; max-height: 200px; overflow-y: auto;">
+                    暂未选择游戏
                 </div>
             </div>
 
-            <div class="right-panel">
-                <div class="search-box">
-                    <div class="search-input-wrapper">
-                        <input type="text" id="searchInput" placeholder="搜索游戏名称或序号...">
-                        <button class="clear-search-btn" id="clearSearchBtn">x</button>
-                    </div>
-                    <button class="search-btn" id="searchBtn">搜索</button>
+            <div class="search-box">
+                <div class="search-input-wrapper">
+                    <input type="text" id="searchInput" placeholder="搜索游戏名称或序号...">
+                    <button class="clear-search-btn" id="clearSearchBtn">x</button>
                 </div>
-                <div class="table-container">
-                    <div class="table-wrapper">
-                        <table class="games-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 50px;"><input type="checkbox" id="selectAll"></th>
-                                    <th style="width: 60px;">序号</th>
-                                    <th>游戏名称</th>
-                                    <th style="width: 80px;">大小(GB)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="gameTbody"></tbody>
-                        </table>
-                    </div>
+                <button class="search-btn" id="searchBtn">搜索</button>
+            </div>
+
+            <div class="table-container">
+                <div class="table-wrapper">
+                    <table class="games-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;"><input type="checkbox" id="selectAll"></th>
+                                <th style="width: 60px;">序号</th>
+                                <th>游戏名称</th>
+                                <th style="width: 80px;">大小(GB)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gameTbody"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -575,8 +518,6 @@
         var selectedGameIds = [];
         var gameTbody = document.getElementById('gameTbody');
         var selectedIdsElement = document.getElementById('selectedIds');
-        var countDisplay = document.getElementById('countDisplay');
-        var sizeDisplay = document.getElementById('sizeDisplay');
         var selectAllCheckbox = document.getElementById('selectAll');
         var searchInput = document.getElementById('searchInput');
         var searchBtn = document.getElementById('searchBtn');
@@ -680,14 +621,18 @@
                 }
             }
             
-            countDisplay.textContent = selectedCount;
-            sizeDisplay.textContent = selectedSize.toFixed(2) + ' GB';
+            var summaryTextElement = document.getElementById('summaryText');
+            var selectedIdsFullElement = document.getElementById('selectedIdsFull');
+            var expandIcon = document.getElementById('expandIcon');
             
-            var selectedIdsTextElement = document.getElementById('selectedIdsText');
             if (selectedGameIds.length === 0) {
-                selectedIdsTextElement.textContent = '暂未选择游戏';
+                summaryTextElement.textContent = '暂未选择游戏';
+                selectedIdsFullElement.textContent = '暂未选择游戏';
+                expandIcon.style.display = 'none';
             } else {
-                selectedIdsTextElement.textContent = getSelectedIdsText();
+                summaryTextElement.textContent = '已选 ' + selectedCount + ' 个游戏，总计 ' + selectedSize.toFixed(2) + ' GB';
+                selectedIdsFullElement.textContent = getSelectedIdsText();
+                expandIcon.style.display = 'inline';
             }
             
             updateSelectedIds();
@@ -699,7 +644,7 @@
             if (selectedGameIds.length === 0) {
                 var hint = document.createElement('li');
                 hint.className = 'empty-hint';
-                hint.textContent = '请从右侧列表勾选游戏...';
+                hint.textContent = '请从下方列表勾选游戏...';
                 selectedIdsElement.appendChild(hint);
                 return;
             }
@@ -882,6 +827,22 @@
         function init() {
             initGameTable();
             updateStats();
+            
+            var selectedIdsSummary = document.getElementById('selectedIdsSummary');
+            var selectedIdsFull = document.getElementById('selectedIdsFull');
+            var expandIcon = document.getElementById('expandIcon');
+            var isExpanded = false;
+            
+            selectedIdsSummary.onclick = function() {
+                isExpanded = !isExpanded;
+                if (isExpanded) {
+                    selectedIdsFull.style.display = 'block';
+                    expandIcon.textContent = '▲';
+                } else {
+                    selectedIdsFull.style.display = 'none';
+                    expandIcon.textContent = '▼';
+                }
+            };
             
             selectAllCheckbox.onclick = function() {
                 var checkboxes = document.querySelectorAll('.game-checkbox');
