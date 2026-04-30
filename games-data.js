@@ -260,6 +260,7 @@ var games = [
     { id: "262", name: "土豆兄弟", size: 0.39 },
     { id: "263", name: "勇者斗恶龙7：重制版", size: 0.54 },
     { id: "264", name: "朋友收集：梦想生活", size: 6.21 },
+    { id: "265", name: "钓鱼之星：世界之旅", size: 2.63 },
     { id: "300", name: "我的秘密", size: 0.28 },
     { id: "301", name: "My Memory of US", size: 2.50 },
     { id: "302", name: "战国LJ", size: 7.44 },
