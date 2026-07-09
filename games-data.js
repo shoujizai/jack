@@ -270,6 +270,7 @@ var games = [
     { id: "272", name: "节奏健身", size: 1.34 },
     { id: "273", name: "一起健身吧", size: 1.93 },
     { id: "274", name: "尊巴健身", size: 6.32 },
+    { id: "275", name: "节奏天国：奇迹之星", size: 3.55 },
     { id: "300", name: "我的秘密", size: 0.28 },
     { id: "301", name: "My Memory of US", size: 2.50 },
     { id: "302", name: "战国LJ", size: 7.44 },
