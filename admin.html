@@ -2218,15 +2218,17 @@
         }
         registerServiceWorker();
     
-        /* ===== 概览访问卡片（VISIT_CARDS_V1） ===== */
+        /* ===== 概览访问卡片（VISIT_CARDS_V2） ===== */
         (function () {
-            var orig = null;
             function decorate() {
+                var grid = $('statGrid');
+                if (!grid || grid.querySelector('[data-visit]')) return;
+                var cur = $('vOnline');
                 api('/api/admin/stats')
                     .then(function (s) {
-                        var grid = $('statGrid');
-                        if (!grid || grid.querySelector('[data-visit]')) return;
-                        grid.insertAdjacentHTML(
+                        var g = $('statGrid');
+                        if (!g || g.querySelector('[data-visit]')) return;
+                        g.insertAdjacentHTML(
                             'beforeend',
                             '<div class="stat" data-visit><b>' + (s.online_now || 0) + '</b><span>当前在线</span></div>' +
                             '<div class="stat" data-visit><b>' + (s.visitors_today || 0) + '</b><span>今日访客</span></div>' +
@@ -2237,15 +2239,8 @@
                     })
                     .catch(function () {});
             }
-            var tries = 0;
-            var timer = setInterval(function () {
-                tries++;
-                if (document.getElementById('statGrid') && document.getElementById('statGrid').childElementCount > 0) {
-                    clearInterval(timer);
-                    decorate();
-                }
-                if (tries > 40) clearInterval(timer);
-            }, 500);
+            setInterval(decorate, 3000);
+            setTimeout(decorate, 800);
         })();
 
     </script>
