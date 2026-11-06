@@ -1186,6 +1186,17 @@ export default {
                 if (admin instanceof Response)
                     return admin;
                 const u = await env.DB.prepare("SELECT COUNT(*) AS n, SUM(CASE WHEN lower(coalesce(role_override,''))='premium' OR (role_override IS NULL AND lower(email) IN ('1258528471@qq.com','123@qq.com')) THEN 1 ELSE 0 END) AS customers FROM users").first();
+                let aiToday = 0;
+                let aiMine = 0;
+                try {
+                    const dayKey = new Date().toISOString().slice(0, 10);
+                    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+                    const t1 = await env.DB.prepare('SELECT COUNT(*) AS n FROM ai_usage WHERE day = ?').bind(dayKey).first();
+                    const t2 = await env.DB.prepare('SELECT COUNT(*) AS n FROM ai_usage WHERE day = ? AND key = ?').bind(dayKey, ip).first();
+                    aiToday = t1?.n || 0;
+                    aiMine = t2?.n || 0;
+                }
+                catch (e) { }
                 const c = await env.DB.prepare('SELECT COUNT(*) AS n FROM comments').first();
                 const p = await env.DB.prepare('SELECT COUNT(*) AS n, SUM(published) AS published FROM pages').first();
                 return jsonResponse({
@@ -1194,6 +1205,9 @@ export default {
                     comments: c?.n || 0,
                     pages: p?.n || 0,
                     published_pages: p?.published || 0,
+                    ai_today: aiToday,
+                    ai_my_used: aiMine,
+                    ai_my_left: Math.max(0, 15 - aiMine),
                 });
             }
             if (path === '/api/verify-order' && request.method === 'POST') {
