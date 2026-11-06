@@ -1923,7 +1923,7 @@
                                 '</div>' +
                                 '<button class="adm-btn small" onclick="sendMsgRow(' + u.id + ', \'' + String(u.nickname || u.email).replace(/'/g, '') + '\')">发消息</button>' +
                                 '<button class="adm-btn small" onclick="toggleCustomer(' + u.id + ',' + (u.is_customer ? 0 : 1) + ')">' +
-                                (u.is_customer ? '取消客户' : '设为客户') + '</button>' +
+                                (u.is_customer ? '改回游戏玩家' : '设为资深玩家') + '</button>' +
                                 '<button class="adm-btn small" onclick="toggleBan(' + u.id + ',' + (banned ? 0 : 1) + ')">' +
                                 (banned ? '解封' : '封禁') + '</button>' +
                                 '<button class="adm-btn small danger" onclick="deleteUser(' + u.id + ')">删除</button>' +
@@ -1989,7 +1989,7 @@
         function toggleCustomer(id, value) {
             api('/api/admin/users?id=' + id, { method: 'PATCH', body: JSON.stringify({ is_customer: !!value }) })
                 .then(function () {
-                    toast(value ? '已设为客户' : '已取消客户');
+                    toast(value ? '已设为资深玩家' : '已改回游戏玩家');
                     loadUsers();
                 })
                 .catch(function (e) {
