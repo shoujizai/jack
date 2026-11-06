@@ -576,3 +576,114 @@ document.addEventListener('DOMContentLoaded', initAuth);
     else boot();
     window.refreshInboxBadge = refresh;
 })();
+
+/* ===== 前台权限拦截（GATE_VERSION 1）：普通玩家不能评论 / 下载 ===== */
+(function () {
+    function apiBase() {
+        if (window.__LOCAL_API_SAME_ORIGIN__) return location.origin;
+        return String(window.API_BASE || '').replace(/\/+$/, '');
+    }
+    function getToken() {
+        try { return localStorage.getItem('auth_token') || ''; } catch (e) { return ''; }
+    }
+    function hint(text) {
+        var d = document.createElement('div');
+        d.textContent = text;
+        d.style.cssText =
+            'position:fixed;left:50%;bottom:80px;transform:translateX(-50%);z-index:6000;' +
+            'background:rgba(0,0,0,.82);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;max-width:82vw;text-align:center;';
+        document.body.appendChild(d);
+        setTimeout(function () { d.remove(); }, 2200);
+    }
+
+    var access = null; // null=未知，true=有权限，false=普通玩家
+
+    function checkAccess() {
+        var token = getToken();
+        if (!token) { access = false; return Promise.resolve(false); }
+        return fetch(apiBase() + '/api/me', { headers: { Authorization: 'Bearer ' + token } })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (u) {
+                if (!u) { access = false; return false; }
+                access = !!(u.is_admin || u.role === 'admin' || u.role === 'premium' || u.is_customer);
+                return access;
+            })
+            .catch(function () { access = null; return null; });
+    }
+
+    /* 评论区 */
+    function lockComments() {
+        var nodes = document.querySelectorAll('textarea, input[type="text"]');
+        var done = 0;
+        for (var i = 0; i < nodes.length; i++) {
+            var n = nodes[i];
+            var sig = ((n.id || '') + ' ' + (n.className || '') + ' ' + (n.placeholder || '')).toLowerCase();
+            if (sig.indexOf('comment') === -1 && sig.indexOf('评论') === -1 && sig.indexOf('留言') === -1) continue;
+            n.setAttribute('placeholder', '激活后才能评论');
+            n.setAttribute('disabled', 'disabled');
+            n.style.opacity = '0.6';
+            n.style.cursor = 'not-allowed';
+            n.addEventListener('click', function () { hint('激活后才能评论'); });
+            done++;
+        }
+        // 评论提交按钮
+        var btns = document.querySelectorAll('button, a');
+        for (var j = 0; j < btns.length; j++) {
+            var b = btns[j];
+            var txt = (b.textContent || '').trim();
+            if (txt.indexOf('发表评论') !== -1 || txt.indexOf('发送评论') !== -1 || txt.indexOf('提交评论') !== -1) {
+                b.style.opacity = '0.55';
+                b.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    hint('激活后才能评论');
+                }, true);
+                done++;
+            }
+        }
+        return done;
+    }
+
+    /* 下载链接 */
+    var DOWNLOAD_HINTS = ['pan.', 'quark', 'lanzou', 'lanzoux', 'aliyundrive', '123pan', 'ctfile', '.zip', '.apk', '.rar', '.7z', '.exe', '.iso'];
+
+    function isDownloadLike(a) {
+        if (!a || !a.tagName) return false;
+        var href = (a.getAttribute('href') || '').toLowerCase();
+        var cls = ((a.className || '') + ' ' + (a.id || '')).toLowerCase();
+        if (a.hasAttribute('download')) return true;
+        if (cls.indexOf('download') !== -1) return true;
+        for (var i = 0; i < DOWNLOAD_HINTS.length; i++) {
+            if (href.indexOf(DOWNLOAD_HINTS[i]) !== -1) return true;
+        }
+        return false;
+    }
+
+    function lockDownloads() {
+        document.addEventListener('click', function (e) {
+            var a = e.target && e.target.closest ? e.target.closest('a,button') : null;
+            if (!a) return;
+            if (!isDownloadLike(a)) return;
+            if (access === null) return; // 未知时放行，避免误伤
+            if (access) return;
+            e.preventDefault();
+            e.stopPropagation();
+            hint(getToken() ? '激活后才能下载' : '请先登录');
+        }, true);
+    }
+
+    function boot() {
+        if (!getToken()) return;
+        checkAccess().then(function (ok) {
+            if (ok === false) {
+                lockComments();
+                // 稍后再扫一次，等评论区渲染完
+                setTimeout(lockComments, 1200);
+            }
+        });
+        lockDownloads();
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+    else boot();
+})();
