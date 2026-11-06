@@ -1877,7 +1877,7 @@
                                 '<div class="adm-row-title">' + esc(u.nickname || u.email.split('@')[0]) +
                                 ' <span class="role-badge ' + roleCls + '">' + roleText + '</span>' +
                                 (banned ? ' <span class="role-badge" style="color:var(--red)">已封禁</span>' : '') +
-                                (u.is_customer ? ' <span class="role-badge" style="color:var(--green)">客户</span>' : '') +
+                                '' +
                                 '</div>' +
                                 '<div class="adm-row-sub">' + esc(u.email) +
                                 ' · 注册 ' + new Date(u.created_at * 1000).toLocaleDateString('zh-CN') +
@@ -1885,8 +1885,7 @@
                                 '</div>' +
                                 '</div>' +
                                 (u.role === 'admin' ? '' : '<button class="adm-btn small" onclick="sendMsgRow(' + u.id + ', \'' + String(u.nickname || u.email).replace(/'/g, '') + '\')">发消息</button>') +
-                                (u.role === 'admin' || u.role === 'premium' ? '' : '<button class="adm-btn small" onclick="toggleCustomer(' + u.id + ',' + (u.is_customer ? 0 : 1) + ')">' +
-                                ((u.is_customer || u.role === 'premium' || u.role === 'admin') ? '改回游戏玩家' : '设为资深玩家') + '</button>') +
+                                (u.role === 'admin' ? '' : '<button class="adm-btn small" onclick="toggleCustomer(' + u.id + ',' + ((u.is_customer || u.role === 'premium') ? 0 : 1) + ')">' + ((u.is_customer || u.role === 'premium') ? '改回游戏玩家' : '设为资深玩家') + '</button>') +
                                 (u.role === 'admin' ? '' : '<button class="adm-btn small" onclick="toggleBan(' + u.id + ',' + (banned ? 0 : 1) + ')">' +
                                 (banned ? '解封' : '封禁') + '</button>') +
                                 (u.role === 'admin' ? '' : '<button class="adm-btn small danger" onclick="deleteUser(' + u.id + ')">删除</button>') +
