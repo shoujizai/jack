@@ -185,8 +185,8 @@ function loadTurnstile() {
                     </div>
                 ` : ''}
                 <div class="auth-field">
-                    <label>邮箱</label>
-                    <input type="email" id="authEmail" placeholder="请输入邮箱" required>
+                    <label>手机号 / 邮箱</label>
+                    <input type="text" id="authEmail" placeholder="手机号或邮箱" required autocomplete="username">
                 </div>
                 <div class="auth-field">
                     <label>密码</label>
@@ -213,7 +213,13 @@ function closeAuthModal() {
 
 async function handleAuthSubmit(event, type) {
     event.preventDefault();
-    const email = document.getElementById('authEmail').value;
+    const email = document.getElementById('authEmail').value.trim();
+    const isPhoneNo = /^1\d{10}$/.test(email);
+    const isMail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+    if (!isPhoneNo && !isMail) {
+        alert('手机号或邮箱格式不正确');
+        return;
+    }
     const password = document.getElementById('authPassword').value;
     const nickname = document.getElementById('authNickname')?.value;
     const tsEl = document.querySelector('[name="cf-turnstile-response"]');
