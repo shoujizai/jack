@@ -1885,7 +1885,7 @@
                                 '</div>' +
                                 '</div>' +
                                 (u.role === 'admin' ? '' : '<button class="adm-btn small" onclick="sendMsgRow(' + u.id + ', \'' + String(u.nickname || u.email).replace(/'/g, '') + '\')">发消息</button>') +
-                                (u.role === 'admin' ? '' : '<button class="adm-btn small" onclick="toggleCustomer(' + u.id + ',' + ((u.is_customer || u.role === 'premium') ? 0 : 1) + ')">' + ((u.is_customer || u.role === 'premium') ? '改回游戏玩家' : '设为资深玩家') + '</button>') +
+                                (u.role === 'admin' ? '' : '<button class="adm-btn small" onclick="setRole(' + u.id + ', \'' + ((u.role === 'premium' || u.is_customer) ? 'player' : 'premium') + '\')">' + ((u.role === 'premium' || u.is_customer) ? '改回游戏玩家' : '设为资深玩家') + '</button>') +
                                 (u.role === 'admin' ? '' : '<button class="adm-btn small" onclick="toggleBan(' + u.id + ',' + (banned ? 0 : 1) + ')">' +
                                 (banned ? '解封' : '封禁') + '</button>') +
                                 (u.role === 'admin' ? '' : '<button class="adm-btn small danger" onclick="deleteUser(' + u.id + ')">删除</button>') +
@@ -1946,6 +1946,15 @@
                 .catch(function (e) {
                     toast('群发失败：' + e.message, true);
                 });
+        }
+
+        function setRole(id, role) {
+            api('/api/admin/users?id=' + id, { method: 'PATCH', body: JSON.stringify({ role: role }) })
+                .then(function () {
+                    toast(role === 'premium' ? '已设为资深玩家' : '已改回游戏玩家');
+                    loadUsers();
+                })
+                .catch(function (e) { toast('修改失败：' + e.message, true); });
         }
 
         function toggleCustomer(id, value) {
