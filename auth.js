@@ -679,7 +679,19 @@ document.addEventListener('DOMContentLoaded', initAuth);
     /* 把「我的消息」插进用户面板（激活 / 退出 之间） */
     var lastUnread = 0;
 
+    var injecting = false;
+
     function injectMenuEntry() {
+        if (injecting) return;
+        injecting = true;
+        try {
+            injectMenuEntryInner();
+        } finally {
+            injecting = false;
+        }
+    }
+
+    function injectMenuEntryInner() {
         var nodes = document.querySelectorAll('button, a, li, div[role="menuitem"]');
         for (var i = 0; i < nodes.length; i++) {
             var n = nodes[i];
@@ -688,9 +700,10 @@ document.addEventListener('DOMContentLoaded', initAuth);
             var parent = n.parentElement;
             if (!parent) continue;
             if ((parent.textContent || '').indexOf('激活') === -1) continue;
+            var desired = '✉️ 我的消息' + (lastUnread ? '（' + lastUnread + ' 条未读）' : '');
             var existing = parent.querySelector('[data-inbox-entry]');
             if (existing) {
-                existing.textContent = '✉️ 我的消息' + (lastUnread ? '（' + lastUnread + ' 条未读）' : '');
+                if (existing.textContent !== desired) existing.textContent = desired;
                 return;
             }
             var entry = document.createElement('button');
@@ -710,12 +723,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
 
     function watchMenu() {
         injectMenuEntry();
-        try {
-            new MutationObserver(function () { injectMenuEntry(); }).observe(document.body, { childList: true, subtree: true });
-        } catch (e) {
-            /* 忽略 */
-        }
-        setInterval(injectMenuEntry, 1500);
+        setInterval(injectMenuEntry, 2000);
     }
 
     function boot() {
