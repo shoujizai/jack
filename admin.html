@@ -1179,6 +1179,7 @@
                 .then(function (data) {
                     gamesList = data.games || [];
                     $('gamesCount').textContent = gamesList.length;
+                    setGamesStatus('', '');
                     renderGameList();
                 })
                 .catch(function (e) {
