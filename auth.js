@@ -734,4 +734,59 @@ document.addEventListener('DOMContentLoaded', initAuth);
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
     else boot();
     window.refreshInboxBadge = refresh;
+    window.__openInbox = openInbox;
+})();
+
+/* ===== 用户面板「我的消息」入口（MENU_ENTRY v1） ===== */
+(function () {
+    var insertedFor = null;
+
+    function findPanel() {
+        // 找出包含「激活」和「退出」的容器
+        var nodes = document.querySelectorAll('button, a, li, div');
+        var exitNode = null;
+        for (var i = 0; i < nodes.length; i++) {
+            var t = (nodes[i].textContent || '').trim();
+            if ((t === '退出' || t === '退出登录') && nodes[i].parentElement) {
+                exitNode = nodes[i];
+                break;
+            }
+        }
+        if (!exitNode) return null;
+        var p = exitNode.parentElement;
+        if ((p.textContent || '').indexOf('激活') === -1) return null;
+        return { parent: p, exit: exitNode };
+    }
+
+    function tryInsert() {
+        var hit = findPanel();
+        if (!hit) return;
+        var existing = hit.parent.querySelector('[data-inbox-entry]');
+        if (existing) {
+            insertedFor = hit.parent;
+            return;
+        }
+        var entry = document.createElement('button');
+        entry.setAttribute('data-inbox-entry', '1');
+        entry.className = hit.exit.className || '';
+        entry.style.cssText =
+            'width:100%;text-align:left;background:transparent;border:none;padding:10px 14px;font:inherit;cursor:pointer;color:inherit;';
+        entry.textContent = '✉️ 我的消息';
+        entry.onclick = function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (window.__openInbox) window.__openInbox();
+        };
+        hit.parent.insertBefore(entry, hit.exit);
+    }
+
+    // 只在用户点击后检查两次（面板是点开才渲染的），不做任何持续轮询
+    document.addEventListener(
+        'click',
+        function () {
+            setTimeout(tryInsert, 120);
+            setTimeout(tryInsert, 420);
+        },
+        true
+    );
 })();
