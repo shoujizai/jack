@@ -95,12 +95,16 @@ function updateAuthUI() {
     const hiddenContent = document.querySelectorAll('.customer-content');
 
     if (currentUser) {
+        // 管理员等同于"已开通全部权限"：不需要订单激活，也不再看得到激活入口
+        const isAdmin = !!currentUser.is_admin;
+        const hasAccess = isAdmin || !!currentUser.is_customer;
+
         if (loginBtn) loginBtn.style.display = 'none';
         if (userMenu) {
             userMenu.style.display = 'flex';
             if (userNickname) userNickname.textContent = currentUser.nickname || currentUser.email;
             if (customerBadge) {
-                if (currentUser.is_admin) {
+                if (isAdmin) {
                     customerBadge.textContent = '管理员';
                     customerBadge.style.display = 'inline';
                 } else if (currentUser.is_customer) {
@@ -120,7 +124,8 @@ function updateAuthUI() {
             }
             if (activateBtn) {
                 const serialCount = currentUser.serial_numbers ? currentUser.serial_numbers.split(',').length : 0;
-                activateBtn.style.display = serialCount >= 3 ? 'none' : 'block';
+                // 管理员不需要激活订单
+                activateBtn.style.display = isAdmin || serialCount >= 3 ? 'none' : 'block';
                 activateBtn.textContent = currentUser.is_customer ? '添加密钥' : '激活订单';
             }
             if (dropdown) {
@@ -133,7 +138,7 @@ function updateAuthUI() {
             activateSection.style.display = 'none';
         }
         hiddenContent.forEach(el => {
-            el.style.display = currentUser.is_customer ? 'block' : 'none';
+            el.style.display = hasAccess ? 'block' : 'none';
         });
     } else {
         if (loginBtn) loginBtn.style.display = 'inline-block';
