@@ -757,9 +757,21 @@ document.addEventListener('DOMContentLoaded', initAuth);
     var insertedFor = null;
 
     function findPanel() {
-        var act = document.getElementById('authActivateBtn');
-        if (!act || !act.parentElement) return null;
-        return { parent: act.parentElement, anchor: act };
+        // 只要找到「退出」按钮，就插在它前面（不依赖「激活」是否存在）
+        var nodes = document.querySelectorAll('button, a, li, div[role="menuitem"], span');
+        for (var i = 0; i < nodes.length; i++) {
+            var n = nodes[i];
+            var t = (n.textContent || '').trim();
+            if (t.length > 8) continue;
+            if (t !== '退出' && t !== '退出登录' && t !== '登出') continue;
+            var parent = n.parentElement;
+            if (!parent) continue;
+            if (parent.querySelector('[data-inbox-entry]')) {
+                return { parent: parent, anchor: n };
+            }
+            return { parent: parent, anchor: n };
+        }
+        return null;
     }
 
     function tryInsert() {
@@ -793,7 +805,8 @@ document.addEventListener('DOMContentLoaded', initAuth);
         'click',
         function () {
             setTimeout(tryInsert, 120);
-            setTimeout(tryInsert, 420);
+            setTimeout(tryInsert, 450);
+            setTimeout(tryInsert, 900);
         },
         true
     );
