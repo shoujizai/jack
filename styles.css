@@ -2144,3 +2144,15 @@ footer a:hover {
 @media (prefers-reduced-motion: reduce) {
     #menuToggle span { animation: none !important; }
 }
+
+/* 回到顶部：避开 AI 悬浮按钮 */
+.back-to-top {
+    bottom: calc(84px + env(safe-area-inset-bottom)) !important;
+    right: 16px !important;
+}
+
+@media (max-width: 420px) {
+    .back-to-top {
+        bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+    }
+}
