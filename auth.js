@@ -175,6 +175,26 @@ function recoverPassword() {
             .catch(function () { alert('网络错误，请稍后再试'); });
     }
 
+    function deleteMyAccount() {
+        if (!confirm('确定注销账号吗？注销后订单号会被释放，可用它重新注册。')) return;
+        if (!confirm('最后确认一次：账号、评论、消息都会被删除，不可恢复。继续？')) return;
+        fetch((window.API_BASE || '') + '/api/me', {
+            method: 'DELETE',
+            headers: { Authorization: 'Bearer ' + (localStorage.getItem('auth_token') || '') },
+        })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+            .then(function (res) {
+                if (res.ok) {
+                    localStorage.removeItem('auth_token');
+                    alert('账号已注销');
+                    location.reload();
+                } else {
+                    alert((res.d && res.d.error) || '注销失败');
+                }
+            })
+            .catch(function () { alert('网络错误'); });
+    }
+
     function loadTurnstile() {
         if (document.getElementById('cfTurnstileScript')) return;
         var s = document.createElement('script');
