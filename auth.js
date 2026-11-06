@@ -112,7 +112,7 @@ function updateAuthUI() {
                     customerBadge.textContent = roleLabel;
                     customerBadge.style.display = 'inline';
                 } else if (currentUser.is_customer) {
-                    customerBadge.textContent = '客户';
+                    customerBadge.textContent = '资深玩家';
                     customerBadge.style.display = 'inline';
                 } else {
                     customerBadge.style.display = 'none';
@@ -823,6 +823,9 @@ document.addEventListener('DOMContentLoaded', initAuth);
     }
 
     // 只在用户点击后检查两次（面板是点开才渲染的），不做任何持续轮询
+    /* MENU_ENTRY 后台跳过 */
+    if (/admin\.html/i.test(location.pathname)) return;
+
     document.addEventListener(
         'click',
         function () {
