@@ -480,6 +480,7 @@
                 if (!bar) return;
                 bar.textContent = '脚本出错：' + (message || '未知错误') + (where ? ' @' + where : '');
                 bar.classList.add('show');
+                setTimeout(function () { bar.classList.remove('show'); }, 10000);
             } catch (err) {
                 /* 忽略 */
             }
