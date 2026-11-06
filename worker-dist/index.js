@@ -210,7 +210,8 @@ export default {
         // （JWT_SECRET 本来就已在仓库里公开过，这里不引入新的泄露）
         env = {
             ...env,
-            JWT_SECRET: env.JWT_SECRET || 'sjz-blog-2024-secret-key-x9k2m7p4q1',
+            // 不再内置兜底密钥：真实密钥只从 Cloudflare 变量读取
+            JWT_SECRET: env.JWT_SECRET || '',
             ORDER_JSON_URL: env.ORDER_JSON_URL ||
                 'https://raw.gitcode.com/jack-sjz/sjz-aio/raw/main/resources/list.json',
         };

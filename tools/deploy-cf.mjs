@@ -140,16 +140,24 @@ const strVar = (name) => {
     return m ? m[1] : '';
 };
 const dbId = (toml.match(/database_id\s*=\s*"([^"]+)"/) || [])[1] || '';
-// 优先用环境变量传入的密钥（仓库里已清空，避免泄露）
-const jwtSecret = process.env.JWT_SECRET_VALUE || strVar('JWT_SECRET');
-if (!jwtSecret) {
-    console.error('✘ 没有 JWT_SECRET：请先设置环境变量 JWT_SECRET_VALUE（真实密钥不要写进仓库）');
-    console.error('   PowerShell 示例：$env:JWT_SECRET_VALUE = "<你的密钥>"');
-    console.error('   为避免把线上密钥覆盖成空值，本次部署已中止。');
-    process.exit(1);
-}
+// 密钥优先来自环境变量；否则沿用线上现有绑定值（避免重置登录状态）
+let jwtSecret = process.env.JWT_SECRET_VALUE || strVar('JWT_SECRET');
 const orderUrl = strVar('ORDER_JSON_URL');
 const gateKey = process.env.ADMIN_GATE_KEY || strVar('ADMIN_GATE_KEY');
+
+// 仓库里没有密钥时，沿用线上已配置的值（否则会把登录密钥覆盖成空）
+if (!jwtSecret && accountId) {
+    const settings = await request('GET', '/client/v4/accounts/' + accountId + '/workers/scripts/' + SCRIPT_NAME + '/settings');
+    const existing = ((settings.json && settings.json.result && settings.json.result.bindings) || []).find((b) => b.name === 'JWT_SECRET');
+    if (existing && existing.text) {
+        jwtSecret = existing.text;
+        console.log('   沿用线上现有 JWT_SECRET（长度 ' + jwtSecret.length + '，不打印内容）');
+    }
+}
+if (!jwtSecret) {
+    console.error('✘ 拿不到 JWT_SECRET：请设置环境变量 JWT_SECRET_VALUE，或先在 Cloudflare 后台配置该变量。');
+    process.exit(1);
+}
 say(!!dbId, 'D1 数据库 id', dbId.slice(0, 8) + '…');
 say(!!jwtSecret, 'JWT_SECRET 已配置');
 
