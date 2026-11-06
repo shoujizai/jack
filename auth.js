@@ -576,29 +576,25 @@ document.addEventListener('DOMContentLoaded', initAuth);
     }
 
     var savedHtml = null;
-    var swapped = false;
 
     function setBadgeEnvelope(count) {
         var el = findBadge();
         if (!el) return;
-        injectStyle();
+        var cur = el.getAttribute('data-inbox-env');
         if (count > 0) {
-            if (!swapped) {
-                savedHtml = el.innerHTML;
-                swapped = true;
-                el.onclick = function (e) {
-                    e.preventDefault();
-                    openInbox();
-                };
+            if (cur !== String(count)) {
+                if (savedHtml === null) savedHtml = el.innerHTML;
+                el.setAttribute('data-inbox-env', String(count));
+                el.innerHTML = '<span class="msg-envelope" style="display:inline-block"><svg width="16" height="16" viewBox="0 0 24 24" style="vertical-align:-3px"><rect x="2" y="5" width="20" height="14" rx="3" fill="#FFB300"/><path d="M2.8 6.6 12 13l9.2-6.4" fill="none" stroke="#8A5A00" stroke-width="1.6" stroke-linecap="round"/></svg></span>' +
+                    (count > 1 ? '<sup style="font-size:11px;color:#FF3B30;margin-left:2px;">' + count + '</sup>' : '');
+                el.title = count + ' 条未读消息';
+                el.style.display = 'inline-block';
             }
-            el.style.display = 'inline-block';
-            el.innerHTML = '<span class="msg-envelope"><svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:-3px" aria-label="信封"><rect x="2" y="5" width="20" height="14" rx="3" fill="#FFB300"/><path d="M2.8 6.6 12 13l9.2-6.4" fill="none" stroke="#8A5A00" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' + (count > 1 ? '<sup style="font-size:11px;color:#FF3B30;">' + count + '</sup>' : '');
-            el.title = count + ' 条未读消息';
-        } else if (swapped) {
-            el.innerHTML = savedHtml || '';
+        } else if (cur !== null) {
+            el.removeAttribute('data-inbox-env');
+            if (savedHtml) el.innerHTML = savedHtml;
             el.title = '';
-            if (!savedHtml) el.style.display = '';
-            swapped = false;
+            savedHtml = null;
         }
     }
 
@@ -731,6 +727,10 @@ document.addEventListener('DOMContentLoaded', initAuth);
         if (!getToken()) return;
         refresh();
 
+        /* 徽章校正：防止登录渲染把信封覆盖掉 */
+        setInterval(function () {
+            if (window.__inboxUnread > 0) setBadgeEnvelope(window.__inboxUnread);
+        }, 2000);
         setInterval(refresh, 60000);
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
