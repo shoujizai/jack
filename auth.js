@@ -460,6 +460,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
         btn.className = 'inbox-envelope';
         btn.title = '我的消息';
         btn.textContent = '✉️';
+        btn.style.display = 'none';
         btn.onclick = openInbox;
         nav.appendChild(btn);
         return btn;
@@ -470,6 +471,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
         if (!btn) return;
         var dot = btn.querySelector('.inbox-dot');
         if (count > 0) {
+            btn.style.display = 'inline-block';
             btn.classList.add('has-unread');
             if (!dot) {
                 dot = document.createElement('span');
@@ -480,6 +482,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
         } else {
             btn.classList.remove('has-unread');
             if (dot) dot.remove();
+            btn.style.display = 'none';
         }
     }
 
