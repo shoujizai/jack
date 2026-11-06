@@ -205,7 +205,7 @@ function recoverPassword() {
                 ` : ''}
                 <div class="auth-field">
                     <label>${type === 'register' ? '手机号' : '手机号 / 邮箱'}</label>
-                    <input type="text" id="authEmail" placeholder="手机号或邮箱" required autocomplete="username">
+                    <input type="text" id="authEmail" placeholder="手机号或邮箱" required>
                 </div>
                 <div class="auth-field">
                     ${type === 'register' ? '<div class="auth-field"><label>订单号</label><input type="text" id="authOrderNo" placeholder="请填写订单号" required></div>' : ''}
