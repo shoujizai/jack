@@ -360,29 +360,38 @@
                 <div class="content-section" id="userList"></div>
             </div>
 
-            <!-- 游戏列表：编辑静态文件 games-data.js 的生成器（不需要接口） -->
+            <!-- 游戏列表：直接存数据库，点保存即生效 -->
             <div id="tabGames" style="display:none">
                 <div class="content-section">
-                    <p style="margin:0 0 6px">当前线上游戏数：<b id="gamesCount">—</b> 个</p>
-                    <p class="hint-line" style="margin:0 0 12px">
-                        这个页面帮你生成 <code>games-data.js</code> 的内容。改完复制，去 GitHub 网页粘贴提交，CF 会自动部署，不需要接口。
-                    </p>
-
+                    <p style="margin:0 0 10px">线上游戏数：<b id="gamesCount">—</b> 个</p>
                     <div class="adm-field">
-                        <label>新增游戏（一行一个，支持「名称|大小」或「名称 大小」）</label>
-                        <textarea id="gamesInput" style="min-height:110px" placeholder="示例：&#10;小小梦魇|12.5&#10;空洞骑士 3.2&#10;只写名称也行，大小默认 0"></textarea>
+                        <label>游戏名称</label>
+                        <input type="text" id="gName" placeholder="例如：小小梦魇">
                     </div>
-                    <div class="adm-toolbar" style="margin-bottom:12px">
-                        <button class="adm-btn primary" onclick="buildGamesFile()">生成新的 games-data.js</button>
-                        <button class="adm-btn" onclick="copyGamesFile()">复制内容</button>
-                        <button class="adm-btn" onclick="loadGamesData()">重新读取线上</button>
-                        <a class="adm-btn" href="https://github.com/shoujizai/jack/edit/main/games-data.js" target="_blank" rel="noopener">去 GitHub 编辑</a>
+                    <div class="inline-2">
+                        <div class="adm-field">
+                            <label>大小（GB，可留空）</label>
+                            <input type="text" id="gSize" placeholder="例如：12.5">
+                        </div>
+                        <div class="adm-field">
+                            <label>编号（可留空，自动生成）</label>
+                            <input type="text" id="gId" placeholder="留空自动">
+                        </div>
+                    </div>
+                    <div class="adm-toolbar" style="margin-bottom:10px">
+                        <button class="adm-btn primary" onclick="saveGame()">保存这一行</button>
+                        <button class="adm-btn" onclick="loadGamesDb()">刷新列表</button>
                     </div>
                     <div class="import-status" id="gamesStatus"></div>
-                    <div class="adm-field">
-                        <label>生成结果（全选复制 → 覆盖 GitHub 上的 games-data.js）</label>
-                        <textarea id="gamesOutput" style="min-height:180px;font-family:ui-monospace,monospace;font-size:12px"></textarea>
-                    </div>
+                    <div id="gameList" style="margin-top:8px"></div>
+
+                    <details style="margin-top:16px">
+                        <summary style="cursor:pointer;color:var(--label-2);font-size:14px">批量导入（一行一个：名称|大小）</summary>
+                        <div class="adm-field" style="margin-top:10px">
+                            <textarea id="gamesInput" style="min-height:100px" placeholder="小小梦魇|12.5&#10;空洞骑士|3.2&#10;只写名称也行"></textarea>
+                        </div>
+                        <button class="adm-btn" onclick="bulkGames()">批量保存</button>
+                    </details>
                 </div>
             </div>
 
@@ -1032,7 +1041,7 @@
             if (name === 'pages') loadPages();
             if (name === 'comments') loadCommentsAdmin();
             if (name === 'users') loadUsers();
-            if (name === 'games') loadGamesData();
+            if (name === 'games') loadGamesDb();
         }
 
         /* ---------- 游戏列表生成器（改静态文件 games-data.js，不需要接口） ---------- */
@@ -1159,6 +1168,107 @@
                 $('gamesOutput').focus();
                 $('gamesOutput').select();
             }
+        }
+
+        /* ---------- 游戏：直接读写数据库 ---------- */
+        var gamesList = [];
+
+        function loadGamesDb() {
+            if ($('gamesCount')) $('gamesCount').textContent = '读取中…';
+            api('/api/games')
+                .then(function (data) {
+                    gamesList = data.games || [];
+                    $('gamesCount').textContent = gamesList.length;
+                    renderGameList();
+                })
+                .catch(function (e) {
+                    setGamesStatus('读取失败：' + e.message, 'err');
+                });
+        }
+
+        function renderGameList() {
+            var box = $('gameList');
+            if (!box) return;
+            if (!gamesList.length) {
+                box.innerHTML = '<p style="color:var(--label-2)">还没有游戏，上面填一个点保存试试。</p>';
+                return;
+            }
+            var keyword = ($('gSearch') && $('gSearch').value.trim()) || '';
+            var list = keyword
+                ? gamesList.filter(function (g) {
+                      return String(g.name).indexOf(keyword) !== -1 || String(g.id).indexOf(keyword) !== -1;
+                  })
+                : gamesList;
+            box.innerHTML = list
+                .slice(0, 500)
+                .map(function (g) {
+                    return (
+                        '<div class="adm-row">' +
+                        '<div class="adm-row-main">' +
+                        '<div class="adm-row-title">' + esc(g.name) + '</div>' +
+                        '<div class="adm-row-sub">编号 ' + esc(g.id) + ' · ' + (Number(g.size) || 0) + ' GB</div>' +
+                        '</div>' +
+                        '<button class="adm-btn small danger" onclick="deleteGame(\'' + esc(g.id) + '\')">删除</button>' +
+                        '</div>'
+                    );
+                })
+                .join('');
+            if (list.length > 500) {
+                box.innerHTML += '<p class="hint-line">只显示前 500 条，用搜索缩小范围。</p>';
+            }
+        }
+
+        function saveGame() {
+            var name = ($('gName').value || '').trim();
+            if (!name) {
+                setGamesStatus('先填游戏名称', 'err');
+                return;
+            }
+            var size = parseFloat($('gSize').value);
+            var id = ($('gId').value || '').trim();
+            api('/api/admin/games', {
+                method: 'POST',
+                body: JSON.stringify({ name: name, size: isNaN(size) ? 0 : size, id: id }),
+            })
+                .then(function (res) {
+                    setGamesStatus('已保存：' + res.name + '（编号 ' + res.id + ' · ' + res.size + ' GB）。前台刷新即可看到。', 'ok');
+                    $('gName').value = '';
+                    $('gSize').value = '';
+                    $('gId').value = '';
+                    loadGamesDb();
+                })
+                .catch(function (e) {
+                    setGamesStatus('保存失败：' + e.message, 'err');
+                });
+        }
+
+        function deleteGame(id) {
+            if (!confirm('确定删除编号 ' + id + ' 的游戏？')) return;
+            api('/api/admin/games?id=' + encodeURIComponent(id), { method: 'DELETE' })
+                .then(function () {
+                    setGamesStatus('已删除 ' + id, 'ok');
+                    loadGamesDb();
+                })
+                .catch(function (e) {
+                    setGamesStatus('删除失败：' + e.message, 'err');
+                });
+        }
+
+        function bulkGames() {
+            var text = ($('gamesInput').value || '').trim();
+            if (!text) {
+                setGamesStatus('先粘贴要导入的行', 'err');
+                return;
+            }
+            api('/api/admin/games/bulk', { method: 'POST', body: JSON.stringify({ text: text }) })
+                .then(function (res) {
+                    setGamesStatus('批量完成：成功 ' + res.added + ' 个' + (res.failed && res.failed.length ? '，失败 ' + res.failed.length + ' 个' : ''), 'ok');
+                    $('gamesInput').value = '';
+                    loadGamesDb();
+                })
+                .catch(function (e) {
+                    setGamesStatus('批量导入失败：' + e.message, 'err');
+                });
         }
 
         /* ---------- 概览 ---------- */
