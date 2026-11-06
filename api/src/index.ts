@@ -96,6 +96,33 @@ interface Comment {
     email: string;
 }
 
+
+/* 校验 Turnstile 人机验证；未配置 TURNSTILE_SECRET 时跳过（方便本地测试） */
+async function verifyTurnstile(request: Request, env: Env): Promise<boolean> {
+    const secret = (env as any).TURNSTILE_SECRET || '';
+    if (!secret) return true;
+    let token = '';
+    try {
+        const body = await request.clone().json() as any;
+        token = String(body.turnstile_token || '');
+    } catch (e) {
+        token = '';
+    }
+    if (!token) return false;
+    try {
+        const form = new FormData();
+        form.append('secret', secret);
+        form.append('response', token);
+        const ip = request.headers.get('CF-Connecting-IP') || '';
+        if (ip) form.append('remoteip', ip);
+        const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body: form });
+        const data: any = await res.json();
+        return !!(data && data.success);
+    } catch (e) {
+        return false;
+    }
+}
+
 async function hashPassword(password: string): Promise<string> {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -337,6 +364,9 @@ export default {
 
         try {
             if (path === '/api/register' && request.method === 'POST') {
+                if (!(await verifyTurnstile(request, env))) {
+                    return errorResponse('人机验证未通过，请刷新页面重试', 403);
+                }
                 const body = await request.json() as { email: string; password: string; nickname?: string };
                 if (!body.email || !body.password) {
                     return errorResponse('邮箱和密码不能为空');
@@ -523,7 +553,7 @@ export default {
                 // 只有资深玩家（premium）/管理员 才能评论；普通玩家需要先激活
                 const commentRole = (user as any).role || 'player';
                 const canComment =
-                    (user as any).is_admin === 1 || commentRole === 'admin' || commentRole === 'premium' || (user as any).is_customer === 1;
+                    (user as any).is_admin === 1 || commentRole === 'admin' || commentRole === 'premium';
                 if (!canComment) {
                     return errorResponse('激活后才能评论', 403);
                 }
@@ -973,7 +1003,7 @@ export default {
             if (path === '/api/admin/stats' && request.method === 'GET') {
                 const admin = await requireAdmin(request, env);
                 if (admin instanceof Response) return admin;
-                const u = await env.DB.prepare('SELECT COUNT(*) AS n, SUM(CASE WHEN is_customer = 1 OR lower(email) IN (?, ?) THEN 1 ELSE 0 END) AS customers FROM users').bind('1258528471@qq.com', '123@qq.com').first<any>();
+                const u = await env.DB.prepare("SELECT COUNT(*) AS n, SUM(CASE WHEN lower(coalesce(role_override,''))='premium' OR (role_override IS NULL AND lower(email) IN ('1258528471@qq.com','123@qq.com')) THEN 1 ELSE 0 END) AS customers FROM users").first<any>();
                 const c = await env.DB.prepare('SELECT COUNT(*) AS n FROM comments').first<any>();
                 const p = await env.DB.prepare('SELECT COUNT(*) AS n, SUM(published) AS published FROM pages').first<any>();
                 return jsonResponse({
