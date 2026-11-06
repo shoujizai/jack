@@ -244,13 +244,13 @@
         panel.style.cssText =
             'position:fixed;right:16px;bottom:calc(80px + env(safe-area-inset-bottom));z-index:4000;' +
             'width:min(360px,calc(100vw - 32px));height:min(480px,70vh);display:none;flex-direction:column;' +
-            'background:var(--bg,#fff);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.22);overflow:hidden;';
+            'background:#FFFFFF;border:1px solid rgba(0,0,0,.10);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.28);overflow:hidden;';
         panel.innerHTML =
             '<div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:.5px solid var(--separator,#e5e5ea);">' +
             '<b style="flex:1;font-size:15px;">AI 助手</b>' +
             '<button id="aiFloatClose" style="border:none;background:transparent;font-size:18px;cursor:pointer;color:var(--label-2,#8e8e93);">✕</button>' +
             '</div>' +
-            '<div id="aiFloatMsgs" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"></div>' +
+            '<div id="aiFloatMsgs" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:#F7F7FA;"></div>' +
             '<div style="display:flex;gap:6px;padding:10px;border-top:.5px solid var(--separator,#e5e5ea);">' +
             '<input id="aiFloatInput" placeholder="输入问题…" style="flex:1;border:none;background:var(--fill-2,#f2f2f7);border-radius:10px;padding:9px 11px;font:inherit;font-size:14px;color:var(--label,#000);" />' +
             '<button id="aiFloatSend" style="border:none;background:var(--blue,#007AFF);color:#fff;border-radius:10px;padding:0 14px;cursor:pointer;font-size:14px;">发送</button>' +
@@ -273,7 +273,7 @@
             'max-width:82%;padding:8px 11px;border-radius:13px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word;' +
             (mine
                 ? 'align-self:flex-end;background:var(--blue,#007AFF);color:#fff;border-bottom-right-radius:4px;'
-                : 'align-self:flex-start;background:var(--fill-2,#f2f2f7);color:var(--label,#000);border-bottom-left-radius:4px;');
+                : 'align-self:flex-start;background:#FFFFFF;border:1px solid rgba(0,0,0,.10);color:#1C1C1E;border-bottom-left-radius:4px;');
         box.appendChild(d);
         box.scrollTop = box.scrollHeight;
         return d;
