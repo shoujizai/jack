@@ -2210,31 +2210,32 @@ footer a:hover {
     }
 }
 
-/* 概览卡片：扁平紧凑，一屏放下 */
+/* 概览卡片：每行两张，扁平 */
 .stat-grid {
-    grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+    grid-template-columns: repeat(2, 1fr) !important;
     gap: 6px;
 }
 .stat {
-    padding: 7px 8px;
+    padding: 6px 9px;
     border-radius: 9px;
-    min-height: 0;
     box-shadow: none;
     background: var(--fill-2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 .stat b {
-    font-size: 17px;
-    line-height: 1.15;
-    margin-bottom: 0;
+    font-size: 16px;
+    line-height: 1.1;
+    margin: 0;
     letter-spacing: -0.2px;
+    min-width: 34px;
+    text-align: right;
 }
 .stat span {
     font-size: 10.5px;
-    line-height: 1.25;
+    line-height: 1.2;
     color: var(--label-2);
-}
-@media (max-width: 420px) {
-    .stat-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
+    flex: 1;
+    text-align: left;
 }
