@@ -2248,6 +2248,15 @@
             // 主动拉一次 + 轮询补齐，确保一定出现
             var fetching = false;
 
+            function cached() {
+                try {
+                    var raw = localStorage.getItem('admin_last_stats');
+                    return raw ? JSON.parse(raw) : null;
+                } catch (e) {
+                    return null;
+                }
+            }
+
             function ensure() {
                 var g = $('statGrid');
                 if (!g || g.querySelector('[data-visit]')) return;
@@ -2255,11 +2264,17 @@
                     render(window.__lastStats);
                     return;
                 }
+                // 先用上次缓存垫底，页面不会空白
+                var c = cached();
+                if (c) render(c);
                 if (fetching) return;
                 fetching = true;
                 api('/api/admin/stats')
                     .then(function (s) {
                         window.__lastStats = s;
+                        try {
+                            localStorage.setItem('admin_last_stats', JSON.stringify(s));
+                        } catch (e) {}
                         render(s);
                     })
                     .catch(function () {})
