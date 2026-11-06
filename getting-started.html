@@ -210,7 +210,96 @@
             <h3>Q: 还有别的问题吗？</h3>
             <p>A: 请直接联系机仔。</p>
         </div>
-    </main>
+    
+    <!-- AI 站内助手 -->
+    <section class="content-section" id="aiChat" style="margin-top:24px;">
+        <h2 class="list-header" style="margin:0 0 4px;">有问题问 AI</h2>
+        <p style="font-size:13px;color:var(--label-2);margin:0 0 12px;">
+            可以问安装、大气层、模拟器、插件等问题；也会优先参考本站内容回答。
+        </p>
+
+        <div id="aiMessages" style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto;padding:4px 2px 8px;margin-bottom:10px;"></div>
+
+        <div style="display:flex;gap:8px;align-items:flex-end;">
+            <textarea id="aiInput" rows="1" placeholder="输入你的问题…"
+                style="flex:1;resize:none;border:none;border-radius:12px;padding:10px 12px;font:inherit;font-size:15px;background:var(--fill-2);color:var(--label);min-height:42px;max-height:120px;"></textarea>
+            <button id="aiSend" class="btn btn-primary btn-sm" style="white-space:nowrap;">发送</button>
+        </div>
+        <p id="aiHint" style="font-size:12px;color:var(--label-2);margin:8px 0 0;">每天最多 30 条</p>
+    </section>
+
+    <script>
+    (function () {
+        var API = (window.API_BASE || 'https://api.jacksjz.qzz.io');
+        var history = [];
+        var box = document.getElementById('aiMessages');
+        var input = document.getElementById('aiInput');
+        var btn = document.getElementById('aiSend');
+
+        function bubble(text, mine) {
+            var d = document.createElement('div');
+            d.textContent = text;
+            d.style.cssText =
+                'max-width:86%;padding:9px 12px;border-radius:14px;font-size:14.5px;line-height:1.55;white-space:pre-wrap;word-break:break-word;' +
+                (mine
+                    ? 'align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px;'
+                    : 'align-self:flex-start;background:var(--fill-2);color:var(--label);border-bottom-left-radius:4px;');
+            box.appendChild(d);
+            box.scrollTop = box.scrollHeight;
+            return d;
+        }
+
+        function send() {
+            var text = (input.value || '').trim();
+            if (!text) return;
+            input.value = '';
+            input.style.height = 'auto';
+            bubble(text, true);
+            history.push({ role: 'user', content: text });
+
+            var loading = bubble('正在思考…', false);
+            btn.disabled = true;
+
+            fetch(API + '/api/ai', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: history }),
+            })
+                .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+                .then(function (res) {
+                    loading.remove();
+                    if (res.ok && res.d.reply) {
+                        bubble(res.d.reply, false);
+                        history.push({ role: 'assistant', content: res.d.reply });
+                    } else {
+                        bubble((res.d && res.d.error) || 'AI 暂时不可用，稍后再试', false);
+                    }
+                })
+                .catch(function () {
+                    loading.remove();
+                    bubble('网络错误，请稍后再试', false);
+                })
+                .then(function () {
+                    btn.disabled = false;
+                    input.focus();
+                });
+        }
+
+        btn.onclick = send;
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                send();
+            }
+        });
+        input.addEventListener('input', function () {
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+        });
+    })();
+    </script>
+
+</main>
 
     <footer>
         <p>© <span data-current-year>2024</span> 微修通讯的Blog | taobao店：微修通讯 | 站长：sjz</p>
