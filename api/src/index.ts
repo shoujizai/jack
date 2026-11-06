@@ -463,15 +463,32 @@ export default {
                     })(),
                     String((body as any).order_no || '').trim() || null
                 ).run();
+                    // 订单号选填：填了就直接激活成资深玩家
+                let activated = false;
+                let activateError = '';
+                if (rawOrderCheck) {
+                    const newId = (result.meta && (result.meta as any).last_row_id) || 0;
+                    let ord: any = null;
                     try {
-                    const newId = result.meta && (result.meta as any).last_row_id;
-                    if (rawOrderCheck && newId) {
-                        await env.DB.prepare('UPDATE orders SET used_by = ? WHERE order_no = ?').bind(newId, rawOrderCheck).run();
+                        ord = await env.DB.prepare('SELECT order_no, used_by FROM orders WHERE order_no = ?').bind(rawOrderCheck).first();
+                    } catch (e) {
+                        ord = null;
                     }
-                } catch (e) {
-                    /* 忽略 */
+                    if (!ord) {
+                        activateError = '订单号不存在，账号已创建为游戏玩家，可稍后激活';
+                    } else if (ord.used_by) {
+                        activateError = '该订单号已被使用，账号已创建为游戏玩家';
+                    } else if (newId) {
+                        try {
+                            await env.DB.prepare("UPDATE users SET role_override = 'premium', order_id = ? WHERE id = ?").bind(rawOrderCheck, newId).run();
+                            await env.DB.prepare('UPDATE orders SET used_by = ? WHERE order_no = ?').bind(newId, rawOrderCheck).run();
+                            activated = true;
+                        } catch (e) {
+                            activateError = '激活失败，可稍后重试';
+                        }
+                    }
                 }
-                return jsonResponse({ success: true, message: '注册成功' });
+                return jsonResponse({ success: true, message: activated ? '注册成功，已激活为资深玩家' : '注册成功', activated, activate_error: activateError });
                 } catch (e: any) {
                     if (e.message?.includes('UNIQUE constraint')) {
                         return errorResponse('该邮箱已被注册');
