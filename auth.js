@@ -669,6 +669,27 @@ document.addEventListener('DOMContentLoaded', initAuth);
                     time.className = 'msg-time';
                     time.textContent = fmtTime(m.created_at);
                     card.appendChild(t); card.appendChild(c); card.appendChild(time);
+                    var del = document.createElement('button');
+                    del.className = 'msg-delete';
+                    del.textContent = '删除';
+                    del.style.cssText = 'float:right;margin-top:-46px;background:rgba(255,59,48,.12);color:#FF3B30;border:none;border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer;';
+                    del.onclick = function (ev) {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        if (!confirm('删除这条消息？')) return;
+                        fetch(apiBase() + '/api/messages?id=' + encodeURIComponent(m.id), {
+                            method: 'DELETE',
+                            headers: { Authorization: 'Bearer ' + getToken() },
+                        }).then(function (r) {
+                            if (r.ok) {
+                                card.remove();
+                                refresh();
+                            } else {
+                                alert('删除失败');
+                            }
+                        }).catch(function () { alert('删除失败'); });
+                    };
+                    card.appendChild(del);
                     card.onclick = function () {
                         fetch(apiBase() + '/api/messages/read', {
                             method: 'POST',
