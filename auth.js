@@ -95,10 +95,10 @@ function updateAuthUI() {
     const hiddenContent = document.querySelectorAll('.customer-content');
 
     if (currentUser) {
-        // 角色：admin 管理员 / premium 高级用户 / player 游戏玩家
+        // 角色：admin 管理员 / premium 资深玩家 / player 游戏玩家
         const role = currentUser.role || (currentUser.is_admin ? 'admin' : '');
-        const roleLabel = { admin: '管理员', premium: '高级用户', player: '游戏玩家' }[role] || '';
-        // 高级分区权限：管理员、高级用户、已激活客户
+        const roleLabel = { admin: '管理员', premium: '资深玩家', player: '游戏玩家' }[role] || '';
+        // 高级分区权限：管理员、资深玩家、已激活客户
         const hasAccess = !!currentUser.is_premium || role === 'admin' || role === 'premium' || !!currentUser.is_customer;
         // 这些人不需要（也不应该看到）订单激活入口
         const noActivate = role === 'admin' || role === 'premium';
