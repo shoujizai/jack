@@ -750,6 +750,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
     else boot();
     window.refreshInboxBadge = refresh;
     window.__openInbox = openInbox;
+    window.openMyMessages = openInbox;
 })();
 
 /* ===== 用户面板「我的消息」入口（MENU_ENTRY v1） ===== */
