@@ -331,6 +331,13 @@ export default {
                     time: Math.floor(Date.now() / 1000),
                     db: 'unknown',
                     tables: [] as string[],
+                    // 版本指纹：用于确认线上跑的是不是最新代码
+                    features: {
+                        admin_only_login: !REGISTRATION_OPEN,
+                        admin_email_count: ADMIN_EMAILS.length,
+                        has_is_admin: true,
+                        has_comment_limit: false,
+                    },
                     env: {
                         hasDb: !!env.DB,
                         hasSecret: !!env.JWT_SECRET,

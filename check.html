@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex">
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
-    <link rel="stylesheet" href="styles.css?v=10">
+    <link rel="stylesheet" href="styles.css?v=11">
     <style>
         .check-item {
             display: flex;
@@ -118,7 +118,7 @@
         <p>接口体检页面 · 不对外显示在导航里</p>
     </footer>
 
-    <script src="auth.js?v=10" defer></script>
+    <script src="auth.js?v=11" defer></script>
     <script>
         (function () {
             var resultsEl = document.getElementById('results');
@@ -257,7 +257,20 @@
                                 if (r3.status === 401) {
                                     addRow('ok', '登录接口正常', '未登录时返回 401，符合预期。');
                                 } else if (r3.ok) {
-                                    addRow('ok', '登录接口正常', '当前已登录：' + ((r3.data && (r3.data.nickname || r3.data.email)) || ''));
+                                    var me = r3.data || {};
+                                    addRow(
+                                        'ok',
+                                        '登录状态',
+                                        '账号：' + (me.email || '?') + ' · 管理员：' + (me.is_admin ? '是' : '否'),
+                                        JSON.stringify(me, null, 2).slice(0, 800)
+                                    );
+                                    if (!me.is_admin) {
+                                        addRow(
+                                            'warn',
+                                            '当前账号不是管理员',
+                                            '后端只认 318886406@qq.com 这个邮箱。你登录的是：' + (me.email || '未知') + '，所以不会显示「管理员」徽章。'
+                                        );
+                                    }
                                 } else {
                                     addRow('warn', '登录接口返回 HTTP ' + r3.status, '需要进一步排查。');
                                 }
