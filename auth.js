@@ -112,8 +112,8 @@ function updateAuthUI() {
                     customerBadge.textContent = roleLabel;
                     customerBadge.style.display = 'inline';
                 } else if (currentUser.is_customer) {
-                    customerBadge.textContent = '资深玩家';
-                    customerBadge.style.display = 'inline';
+                    customerBadge.textContent = '';
+            customerBadge.style.display = 'none';
                 } else {
                     customerBadge.style.display = 'none';
                 }
