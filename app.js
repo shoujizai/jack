@@ -318,3 +318,17 @@
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build);
     else build();
 })();
+
+/* ===== 访问上报（VISIT_HIT_V1）===== */
+(function () {
+    try {
+        var key = 'hit_sent_' + new Date().toISOString().slice(0, 10);
+        if (sessionStorage.getItem(key)) return;
+        sessionStorage.setItem(key, '1');
+        fetch((window.API_BASE || 'https://api.jacksjz.qzz.io') + '/api/hit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ source: 'web' }),
+        }).catch(function () {});
+    } catch (e) {}
+})();
