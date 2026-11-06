@@ -906,6 +906,31 @@ export default {
                 await env.DB.prepare('UPDATE users SET password_hash = ? WHERE id = ?').bind(hash, user.id).run();
                 return jsonResponse({ success: true, message: '密码已重置，请用新密码登录' });
             }
+            /* 用户自助注销：删账号、释放订单号、清理消息与评论 */
+            if (path === '/api/me' && request.method === 'DELETE') {
+                const user = await getUserFromRequest(request, env);
+                if (!user)
+                    return errorResponse('请先登录', 401);
+                if (user.is_admin === 1 || user.role === 'admin') {
+                    return errorResponse('管理员账号不能自助注销', 403);
+                }
+                // 已激活（有订单号 / 已是资深玩家）的账号不能自助注销
+                const activated = !!(user.order_id) || user.role === 'premium' || user.is_customer === 1;
+                if (activated) {
+                    return errorResponse('已激活的账号不能自助注销，请联系管理员处理', 403);
+                }
+                try {
+                    if (user.order_id) {
+                        await env.DB.prepare('UPDATE orders SET used_by = NULL WHERE order_no = ?').bind(user.order_id).run();
+                    }
+                }
+                catch (e) { }
+                await env.DB.prepare('DELETE FROM messages WHERE user_id = ?').bind(user.id).run();
+                await env.DB.prepare('DELETE FROM comments WHERE user_id = ?').bind(user.id).run();
+                await env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(user.id).run().catch(() => { });
+                await env.DB.prepare('DELETE FROM users WHERE id = ?').bind(user.id).run();
+                return jsonResponse({ success: true, message: '账号已注销' });
+            }
             /* ================= 站内消息 ================= */
             // 用户：拉取自己的消息（含未读数）
             if (path === '/api/messages' && request.method === 'GET') {
