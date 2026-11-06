@@ -156,7 +156,26 @@ function updateAuthUI() {
     }
 }
 
-function loadTurnstile() {
+function recoverPassword() {
+        var account = prompt('请输入账号（手机号 或 邮箱）');
+        if (!account) return;
+        var orderNo = prompt('请输入淘宝订单号');
+        if (!orderNo) return;
+        var newPass = prompt('请设置新密码（至少 6 位）');
+        if (!newPass) return;
+        fetch((window.API_BASE || '') + '/api/recover', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ account: account.trim(), order_no: orderNo.trim(), new_password: newPass }),
+        })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+            .then(function (res) {
+                alert(res.ok ? '密码已重置，请用新密码登录' : (res.d && res.d.error) || '重置失败');
+            })
+            .catch(function () { alert('网络错误，请稍后再试'); });
+    }
+
+    function loadTurnstile() {
         if (document.getElementById('cfTurnstileScript')) return;
         var s = document.createElement('script');
         s.id = 'cfTurnstileScript';
@@ -185,17 +204,19 @@ function loadTurnstile() {
                     </div>
                 ` : ''}
                 <div class="auth-field">
-                    <label>手机号 / 邮箱</label>
+                    <label>${type === 'register' ? '手机号' : '手机号 / 邮箱'}</label>
                     <input type="text" id="authEmail" placeholder="手机号或邮箱" required autocomplete="username">
                 </div>
                 <div class="auth-field">
-                    <label>密码</label>
+                    ${type === 'register' ? '<div class="auth-field"><label>淘宝订单号</label><input type="text" id="authOrderNo" placeholder="请填写淘宝订单号" required></div>' : ''}
+            <label>密码</label>
                     <input type="password" id="authPassword" placeholder="请输入密码" required minlength="6">
                 </div>
                 ${type === 'register' ? '<div class="cf-turnstile" data-sitekey="0x4AAAAAAF2qWq_WUxV1UGUl" data-theme="auto" data-size="flexible" style="margin:12px 0"></div>' : ''}
         <button type="submit" class="btn btn-primary auth-submit">${type === 'login' ? '登录' : '注册'}</button>
             </form>
-            <div class="auth-switch">
+            <div style="text-align:center;margin-top:10px"><a href="#" onclick="recoverPassword(); return false;" style="font-size:13px;color:var(--label-2)">忘记密码？</a></div>
+        <div class="auth-switch">
                 ${type === 'login'
                     ? '没有账号？<a href="#" onclick="showAuthModal(\'register\'); return false;">注册</a>'
                     : '已有账号？<a href="#" onclick="showAuthModal(\'login\'); return false;">登录</a>'}
@@ -233,7 +254,7 @@ async function handleAuthSubmit(event, type) {
         if (type === 'register') {
             await api('/api/register', {
                 method: 'POST',
-                body: JSON.stringify({ email, password, nickname, turnstile_token: turnstileToken }),
+                body: JSON.stringify({ email, phone: email, password, nickname, turnstile_token: turnstileToken, order_no: (document.getElementById('authOrderNo') || {}).value || '' }),
             });
             alert('注册成功！请登录');
             showAuthModal('login');
