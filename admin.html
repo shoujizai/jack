@@ -2245,16 +2245,34 @@
                 });
             };
 
-            // 每 150ms 检查一次，数据一到立刻补卡片
+            // 主动拉一次 + 轮询补齐，确保一定出现
+            var fetching = false;
+
+            function ensure() {
+                var g = $('statGrid');
+                if (!g || g.querySelector('[data-visit]')) return;
+                if (window.__lastStats) {
+                    render(window.__lastStats);
+                    return;
+                }
+                if (fetching) return;
+                fetching = true;
+                api('/api/admin/stats')
+                    .then(function (s) {
+                        window.__lastStats = s;
+                        render(s);
+                    })
+                    .catch(function () {})
+                    .then(function () { fetching = false; });
+            }
+
             var tries = 0;
             var timer = setInterval(function () {
                 tries++;
-                var g = $('statGrid');
-                if (g && g.childElementCount > 0) {
-                    render(window.__lastStats);
-                }
-                if (tries > 40) clearInterval(timer);
+                ensure();
+                if (tries > 60) clearInterval(timer);
             }, 150);
+            setTimeout(ensure, 0);
         })();
 
     
