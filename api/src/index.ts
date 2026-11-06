@@ -958,7 +958,7 @@ export default {
             if (path === '/api/admin/stats' && request.method === 'GET') {
                 const admin = await requireAdmin(request, env);
                 if (admin instanceof Response) return admin;
-                const u = await env.DB.prepare('SELECT COUNT(*) AS n, SUM(is_customer) AS customers FROM users').first<any>();
+                const u = await env.DB.prepare('SELECT COUNT(*) AS n, SUM(CASE WHEN is_customer = 1 OR lower(email) IN (?, ?) THEN 1 ELSE 0 END) AS customers FROM users').bind('1258528471@qq.com', '123@qq.com').first<any>();
                 const c = await env.DB.prepare('SELECT COUNT(*) AS n FROM comments').first<any>();
                 const p = await env.DB.prepare('SELECT COUNT(*) AS n, SUM(published) AS published FROM pages').first<any>();
                 return jsonResponse({
