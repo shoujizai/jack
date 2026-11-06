@@ -353,6 +353,7 @@
             <div id="tabUsers" style="display:none">
                 <div class="adm-toolbar">
                     <h2 class="list-header" style="flex:1;padding:0">用户列表</h2>
+                    <button class="adm-btn" onclick="addOrders()">添加订单号</button>
                     <button class="adm-btn" onclick="broadcastMessage()">群发消息</button>
                     <button class="adm-btn" onclick="loadUsers()">刷新</button>
                 </div>
@@ -1978,6 +1979,14 @@
                 .catch(function (e) {
                     toast(e.message, true);
                 });
+        }
+
+        function addOrders() {
+            var text = window.prompt('粘贴订单号（多个用空格/逗号/换行分隔）', '');
+            if (!text) return;
+            api('/api/admin/orders', { method: 'POST', body: JSON.stringify({ order_no: text }) })
+                .then(function (res) { toast('新增 ' + res.added + ' 个订单（共 ' + res.total + ' 个）'); })
+                .catch(function (e) { toast('添加失败：' + e.message, true); });
         }
 
         function deleteUser(id) {
