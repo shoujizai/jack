@@ -1,0 +1,49 @@
+{
+    "name": "微修 Blog 后台管理",
+    "short_name": "博客后台",
+    "description": "管理博客页面、内容方块、评论与用户",
+    "lang": "zh-CN",
+    "dir": "ltr",
+    "start_url": "/admin.html",
+    "scope": "/",
+    "display": "standalone",
+    "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+    "orientation": "any",
+    "background_color": "#F2F2F7",
+    "theme_color": "#007AFF",
+    "categories": ["productivity", "utilities"],
+    "icons": [
+        {
+            "src": "/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "新建页面",
+            "short_name": "新建",
+            "url": "/admin.html?go=pages",
+            "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "用户管理",
+            "short_name": "用户",
+            "url": "/admin.html?go=users",
+            "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+        }
+    ]
+}

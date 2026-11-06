@@ -14,5 +14,8 @@ database_name = "jack-sjz"
 database_id = "bd66ebe6-4575-4b98-9a26-bbf5b4456ddf"
 
 [vars]
-JWT_SECRET = "sjz-blog-2024-secret-key-x9k2m7p4q1"
+# 重要：JWT_SECRET 不要写进仓库（这是签发登录令牌的密钥，仓库是公开的）
+# 设置方式：Cloudflare 控制台 → Workers → blog → 设置 → 变量 → 添加 JWT_SECRET
+#           或命令行：cd api && npx wrangler secret put JWT_SECRET
+JWT_SECRET = ""  # 真实值只在 Cloudflare 后台配置
 ORDER_JSON_URL = "https://raw.gitcode.com/jack-sjz/sjz-aio/raw/main/resources/list.json"

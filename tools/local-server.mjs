@@ -33,6 +33,22 @@ const CORS = {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Key',
 };
 
+const MIME = {
+    '.html': 'text/html; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.js': 'application/javascript; charset=utf-8',
+    '.mjs': 'application/javascript; charset=utf-8',
+    '.json': 'application/json; charset=utf-8',
+    '.txt': 'text/plain; charset=utf-8',
+    '.svg': 'image/svg+xml',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.webp': 'image/webp',
+    '.ico': 'image/x-icon',
+    '.woff2': 'font/woff2',
+};
+
 /* ---------------- D1 适配器（真实 SQLite） ---------------- */
 function makeDB(sqliteDb) {
     return {
@@ -90,6 +106,48 @@ export async function startServer(options = {}) {
     };
 
     const server = http.createServer(async (req, res) => {
+        const rawPath = (req.url || '/').split('?')[0].split('#')[0];
+
+        // 静态文件：让同一个服务同时提供网页和接口，页面与接口同源
+        if (!rawPath.startsWith('/api/')) {
+            let rel = decodeURIComponent(rawPath);
+            if (rel === '/' || rel === '') rel = '/index.html';
+            const filePath = path.join(ROOT, path.normalize(rel).replace(/^([/\\])+/, ''));
+            if (!filePath.startsWith(ROOT)) {
+                res.statusCode = 403;
+                res.end('forbidden');
+                return;
+            }
+            let content;
+            try {
+                content = fs.readFileSync(filePath);
+            } catch (e) {
+                res.statusCode = 404;
+                res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+                res.end('404 Not Found: ' + rel);
+                return;
+            }
+            const ext = path.extname(filePath).toLowerCase();
+            res.setHeader('Content-Type', MIME[ext] || 'application/octet-stream');
+            if (ext === '.html') {
+                // 关键：禁止缓存 + 让页面知道"接口就在同一个域名下"
+                res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+                let html = content.toString('utf8');
+                const marker = '<script>window.__LOCAL_API_SAME_ORIGIN__=true;</script>';
+                if (html.indexOf('</head>') !== -1) {
+                    html = html.replace('</head>', marker + '</head>');
+                } else {
+                    html = marker + html;
+                }
+                content = Buffer.from(html, 'utf8');
+            } else {
+                res.setHeader('Cache-Control', 'no-cache');
+            }
+            res.statusCode = 200;
+            res.end(content);
+            return;
+        }
+
         const chunks = [];
         for await (const chunk of req) chunks.push(chunk);
         const body = chunks.length ? Buffer.concat(chunks) : undefined;

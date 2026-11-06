@@ -139,7 +139,8 @@ try {
     const el = (id) => document.getElementById(id);
 
     console.log('=== 1. 启动 ===');
-    check('横幅显示接口与版本', /代码 admin-10/.test(el('apiBannerText').textContent), el('apiBannerText').textContent);
+    check('拿到接口代码版本', sandbox.apiCodeVersion === 'admin-10', sandbox.apiCodeVersion);
+    check('正常模式不显示接口条（界面干净）', !el('apiBanner').classList.contains('show'));
     check('未登录显示登录页', el('loginView').style.display === 'block', el('loginView').style.display);
     check('没有红色报错', !el('apiBanner').classList.contains('err'), el('apiBannerText').textContent);
 

@@ -15,24 +15,29 @@ function record(name, ok, detail) {
 }
 
 async function req(url, options = {}) {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), TIMEOUT);
-    const started = Date.now();
-    try {
-        const res = await fetch(url, { ...options, signal: ctrl.signal });
-        const text = await res.text();
-        let data = null;
+    let lastError = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), TIMEOUT);
+        const started = Date.now();
         try {
-            data = JSON.parse(text);
+            const res = await fetch(url, { ...options, signal: ctrl.signal });
+            const text = await res.text();
+            let data = null;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                data = null;
+            }
+            return { status: res.status, ok: res.ok, text, data, ms: Date.now() - started, headers: res.headers };
         } catch (e) {
-            data = null;
+            lastError = e;
+        } finally {
+            clearTimeout(timer);
         }
-        return { status: res.status, ok: res.ok, text, data, ms: Date.now() - started, headers: res.headers };
-    } catch (e) {
-        return { status: 0, ok: false, text: '', data: null, ms: Date.now() - started, error: e.message };
-    } finally {
-        clearTimeout(timer);
+        await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
     }
+    return { status: 0, ok: false, text: '', data: null, ms: 0, error: lastError && lastError.message };
 }
 
 console.log('='.repeat(56));
@@ -105,7 +110,10 @@ record('后台页面已部署', adminPage.status === 200, 'HTTP ' + adminPage.st
 if (adminPage.status === 200) {
     record('后台页含口令/登录界面', /后台口令|管理员登录/.test(adminPage.text), '');
     record('后台页不再显示管理员邮箱', !/318886406@qq\.com/.test(adminPage.text), '页面里仍出现邮箱');
-    record('后台页不再显示接口地址', !/接口地址：/.test(adminPage.text), '页面里仍显示接口地址');
+    // 只检查页面结构部分（脚本里的"诊断面板"会显示接口地址，属于正常）
+    const markup = adminPage.text.replace(/<script[\s\S]*?<\/script>/g, '');
+    record('登录界面不显示接口地址', !/接口地址：/.test(markup), '静态结构里仍出现「接口地址：」');
+    record('已接入 PWA（可安装为程序）', /rel="manifest"/.test(adminPage.text), '缺少 manifest 引用');
 }
 
 for (const p of ['/page.html', '/pages.html', '/check.html', '/robots.txt']) {

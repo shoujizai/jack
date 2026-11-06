@@ -391,6 +391,7 @@ console.log('\n=== 导出 / 导入 JSON ===');
 {
     // 接口版本检测
     try {
+        sandbox.location.search = '?debug=1';
         const freshOk = sandbox.warnIfOldApi('admin-10');
         check('有版本号时视为最新', freshOk === true);
         check('横幅显示代码版本', /代码 admin-10/.test(el('apiBannerText').textContent), el('apiBannerText').textContent);
@@ -451,17 +452,27 @@ console.log('\n=== 本地接口切换 ===');
     try {
         store.set('admin_api_base', 'http://127.0.0.1:8787/');
         check('apiBase 使用自定义接口并去掉末尾斜杠', sandbox.apiBase() === 'http://127.0.0.1:8787', sandbox.apiBase());
+        sandbox.location.search = '?debug=1';
         sandbox.updateApiBanner();
-        check('提示条显示', el('apiBanner').classList.contains('show'));
+        check('调试模式下才显示接口条', el('apiBanner').classList.contains('show'));
         check('提示条含地址', /127\.0\.0\.1:8787/.test(el('apiBannerText').textContent), el('apiBannerText').textContent);
         check('按钮文案为「切回线上」', el('apiBannerBtn').textContent === '切回线上', el('apiBannerBtn').textContent);
+        check('调试模式下显示诊断按钮', el('diagBtn').style.display === 'inline-block', el('diagBtn').style.display);
+
+        // 正常模式（无 ?debug=1）应该完全隐藏
+        sandbox.location.search = '';
+        sandbox.updateApiBanner();
+        check('正常模式不显示接口条', !el('apiBanner').classList.contains('show'));
+        check('正常模式隐藏诊断按钮', el('diagBtn').style.display === 'none', el('diagBtn').style.display);
         sandbox.clearApiOverride();
         check('切回线上后清除记录', !store.has('admin_api_base'), [...store.keys()].join(','));
         check('切回线上后 apiBase 回落到线上', sandbox.apiBase() === 'https://api.example.com', sandbox.apiBase());
 
+        sandbox.location.search = '?debug=1';
         sandbox.updateApiBanner();
         check('线上时也显示当前接口', /api\.example\.com/.test(el('apiBannerText').textContent), el('apiBannerText').textContent);
         check('线上时按钮文案为「用本地接口」', el('apiBannerBtn').textContent === '用本地接口', el('apiBannerBtn').textContent);
+        sandbox.location.search = '';
     } catch (e) {
         check('apiBase 使用自定义接口并去掉末尾斜杠', false, e.message);
     }

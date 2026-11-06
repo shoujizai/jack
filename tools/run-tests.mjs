@@ -9,6 +9,7 @@ const suites = [
     ['部署脚本', './verify-cmd.mjs'],
     ['真实数据库', './test-sqlite.mjs'],
     ['端到端界面', './test-e2e-ui.mjs'],
+    ['可安装程序', './test-pwa.mjs'],
 ];
 
 for (const [name, file] of suites) {

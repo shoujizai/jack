@@ -11,7 +11,14 @@
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23007AFF'/%3E%3Cpath d='M32 14c-4 0-7 3-7 7v10c0 4 3 7 7 7s7-3 7-7V21c0-4-3-7-7-7zm-13 17v4c0 7 6 13 13 13s13-6 13-13v-4h-4v4a9 9 0 0 1-18 0v-4h-4zm12 13v6h2v-6h-2z' fill='%23fff'/%3E%3C/svg%3E">
-    <link rel="stylesheet" href="styles.css?v=16">
+    <!-- PWA：装成电脑端/安卓端程序 -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="博客后台">
+    <meta name="application-name" content="博客后台"><link rel="stylesheet" href="styles.css?v=16">
     <style>
         .adm-tabs {
             display: flex;
@@ -274,18 +281,12 @@
         <div class="nav-container">
             <a class="logo" href="index.html">后台管理</a>
             <div style="flex:1"></div>
+            <button id="installBtn" class="btn btn-secondary btn-sm" style="display:none" onclick="installApp()">安装 App</button>
             <button id="logoutBtn" class="btn btn-secondary btn-sm" style="display:none" onclick="doLogout()">退出</button>
         </div>
     </nav>
 
     <main>
-        <div class="api-banner" id="apiBanner">
-            <span id="apiBannerText"></span>
-            <button class="adm-btn small" id="apiBannerBtn" onclick="toggleApiTarget()">切换接口</button>
-            <button class="adm-btn small" onclick="toggleDiag()">诊断</button>
-        </div>
-
-        <div class="import-status" id="diagPanel" style="display:none"></div>
         <!-- 后台口令 -->
         <div id="gateView" style="display:none">
             <div class="page-header">
@@ -573,6 +574,10 @@
                 override = '';
             }
             if (override) return normalizeApiBase(override);
+            // 本地服务同时托管网页和接口时，直接用同源地址（零跨域问题）
+            if (typeof window !== 'undefined' && window.__LOCAL_API_SAME_ORIGIN__) {
+                return location.origin;
+            }
             return window.API_BASE || '';
         }
 
@@ -603,6 +608,15 @@
             updateApiBanner();
         }
 
+        // 调试模式：只有地址栏带 ?debug=1 时才显示接口信息、诊断按钮等排障内容
+        function isDebugMode() {
+            try {
+                return new URLSearchParams(location.search).get('debug') === '1';
+            } catch (e) {
+                return false;
+            }
+        }
+
         function updateApiBanner() {
             var override = '';
             try {
@@ -613,9 +627,20 @@
             var banner = document.getElementById('apiBanner');
             var text = document.getElementById('apiBannerText');
             var btn = document.getElementById('apiBannerBtn');
+            var diag = document.getElementById('diagBtn');
             if (!banner || !text) return;
-            banner.classList.remove('err');
+
+            // 平时不显示接口条（一切正常时它只是干扰）
+            if (!isDebugMode()) {
+                banner.classList.remove('show');
+                banner.classList.remove('err');
+                if (diag) diag.style.display = 'none';
+                return;
+            }
+
             banner.classList.add('show');
+            banner.classList.remove('err');
+            if (diag) diag.style.display = 'inline-block';
             if (override) {
                 text.textContent = '接口：' + override + '（本地/自定义）' + (apiCodeVersion ? ' · 代码 ' + apiCodeVersion : '');
                 if (btn) btn.textContent = '切回线上';
@@ -886,6 +911,82 @@
             $('logoutBtn').style.display = 'inline-block';
             loadStats();
             loadPages();
+            // 从桌面/手机快捷方式进来时可以直接落到指定标签
+            var go = '';
+            try {
+                go = new URLSearchParams(location.search).get('go') || '';
+            } catch (e) {
+                go = '';
+            }
+            if (go === 'pages' || go === 'users' || go === 'comments' || go === 'stats') {
+                switchTab(go);
+            }
+            showInstallBtn();
+        }
+
+        /* ---------- PWA：装成电脑端 / 安卓端程序 ---------- */
+        var deferredInstall = null;
+
+        function isStandalone() {
+            try {
+                if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+            } catch (e) {
+                /* 忽略 */
+            }
+            return navigator.standalone === true;
+        }
+
+        function showInstallBtn() {
+            var btn = $('installBtn');
+            if (!btn || isStandalone()) return;
+            btn.style.display = 'inline-block';
+        }
+
+        function installApp() {
+            if (deferredInstall) {
+                deferredInstall.prompt();
+                var choice = deferredInstall.userChoice;
+                deferredInstall = null;
+                if (choice && choice.then) {
+                    choice.then(function () {}).catch(function () {});
+                }
+                return;
+            }
+            var ua = navigator.userAgent || '';
+            if (/iPhone|iPad|iPod/i.test(ua)) {
+                toast('iPhone 上点「分享」→「添加到主屏幕」即可安装', false);
+            } else if (isStandalone()) {
+                toast('已经是独立程序模式了');
+            } else {
+                toast('在浏览器菜单里选「安装应用」或「添加到主屏幕」', false);
+            }
+        }
+
+        function registerServiceWorker() {
+            if (!('serviceWorker' in navigator)) return;
+            var okProtocol =
+                location.protocol === 'https:' || location.hostname === '127.0.0.1' || location.hostname === 'localhost';
+            if (!okProtocol) return;
+            containerSafeRegister();
+        }
+
+        function containerSafeRegister() {
+            try {
+                navigator.serviceWorker.register('sw.js').catch(function () {});
+            } catch (e) {
+                /* 忽略 */
+            }
+        }
+
+        if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+            window.addEventListener('beforeinstallprompt', function (e) {
+                e.preventDefault();
+                deferredInstall = e;
+                showInstallBtn();
+            });
+            window.addEventListener('appinstalled', function () {
+                toast('已安装，之后从桌面图标直接打开');
+            });
         }
 
         /* ---------- 标签页 ---------- */
@@ -1684,6 +1785,7 @@
         } else {
             boot();
         }
+        registerServiceWorker();
     </script>
 </body>
 </html>

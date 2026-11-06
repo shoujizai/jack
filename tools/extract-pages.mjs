@@ -4,6 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// 注意：index（首页）和 games（游戏预选）不在这里 —— 它们是动态/交互页面，
+// 游戏页的数据来自 games-data.js（368 个游戏）+ JS 搜索勾选，转成方块会失去功能。
 const PAGES = ['getting-started', 'tutorial', 'download', 'install', 'plugins', 'update', 'faq'];
 
 const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
