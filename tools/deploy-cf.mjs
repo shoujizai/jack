@@ -6,14 +6,33 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const TOKEN = process.env.CLOUDFLARE_API_TOKEN || process.env.CF_API_TOKEN || '';
-const EMAIL = process.env.CLOUDFLARE_EMAIL || process.env.CF_EMAIL || '';
+const TOKEN = (process.env.CLOUDFLARE_API_TOKEN || process.env.CF_API_TOKEN || '').trim().replace(/^["']|["']$/g, '');
+const EMAIL = (process.env.CLOUDFLARE_EMAIL || process.env.CF_EMAIL || '').trim();
 const SCRIPT_NAME = process.env.CF_SCRIPT_NAME || 'blog';
 const FORCE_ACCOUNT = process.env.CF_ACCOUNT_ID || '';
 let AUTH_MODE = 'bearer'; // 自动探测后可能变成 'global-key'
 
 if (!TOKEN) {
     console.error('缺少 CLOUDFLARE_API_TOKEN');
+    process.exit(1);
+}
+
+// 提前识别常见错误：把 Global API Key 当成 API Token 用
+if (/^(cfk_|v1\.0-)/.test(TOKEN) === false && TOKEN.startsWith('cfk_')) {
+    /* 占位，逻辑在下面统一处理 */
+}
+if (TOKEN.startsWith('cfk_') && !EMAIL) {
+    console.error('');
+    console.error('✘ 这个 Secret 是 Cloudflare 的 **Global API Key**（cfk_ 开头），不是 API Token。');
+    console.error('  Global Key 要配合邮箱用 X-Auth-Key 认证，GitHub Actions 里没有邮箱，所以用不了。');
+    console.error('');
+    console.error('  正确的做法（2 分钟）：');
+    console.error('   1) 打开 https://dash.cloudflare.com/profile/api-tokens');
+    console.error('   2) Create Token → 选模板「Edit Cloudflare Workers」→ Create Token');
+    console.error('   3) 复制那串 token（不带 cfk_ 前缀，通常一长串字母数字）');
+    console.error('   4) GitHub → Settings → Secrets and variables → Actions');
+    console.error('      → 编辑 CLOUDFLARE_API_TOKEN → 把值换成新的 → Update secret');
+    console.error('');
     process.exit(1);
 }
 
@@ -100,8 +119,18 @@ if (!(verify.status === 200 && verify.json && verify.json.success)) {
             process.exit(1);
         }
     } else {
-        console.log('✘ Token 无效：' + JSON.stringify(verify.json).slice(0, 200));
-        console.log('  如果这是 Global API Key，请同时设置 CLOUDFLARE_EMAIL 环境变量。');
+        const detail = JSON.stringify(verify.json).slice(0, 300);
+        console.log('✘ Token 无效：' + detail);
+        if (/6111|Invalid format for Authorization/.test(detail)) {
+            console.log('');
+            console.log('  原因：Secret 的值不是 API Token 的格式（很可能是把 Global API Key 填进来了）。');
+            console.log('  修法：新建一个「Edit Cloudflare Workers」API Token，替换 GitHub Secret 的值。');
+        } else if (/400|Invalid API Token/.test(detail)) {
+            console.log('');
+            console.log('  原因：Token 无效或已过期/被删。请重新创建一个 API Token 再替换 Secret。');
+        } else {
+            console.log('  如果这是 Global API Key，请设置 CLOUDFLARE_EMAIL 环境变量（Actions 里用 secrets.CLOUDFLARE_EMAIL）。');
+        }
         process.exit(1);
     }
 } else {

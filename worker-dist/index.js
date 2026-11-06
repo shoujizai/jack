@@ -165,6 +165,13 @@ async function ensureSchema(env) {
             updated_by TEXT
         )`,
         `CREATE INDEX IF NOT EXISTS idx_pages_published ON pages(published)`,
+        `CREATE TABLE IF NOT EXISTS games (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            size REAL DEFAULT 0,
+            sort_order INTEGER DEFAULT 100,
+            created_at INTEGER DEFAULT (strftime('%s','now'))
+        )`,
         `CREATE INDEX IF NOT EXISTS idx_comments_page ON comments(page_id)`,
         `CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`,
         `CREATE TABLE IF NOT EXISTS login_failures (
@@ -654,6 +661,94 @@ export default {
                 return jsonResponse({ success: true });
             }
             /* ================= 统计概览 ================= */
+            /* ================= 游戏列表 ================= */
+            // 公开：读取全部游戏（前台游戏页用）
+            if (path === '/api/games' && request.method === 'GET') {
+                if (!(await hasTable(env, 'games'))) {
+                    return jsonResponse({ games: [], total: 0 });
+                }
+                const rows = await env.DB.prepare('SELECT id, name, size, sort_order FROM games ORDER BY sort_order ASC, id ASC').all();
+                const list = rows.results || [];
+                return jsonResponse({ games: list, total: list.length });
+            }
+            // 管理：新增或修改一个游戏（点「保存」走这里）
+            if (path === '/api/admin/games' && (request.method === 'POST' || request.method === 'PATCH')) {
+                const admin = await requireAdmin(request, env);
+                if (admin instanceof Response)
+                    return admin;
+                const body = await request.json();
+                const name = String(body.name || '').trim();
+                if (!name)
+                    return errorResponse('游戏名称不能为空');
+                if (name.length > 80)
+                    return errorResponse('游戏名称太长了');
+                let id = String(body.id || '').trim();
+                if (!id) {
+                    // 自动生成：取当前最大数字 id + 1
+                    const maxRow = await env.DB.prepare("SELECT MAX(CAST(id AS INTEGER)) AS m FROM games WHERE id GLOB '[0-9]*'").first();
+                    const next = ((maxRow && maxRow.m) || 0) + 1;
+                    id = String(next).padStart(3, '0');
+                }
+                const size = Number(body.size);
+                const safeSize = isFinite(size) && size > 0 ? Math.round(size * 100) / 100 : 0;
+                const sortOrder = Number(body.sort_order) || 100;
+                await env.DB.prepare(`INSERT INTO games (id, name, size, sort_order) VALUES (?, ?, ?, ?)
+                     ON CONFLICT(id) DO UPDATE SET name = excluded.name, size = excluded.size, sort_order = excluded.sort_order`).bind(id, name, safeSize, sortOrder).run();
+                return jsonResponse({ success: true, id, name, size: safeSize });
+            }
+            // 管理：删除一个游戏
+            if (path === '/api/admin/games' && request.method === 'DELETE') {
+                const admin = await requireAdmin(request, env);
+                if (admin instanceof Response)
+                    return admin;
+                const id = String(url.searchParams.get('id') || '').trim();
+                if (!id)
+                    return errorResponse('缺少游戏 id');
+                await env.DB.prepare('DELETE FROM games WHERE id = ?').bind(id).run();
+                return jsonResponse({ success: true });
+            }
+            // 管理：批量导入（一行一个：名称|大小）
+            if (path === '/api/admin/games/bulk' && request.method === 'POST') {
+                const admin = await requireAdmin(request, env);
+                if (admin instanceof Response)
+                    return admin;
+                const body = await request.json();
+                const text = String(body.text || '');
+                const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+                if (!lines.length)
+                    return errorResponse('没有内容');
+                if (lines.length > 2000)
+                    return errorResponse('一次最多 2000 行');
+                const maxRow = await env.DB.prepare("SELECT MAX(CAST(id AS INTEGER)) AS m FROM games WHERE id GLOB '[0-9]*'").first();
+                let counter = ((maxRow && maxRow.m) || 0);
+                let ok = 0;
+                const failed = [];
+                for (const line of lines) {
+                    const parts = line.split('|');
+                    const name = parts[0].trim();
+                    if (!name) {
+                        failed.push(line);
+                        continue;
+                    }
+                    const size = parts.length > 1 ? Number(parts[1]) : 0;
+                    const safeSize = isFinite(size) && size > 0 ? Math.round(size * 100) / 100 : 0;
+                    let id = parts.length > 2 ? parts[2].trim() : '';
+                    if (!id) {
+                        counter += 1;
+                        id = String(counter).padStart(3, '0');
+                    }
+                    try {
+                        await env.DB.prepare('INSERT OR REPLACE INTO games (id, name, size, sort_order) VALUES (?, ?, ?, ?)')
+                            .bind(id, name.slice(0, 80), safeSize, 100)
+                            .run();
+                        ok++;
+                    }
+                    catch (e) {
+                        failed.push(name);
+                    }
+                }
+                return jsonResponse({ success: true, added: ok, failed });
+            }
             if (path === '/api/admin/stats' && request.method === 'GET') {
                 const admin = await requireAdmin(request, env);
                 if (admin instanceof Response)
