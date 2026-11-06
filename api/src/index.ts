@@ -389,8 +389,13 @@ export default {
                     return errorResponse('人机验证未通过，请刷新页面重试', 403);
                 }
                 const body = await request.json() as { email: string; password: string; nickname?: string };
-                if (!body.email || !body.password) {
-                    return errorResponse('邮箱和密码不能为空');
+                const regPhone = String((body as any).phone || '').trim();
+                const regEmail = String(body.email || '').trim();
+                if (!body.password || (!regPhone && !regEmail)) {
+                    return errorResponse('请填写手机号或邮箱和密码');
+                }
+                if (regPhone && !/^1\d{10}$/.test(regPhone)) {
+                    return errorResponse('手机号格式不正确');
                 }
                 if (!body.email.includes('@')) {
                     return errorResponse('请输入有效的邮箱地址');
