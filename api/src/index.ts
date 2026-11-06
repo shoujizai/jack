@@ -392,14 +392,36 @@ export default {
                     return errorResponse('密码至少需要6位');
                 }
                 // 注册开关：当前只允许白名单邮箱注册
-                if (!REGISTRATION_OPEN && !getRole(body.email)) {
-                    return errorResponse('该邮箱不在邀请名单内，暂不能注册', 403);
+                /* 已开放注册，不再限制邮箱白名单 */
+                const rawOrderCheck = String((body as any).order_no || '').trim();
+                if (rawOrderCheck) {
+                    const used = await env.DB.prepare('SELECT id FROM users WHERE order_id = ?').bind(rawOrderCheck).first();
+                    if (used) return errorResponse('该订单已被注册', 403);
+                }
+                const rawPhoneReg = String((body as any).phone || '').trim();
+                if (/^1\d{10}$/.test(rawPhoneReg) && !String((body as any).order_no || '').trim()) {
+                    return errorResponse('请填写订单号');
                 }
                 const passwordHash = await hashPassword(body.password);
                 try {
                     const result = await env.DB.prepare(
-                        'INSERT INTO users (email, password_hash, nickname) VALUES (?, ?, ?)'
-                    ).bind(body.email, passwordHash, body.nickname || body.email.split('@')[0]).run();
+                        'INSERT INTO users (email, password_hash, nickname, phone, order_id) VALUES (?, ?, ?, ?, ?)'
+                    ).bind(
+                    (function () {
+                        const p = String((body as any).phone || '').trim();
+                        return /^1\d{10}$/.test(p) ? p + '@phone.local' : String(body.email || '').trim();
+                    })(),
+                    passwordHash,
+                    (function () {
+                        const p = String((body as any).phone || '').trim();
+                        return body.nickname || (/^1\d{10}$/.test(p) ? '玩家' + p.slice(-4) : String(body.email || '').split('@')[0]);
+                    })(),
+                    (function () {
+                        const p = String((body as any).phone || '').trim();
+                        return /^1\d{10}$/.test(p) ? p : null;
+                    })(),
+                    String((body as any).order_no || '').trim() || null
+                ).run();
                     return jsonResponse({ success: true, message: '注册成功' });
                 } catch (e: any) {
                     if (e.message?.includes('UNIQUE constraint')) {
@@ -415,9 +437,7 @@ export default {
                     return errorResponse('邮箱和密码不能为空');
                 }
                 // 邀请制期间，只允许白名单邮箱登录
-                if (!REGISTRATION_OPEN && !getRole(body.email)) {
-                    return errorResponse('该邮箱不在邀请名单内，暂不能登录', 403);
-                }
+                /* 已开放注册，不再限制邮箱白名单 */
 
                 // 暴力破解保护：同一邮箱 15 分钟内失败 5 次，暂时锁定
                 const emailKey = normalizeEmail(body.email);
@@ -936,6 +956,34 @@ export default {
                     }
                 }
                 return jsonResponse({ success: true, added: ok, failed });
+            }
+
+
+            /* ================= 找回密码 ================= */
+            if (path === '/api/recover' && request.method === 'POST') {
+                const body = await request.json() as any;
+                const account = String(body.account || '').trim();
+                const orderNo = String(body.order_no || '').trim();
+                const newPassword = String(body.new_password || '');
+                if (!account || !orderNo) return errorResponse('请填写账号和订单号');
+                if (newPassword.length < 6) return errorResponse('新密码至少 6 位');
+                if (!/^1\d{10}$/.test(account) && account.indexOf('@') === -1) {
+                    return errorResponse('账号请填手机号或邮箱');
+                }
+
+                const isPhone = /^1\d{10}$/.test(account);
+                const stmt = isPhone
+                    ? env.DB.prepare('SELECT * FROM users WHERE phone = ?').bind(account)
+                    : env.DB.prepare('SELECT * FROM users WHERE lower(email) = lower(?)').bind(account);
+                const user: any = await stmt.first();
+                if (!user) return errorResponse('账号或订单号不匹配', 403);
+                if (!user.order_id || String(user.order_id).trim() !== orderNo) {
+                    return errorResponse('账号或订单号不匹配', 403);
+                }
+
+                const hash = await hashPassword(newPassword);
+                await env.DB.prepare('UPDATE users SET password_hash = ? WHERE id = ?').bind(hash, user.id).run();
+                return jsonResponse({ success: true, message: '密码已重置，请用新密码登录' });
             }
 
             /* ================= 站内消息 ================= */
