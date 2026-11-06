@@ -291,7 +291,7 @@ async function ensureSchema(env: Env): Promise<boolean> {
         )`,
         `CREATE TABLE IF NOT EXISTS activate_failures (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, ts INTEGER)`,
         `CREATE TABLE IF NOT EXISTS ai_chats (id INTEGER PRIMARY KEY AUTOINCREMENT, question TEXT, reply TEXT, ip TEXT, created_at INTEGER DEFAULT (strftime('%s','now')))`,
-        `CREATE TABLE IF NOT EXISTS visits (id INTEGER PRIMARY KEY AUTOINCREMENT, day TEXT, source TEXT, visitor TEXT, ts INTEGER)`,
+        `CREATE TABLE IF NOT EXISTS visits (id INTEGER PRIMARY KEY AUTOINCREMENT, day TEXT, source TEXT, visitor TEXT, ts INTEGER, is_user INTEGER DEFAULT 0)`,
         `CREATE INDEX IF NOT EXISTS idx_visits_day ON visits(day)`,
         `CREATE INDEX IF NOT EXISTS idx_visits_ts ON visits(ts)`,
         `CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT)`,
@@ -1156,10 +1156,10 @@ export default {
                 const ts = Math.floor(Date.now() / 1000);
                 const visitor = (ip + '|' + ua).slice(0, 120);
                 try {
-                    const seen = await env.DB.prepare('SELECT id FROM visits WHERE visitor = ? AND ts > ? LIMIT 1').bind(visitor, ts - 1800).first();
-                    if (!seen) {
-                        await env.DB.prepare('INSERT INTO visits (day, source, visitor, ts) VALUES (?, ?, ?, ?)').bind(day, source, visitor, ts).run();
-                    }
+                    const isUser = request.headers.get('Authorization') ? 1 : 0;
+                    await env.DB.prepare('INSERT INTO visits (day, source, visitor, is_user, ts) VALUES (?, ?, ?, ?, ?)')
+                        .bind(day, source, visitor, isUser, ts)
+                        .run();
                 } catch (e) {}
                 return jsonResponse({ ok: true });
             }
@@ -1410,6 +1410,27 @@ try {
                     online_now: await (async () => {
                         try {
                             const r: any = await env.DB.prepare('SELECT COUNT(DISTINCT visitor) AS n FROM visits WHERE ts > ?').bind(Math.floor(Date.now() / 1000) - 300).first();
+                            return r?.n || 0;
+                        } catch (e) { return 0; }
+                    })(),
+                    pv_today: await (async () => {
+                        try {
+                            const d = new Date().toISOString().slice(0, 10);
+                            const r: any = await env.DB.prepare('SELECT COUNT(*) AS n FROM visits WHERE day = ?').bind(d).first();
+                            return r?.n || 0;
+                        } catch (e) { return 0; }
+                    })(),
+                    visitors_logged: await (async () => {
+                        try {
+                            const d = new Date().toISOString().slice(0, 10);
+                            const r: any = await env.DB.prepare('SELECT COUNT(DISTINCT visitor) AS n FROM visits WHERE day = ? AND is_user = 1').bind(d).first();
+                            return r?.n || 0;
+                        } catch (e) { return 0; }
+                    })(),
+                    visitors_guest: await (async () => {
+                        try {
+                            const d = new Date().toISOString().slice(0, 10);
+                            const r: any = await env.DB.prepare('SELECT COUNT(DISTINCT visitor) AS n FROM visits WHERE day = ? AND (is_user IS NULL OR is_user = 0)').bind(d).first();
                             return r?.n || 0;
                         } catch (e) { return 0; }
                     })(),
