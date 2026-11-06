@@ -2217,6 +2217,37 @@
             boot();
         }
         registerServiceWorker();
+    
+        /* ===== 概览访问卡片（VISIT_CARDS_V1） ===== */
+        (function () {
+            var orig = null;
+            function decorate() {
+                api('/api/admin/stats')
+                    .then(function (s) {
+                        var grid = $('statGrid');
+                        if (!grid || grid.querySelector('[data-visit]')) return;
+                        grid.insertAdjacentHTML(
+                            'beforeend',
+                            '<div class="stat" data-visit><b>' + (s.online_now || 0) + '</b><span>当前在线</span></div>' +
+                            '<div class="stat" data-visit><b>' + (s.visitors_today || 0) + '</b><span>今日访客</span></div>' +
+                            '<div class="stat" data-visit><b>' + (s.pv_today || 0) + '</b><span>今日浏览</span></div>' +
+                            '<div class="stat" data-visit><b>' + (s.visitors_yesterday || 0) + '</b><span>昨日访客</span></div>' +
+                            '<div class="stat" data-visit><b>' + (s.visitors_logged || 0) + ' / ' + (s.visitors_guest || 0) + '</b><span>登录 / 游客</span></div>'
+                        );
+                    })
+                    .catch(function () {});
+            }
+            var tries = 0;
+            var timer = setInterval(function () {
+                tries++;
+                if (document.getElementById('statGrid') && document.getElementById('statGrid').childElementCount > 0) {
+                    clearInterval(timer);
+                    decorate();
+                }
+                if (tries > 40) clearInterval(timer);
+            }, 500);
+        })();
+
     </script>
 </body>
 </html>
