@@ -17,5 +17,5 @@ database_id = "bd66ebe6-4575-4b98-9a26-bbf5b4456ddf"
 # 重要：JWT_SECRET 不要写进仓库（这是签发登录令牌的密钥，仓库是公开的）
 # 设置方式：Cloudflare 控制台 → Workers → blog → 设置 → 变量 → 添加 JWT_SECRET
 #           或命令行：cd api && npx wrangler secret put JWT_SECRET
-JWT_SECRET = ""  # 真实值只在 Cloudflare 后台配置
+# JWT_SECRET 不写在这里：由 Cloudflare 变量或部署脚本沿用线上已有值
 ORDER_JSON_URL = "https://raw.gitcode.com/jack-sjz/sjz-aio/raw/main/resources/list.json"
