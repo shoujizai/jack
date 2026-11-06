@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
         if (!getToken()) return;
         fetch(apiBase() + '/api/messages', { headers: { Authorization: 'Bearer ' + getToken() } })
             .then(function (r) { return r.ok ? r.json() : null; })
-            .then(function (d) { setBadgeEnvelope((d && d.unread) || 0); })
+            .then(function (d) { lastUnread = (d && d.unread) || 0; setBadgeEnvelope(lastUnread); injectMenuEntry(); })
             .catch(function () {});
     }
 
@@ -676,9 +676,52 @@ document.addEventListener('DOMContentLoaded', initAuth);
             .catch(function () { body.textContent = '读取失败，请稍后再试。'; });
     }
 
+    /* 把「我的消息」插进用户面板（激活 / 退出 之间） */
+    var lastUnread = 0;
+
+    function injectMenuEntry() {
+        var nodes = document.querySelectorAll('button, a, li, div[role="menuitem"]');
+        for (var i = 0; i < nodes.length; i++) {
+            var n = nodes[i];
+            var t = (n.textContent || '').trim();
+            if (t !== '退出' && t !== '退出登录') continue;
+            var parent = n.parentElement;
+            if (!parent) continue;
+            if ((parent.textContent || '').indexOf('激活') === -1) continue;
+            var existing = parent.querySelector('[data-inbox-entry]');
+            if (existing) {
+                existing.textContent = '✉️ 我的消息' + (lastUnread ? '（' + lastUnread + ' 条未读）' : '');
+                return;
+            }
+            var entry = document.createElement('button');
+            entry.setAttribute('data-inbox-entry', '1');
+            entry.className = n.className || '';
+            entry.style.cssText = 'width:100%;text-align:left;background:transparent;border:none;padding:10px 14px;font:inherit;cursor:pointer;color:inherit;';
+            entry.textContent = '✉️ 我的消息' + (lastUnread ? '（' + lastUnread + ' 条未读）' : '');
+            entry.onclick = function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                openInbox();
+            };
+            parent.insertBefore(entry, n);
+            return;
+        }
+    }
+
+    function watchMenu() {
+        injectMenuEntry();
+        try {
+            new MutationObserver(function () { injectMenuEntry(); }).observe(document.body, { childList: true, subtree: true });
+        } catch (e) {
+            /* 忽略 */
+        }
+        setInterval(injectMenuEntry, 1500);
+    }
+
     function boot() {
         if (!getToken()) return;
         refresh();
+        watchMenu();
         setInterval(refresh, 60000);
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
