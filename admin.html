@@ -18,7 +18,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="博客后台">
-    <meta name="application-name" content="博客后台"><link rel="stylesheet" href="styles.css?v=237">
+    <meta name="application-name" content="博客后台"><link rel="stylesheet" href="styles.css?v=241">
     <style>
         .adm-tabs {
             display: flex;
@@ -2218,32 +2218,43 @@
         }
         registerServiceWorker();
     
-        /* ===== 概览访问卡片（VISIT_CARDS_V2） ===== */
+        /* ===== 概览访问卡片（VISIT_CARDS_V3，用缓存立即渲染） ===== */
         (function () {
-            function decorate() {
-                var grid = $('statGrid');
-                if (!grid || grid.querySelector('[data-visit]')) return;
-                var cur = $('vOnline');
-                api('/api/admin/stats')
-                    .then(function (s) {
-                        var g = $('statGrid');
-                        if (!g || g.querySelector('[data-visit]')) return;
-                        g.insertAdjacentHTML(
-                            'beforeend',
-                            '<div class="stat" data-visit><b>' + (s.online_now || 0) + '</b><span>当前在线</span></div>' +
-                            '<div class="stat" data-visit><b>' + (s.visitors_today || 0) + '</b><span>今日访客</span></div>' +
-                            '<div class="stat" data-visit><b>' + (s.pv_today || 0) + '</b><span>今日浏览</span></div>' +
-                            '<div class="stat" data-visit><b>' + (s.visitors_yesterday || 0) + '</b><span>昨日访客</span></div>' +
-                            '<div class="stat" data-visit><b>' + (s.visitors_logged || 0) + ' / ' + (s.visitors_guest || 0) + '</b><span>登录 / 游客</span></div>'
-                        );
-                    })
-                    .catch(function () {});
+            function render(s) {
+                var g = $('statGrid');
+                if (!g || !s) return;
+                if (g.querySelector('[data-visit]')) return;
+                g.insertAdjacentHTML(
+                    'beforeend',
+                    '<div class="stat" data-visit><b>' + (s.online_now || 0) + '</b><span>当前在线</span></div>' +
+                    '<div class="stat" data-visit><b>' + (s.visitors_today || 0) + '</b><span>今日访客</span></div>' +
+                    '<div class="stat" data-visit><b>' + (s.pv_today || 0) + '</b><span>今日浏览</span></div>' +
+                    '<div class="stat" data-visit><b>' + (s.visitors_yesterday || 0) + '</b><span>昨日访客</span></div>' +
+                    '<div class="stat" data-visit><b>' + (s.visitors_logged || 0) + ' / ' + (s.visitors_guest || 0) + '</b><span>登录 / 游客</span></div>'
+                );
             }
-            // 立即渲染（不等轮询），随后 1 秒内再校正两次
-            decorate();
-            setTimeout(decorate, 400);
-            setTimeout(decorate, 1200);
-            setInterval(decorate, 5000);
+
+            // 捕获 stats 响应，供后续复用
+            var _api = api;
+            api = function (path, opts) {
+                return _api(path, opts).then(function (d) {
+                    if (String(path).indexOf('/api/admin/stats') === 0) {
+                        window.__lastStats = d;
+                    }
+                    return d;
+                });
+            };
+
+            // 每 150ms 检查一次，数据一到立刻补卡片
+            var tries = 0;
+            var timer = setInterval(function () {
+                tries++;
+                var g = $('statGrid');
+                if (g && g.childElementCount > 0) {
+                    render(window.__lastStats);
+                }
+                if (tries > 40) clearInterval(timer);
+            }, 150);
         })();
 
     
