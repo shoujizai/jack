@@ -157,16 +157,16 @@ function updateAuthUI() {
 }
 
 function recoverPassword() {
-        var account = prompt('请输入账号（手机号 或 邮箱）');
+        var nickname = prompt('请输入你的昵称');
+        if (!nickname) return;
+        var account = prompt('请输入手机号 或 邮箱');
         if (!account) return;
-        var orderNo = prompt('请输入订单号');
-        if (!orderNo) return;
         var newPass = prompt('请设置新密码（至少 6 位）');
         if (!newPass) return;
         fetch((window.API_BASE || '') + '/api/recover', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ account: account.trim(), order_no: orderNo.trim(), new_password: newPass }),
+            body: JSON.stringify({ nickname: nickname.trim(), account: account.trim(), new_password: newPass }),
         })
             .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
             .then(function (res) {
@@ -220,7 +220,7 @@ function recoverPassword() {
                 ${type === 'register' ? `
                     <div class="auth-field">
                         <label>昵称（可选）</label>
-                        <input type="text" id="authNickname" placeholder="给自己起个名字">
+                        <input type="text" id="authNickname" placeholder="昵称（中文≤6字，英文≤10字符）" maxlength="12">
                     </div>
                 ` : ''}
                 <div class="auth-field">
