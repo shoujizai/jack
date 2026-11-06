@@ -2094,7 +2094,7 @@ footer a:hover {
 
 #menuToggle.active {
     animation: none;
-    transform: rotate(90deg) scale(1.04);
+    transform: rotate(-90deg) scale(1.04);
     background-color: rgba(0, 122, 255, 0.12);
     border-radius: 11px;
 }
