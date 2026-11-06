@@ -1347,6 +1347,10 @@ try {
             if (path === '/api/admin/ai' && request.method === 'DELETE') {
                 const admin = await requireAdmin(request, env);
                 if (admin instanceof Response) return admin;
+                if (url.searchParams.get('all') === '1') {
+                    await env.DB.prepare('DELETE FROM ai_chats').run();
+                    return jsonResponse({ success: true, all: true });
+                }
                 const id = parseInt(url.searchParams.get('id') || '0');
                 if (!id) return errorResponse('缺少 id');
                 await env.DB.prepare('DELETE FROM ai_chats WHERE id = ?').bind(id).run();
