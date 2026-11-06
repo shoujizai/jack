@@ -2239,8 +2239,11 @@
                     })
                     .catch(function () {});
             }
-            setInterval(decorate, 3000);
-            setTimeout(decorate, 800);
+            // 立即渲染（不等轮询），随后 1 秒内再校正两次
+            decorate();
+            setTimeout(decorate, 400);
+            setTimeout(decorate, 1200);
+            setInterval(decorate, 5000);
         })();
 
     
