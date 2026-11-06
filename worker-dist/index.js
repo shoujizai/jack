@@ -1032,8 +1032,8 @@ export default {
                 const dayKey = new Date().toISOString().slice(0, 10);
                 try {
                     const used = await env.DB.prepare('SELECT COUNT(*) AS n FROM ai_usage WHERE key = ? AND day = ?').bind(ip, dayKey).first();
-                    if ((used?.n || 0) >= 30)
-                        return errorResponse('今天的对话次数用完了，明天再来吧', 429);
+                    if ((used?.n || 0) >= 15)
+                        return errorResponse('今天的 15 次对话已用完，明天再来吧', 429);
                     await env.DB.prepare('INSERT INTO ai_usage (key, day, ts) VALUES (?, ?, ?)').bind(ip, dayKey, Math.floor(Date.now() / 1000)).run();
                 }
                 catch (e) { }
