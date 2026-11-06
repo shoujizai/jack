@@ -10,6 +10,14 @@ export interface Env {
 /* ------------------------------------------------------------------
  * 代码版本标记：每次改动后端就 +1，方便一眼看出线上/本地跑的是不是最新代码
  * ------------------------------------------------------------------ */
+const DEFAULT_AI_PROMPT = [
+    '你是「微修的Blog」站内助手，用中文简短回答（一般不超过 150 字）。',
+    '优先依据【本站资料】回答；资料里没有的，凭常识回答但说明「站内没有详细说明」。',
+    '可以回答 Switch 大气层（Atmosphere）、模拟器、插件、游戏安装等相关问题，给具体步骤。',
+    '也可以正常闲聊，但不要编造链接、价格、订单号、联系方式。',
+    '遇到政治、医疗、法律等敏感话题，礼貌拒绝。',
+].join('\n');
+
 const CODE_VERSION = 'admin-10';
 
 /* ------------------------------------------------------------------
@@ -1178,7 +1186,7 @@ try {
     const row: any = await env.DB.prepare("SELECT v FROM settings WHERE k = 'ai_prompt'").first();
     customPrompt = (row && row.v) || '';
 } catch (e) {}
-                const system = (customPrompt ? [customPrompt] : [
+                const system = (customPrompt ? [customPrompt] : [DEFAULT_AI_PROMPT,
                     '你是微修 Blog 的站内助手，用中文简短回答（150 字以内）。',
                     '优先依据本站资料回答；没有资料就凭常识回答，并说明站内没有详细说明。',
                     '可以回答 Switch 大气层 Atmosphere、模拟器、插件、游戏安装等问题，给出具体步骤。',
@@ -1314,7 +1322,7 @@ try {
                     const row: any = await env.DB.prepare("SELECT v FROM settings WHERE k = 'ai_prompt'").first();
                     prompt = (row && row.v) || '';
                 } catch (e) {}
-                return jsonResponse({ prompt });
+                return jsonResponse({ prompt, default_prompt: DEFAULT_AI_PROMPT });
             }
 
             if (path === '/api/admin/ai/prompt' && request.method === 'POST') {
