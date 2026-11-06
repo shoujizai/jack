@@ -577,24 +577,37 @@ document.addEventListener('DOMContentLoaded', initAuth);
 
     var savedHtml = null;
 
+    var badgeOriginalCss = null;
+
     function setBadgeEnvelope(count) {
         var el = findBadge();
         if (!el) return;
         var cur = el.getAttribute('data-inbox-env');
         if (count > 0) {
             if (cur !== String(count)) {
-                if (savedHtml === null) savedHtml = el.innerHTML;
+                if (savedHtml === null) {
+                    savedHtml = el.innerHTML;
+                    badgeOriginalCss = el.style.cssText;
+                }
                 el.setAttribute('data-inbox-env', String(count));
-                el.innerHTML = '<span class="msg-envelope" style="display:inline-block"><svg width="16" height="16" viewBox="0 0 24 24" style="vertical-align:-3px"><rect x="2" y="5" width="20" height="14" rx="3" fill="#FFB300"/><path d="M2.8 6.6 12 13l9.2-6.4" fill="none" stroke="#8A5A00" stroke-width="1.6" stroke-linecap="round"/></svg></span>' +
-                    (count > 1 ? '<sup style="font-size:11px;color:#FF3B30;margin-left:2px;">' + count + '</sup>' : '');
+                el.innerHTML = '<span class="msg-envelope" style="display:inline-block"><svg width="17" height="17" viewBox="0 0 24 24" style="vertical-align:-3px"><rect x="2" y="5" width="20" height="14" rx="3" fill="#FFC107"/><path d="M2.8 6.6 12 13l9.2-6.4" fill="none" stroke="#8A5A00" stroke-width="1.6" stroke-linecap="round"/></svg></span>' +
+                    '<span style="font-size:12px;color:#FF3B30;font-weight:600;margin-left:3px;vertical-align:2px;">' + count + '</span>';
                 el.title = count + ' 条未读消息';
+                // 去掉徽章原本的背景、内边距、圆角
+                el.style.background = 'none';
+                el.style.backgroundColor = 'transparent';
+                el.style.padding = '0';
+                el.style.border = 'none';
+                el.style.boxShadow = 'none';
                 el.style.display = 'inline-block';
             }
         } else if (cur !== null) {
             el.removeAttribute('data-inbox-env');
             if (savedHtml) el.innerHTML = savedHtml;
+            el.style.cssText = badgeOriginalCss || '';
             el.title = '';
             savedHtml = null;
+            badgeOriginalCss = null;
         }
     }
 
