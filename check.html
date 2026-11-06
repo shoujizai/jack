@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex">
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
-    <link rel="stylesheet" href="styles.css?v=8">
+    <link rel="stylesheet" href="styles.css?v=9">
     <style>
         .check-item {
             display: flex;
@@ -118,7 +118,7 @@
         <p>接口体检页面 · 不对外显示在导航里</p>
     </footer>
 
-    <script src="auth.js?v=8" defer></script>
+    <script src="auth.js?v=9" defer></script>
     <script>
         (function () {
             var resultsEl = document.getElementById('results');
@@ -191,6 +191,19 @@
 
             function run() {
                 reset();
+
+                // 0. 本地登录凭证（刷新后应仍存在）
+                var savedToken = null;
+                try {
+                    savedToken = localStorage.getItem('auth_token');
+                } catch (e) {
+                    addRow('bad', '浏览器禁用了本地存储', '无痕模式或"阻止所有 Cookie"会让登录状态存不下来。');
+                }
+                if (savedToken) {
+                    addRow('ok', '本地已保存登录凭证', '长度 ' + savedToken.length + '，刷新后应该仍然存在。');
+                } else {
+                    addRow('warn', '本地没有登录凭证', '还没登录过，或浏览器把本地存储清掉了。');
+                }
 
                 // 1. 健康检查
                 fetchJSON('/api/health')

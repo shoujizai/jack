@@ -40,9 +40,17 @@ async function api(endpoint, options = {}) {
         ...options,
         headers,
     });
-    const data = await response.json();
+    let data = {};
+    try {
+        data = await response.json();
+    } catch (e) {
+        data = {};
+    }
     if (!response.ok) {
-        throw new Error(data.error || '请求失败');
+        const err = new Error(data.error || '请求失败 (' + response.status + ')');
+        err.status = response.status;
+        err.data = data;
+        throw err;
     }
     return data;
 }
@@ -59,7 +67,15 @@ async function checkAuth() {
         currentUser = data;
         updateAuthUI();
     } catch (e) {
-        localStorage.removeItem('auth_token');
+        // 只有服务器明确告知"未登录 / 令牌无效"才清除本地凭证。
+        // 网络异常、CORS 抖动、接口 500 等情况一律保留 token，
+        // 否则一次临时故障就会把用户踢下线（刷新后就"登录没了"）。
+        if (e && (e.status === 401 || e.status === 403)) {
+            localStorage.removeItem('auth_token');
+            window.__authError = null;
+        } else {
+            window.__authError = (e && e.message) || '登录状态校验失败';
+        }
         currentUser = null;
         updateAuthUI();
     }
