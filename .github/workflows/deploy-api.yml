@@ -1,0 +1,39 @@
+name: Deploy Worker API
+
+# 推送到 main 分支时，自动把 api/ 目录部署到 Cloudflare Worker（名字：blog）
+# 需要先在 GitHub 仓库设置里添加一个 Secret：CLOUDFLARE_API_TOKEN
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/**'
+      - '.github/workflows/deploy-api.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to Cloudflare Workers
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: api
+        run: npm install --no-audit --no-fund
+
+      - name: Type check
+        working-directory: api
+        run: npx tsc --noEmit -p tsconfig.json
+
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: api
+          command: deploy

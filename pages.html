@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>全部页面 - 微修的Blog</title>
+    <meta name="description" content="微修的Blog 上所有教程与说明页面列表。">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23007AFF'/%3E%3Cpath d='M32 14c-4 0-7 3-7 7v10c0 4 3 7 7 7s7-3 7-7V21c0-4-3-7-7-7zm-13 17v4c0 7 6 13 13 13s13-6 13-13v-4h-4v4a9 9 0 0 1-18 0v-4h-4zm12 13v6h2v-6h-2z' fill='%23fff'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="styles.css?v=16">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <button class="menu-toggle" id="menuToggle" aria-label="打开菜单" aria-expanded="false" aria-controls="navLinks">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <a class="logo" href="index.html">微修的Blog</a>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">首页</a>
+                <a href="getting-started.html">入坑指南</a>
+                <a href="tutorial.html">入门教程</a>
+                <a href="download.html">资源下载</a>
+                <a href="install.html">安装游戏</a>
+                <a href="plugins.html">插件指南</a>
+                <a href="update.html">系统更新</a>
+                <a href="games.html">游戏预选</a>
+                <a href="faq.html">常见问题</a>
+            </div>
+            <div class="nav-auth">
+                <button id="authLoginBtn" class="btn btn-secondary btn-sm" onclick="showAuthModal('login')">登录</button>
+                <div id="authUserMenu" class="user-menu" style="display: none;">
+                    <div class="user-info" onclick="toggleUserDropdown()">
+                        <span id="authUserNickname" class="user-nickname"></span>
+                        <span id="authCustomerBadge" class="customer-badge" style="display: none;">客户</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div id="userDropdown" class="user-dropdown" style="display: none;">
+                        <div id="authUserKeys" class="user-keys" style="display: none;"></div>
+                        <button id="authActivateBtn" class="btn btn-secondary btn-sm" onclick="showActivateModal()">激活订单</button>
+                        <button class="btn btn-secondary btn-sm" onclick="logout()">退出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-header">
+            <h1>全部页面</h1>
+            <p>这里是在后台发布的所有教程与说明页面。</p>
+        </div>
+
+        <div id="pagesState" style="padding: 16px 4px; color: var(--label-2);">正在读取…</div>
+        <div class="list-card" id="pagesList" style="display: none;"></div>
+    </main>
+
+    <footer>
+        <p>© <span data-current-year>2024</span> 微修通讯的Blog · 淘宝店：微修通讯 · 站长：sjz</p>
+        <p>本站仅供学习交流，请支持正版游戏</p>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" aria-label="返回顶部">↑</button>
+
+    <script src="app.js?v=16" defer></script>
+    <script src="auth.js?v=16" defer></script>
+    <script>
+        function renderPages() {
+            'use strict';
+            var base = window.API_BASE || '';
+            var stateEl = document.getElementById('pagesState');
+            var listEl = document.getElementById('pagesList');
+
+            fetch(base + '/api/pages')
+                .then(function (res) {
+                    return res.json().then(function (data) {
+                        return { ok: res.ok, data: data };
+                    });
+                })
+                .then(function (r) {
+                    if (!r.ok) {
+                        stateEl.textContent = '读取失败：' + ((r.data && r.data.error) || '接口异常');
+                        stateEl.style.color = 'var(--red)';
+                        return;
+                    }
+                    var pages = (r.data && r.data.pages) || [];
+                    if (!pages.length) {
+                        stateEl.textContent = '还没有发布的页面。';
+                        return;
+                    }
+                    stateEl.style.display = 'none';
+                    listEl.style.display = 'block';
+                    listEl.innerHTML = pages
+                        .map(function (p) {
+                            var sub = p.subtitle || ('更新于 ' + new Date((p.updated_at || 0) * 1000).toLocaleDateString('zh-CN'));
+                            return (
+                                '<a class="list-row" href="page.html?slug=' + encodeURIComponent(p.slug) + '">' +
+                                '<span class="row-icon" style="--tile:#007AFF">📄</span>' +
+                                '<span class="row-text">' +
+                                '<span class="row-title">' + escapeText(p.title) + '</span>' +
+                                '<span class="row-sub">' + escapeText(sub) + '</span>' +
+                                '</span></a>'
+                            );
+                        })
+                        .join('');
+                })
+                .catch(function (e) {
+                    stateEl.textContent = '无法连接接口：' + e.message;
+                    stateEl.style.color = 'var(--red)';
+                });
+        }
+
+        function escapeText(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        // 等 auth.js 设置好 window.API_BASE
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', renderPages);
+        } else {
+            renderPages();
+        }
+    </script>
+</body>
+</html>

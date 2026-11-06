@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>加载中… - 微修的Blog</title>
+    <meta name="robots" content="index,follow">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23007AFF'/%3E%3Cpath d='M32 14c-4 0-7 3-7 7v10c0 4 3 7 7 7s7-3 7-7V21c0-4-3-7-7-7zm-13 17v4c0 7 6 13 13 13s13-6 13-13v-4h-4v4a9 9 0 0 1-18 0v-4h-4zm12 13v6h2v-6h-2z' fill='%23fff'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="styles.css?v=16">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <button class="menu-toggle" id="menuToggle" aria-label="打开菜单" aria-expanded="false" aria-controls="navLinks">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <a class="logo" href="index.html">微修的Blog</a>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">首页</a>
+                <a href="getting-started.html">入坑指南</a>
+                <a href="tutorial.html">入门教程</a>
+                <a href="download.html">资源下载</a>
+                <a href="install.html">安装游戏</a>
+                <a href="plugins.html">插件指南</a>
+                <a href="update.html">系统更新</a>
+                <a href="games.html">游戏预选</a>
+                <a href="faq.html">常见问题</a>
+            </div>
+            <div class="nav-auth">
+                <button id="authLoginBtn" class="btn btn-secondary btn-sm" onclick="showAuthModal('login')">登录</button>
+                <div id="authUserMenu" class="user-menu" style="display: none;">
+                    <div class="user-info" onclick="toggleUserDropdown()">
+                        <span id="authUserNickname" class="user-nickname"></span>
+                        <span id="authCustomerBadge" class="customer-badge" style="display: none;">客户</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div id="userDropdown" class="user-dropdown" style="display: none;">
+                        <div id="authUserKeys" class="user-keys" style="display: none;"></div>
+                        <button id="authActivateBtn" class="btn btn-secondary btn-sm" onclick="showActivateModal()">激活订单</button>
+                        <button class="btn btn-secondary btn-sm" onclick="logout()">退出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-header">
+            <h1 id="pageTitle">加载中…</h1>
+            <p id="pageSubtitle"></p>
+        </div>
+        <div id="blocksWrap"></div>
+        <p id="pageState" style="padding: 20px 4px; color: var(--label-2);">正在读取内容…</p>
+    </main>
+
+    <footer>
+        <p>© <span data-current-year>2024</span> 微修通讯的Blog · 淘宝店：微修通讯 · 站长：sjz</p>
+        <p>本站仅供学习交流，请支持正版游戏</p>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" aria-label="返回顶部">↑</button>
+
+    <script src="app.js?v=16" defer></script>
+    <script src="auth.js?v=16" defer></script>
+    <script>
+        function start() {
+            'use strict';
+
+            var params = new URLSearchParams(location.search);
+            var slug = (params.get('slug') || '').trim();
+
+            var titleEl = document.getElementById('pageTitle');
+            var subtitleEl = document.getElementById('pageSubtitle');
+            var wrap = document.getElementById('blocksWrap');
+            var stateEl = document.getElementById('pageState');
+
+            function el(tag, cls, text) {
+                var e = document.createElement(tag);
+                if (cls) e.className = cls;
+                if (text !== undefined && text !== null) e.textContent = text;
+                return e;
+            }
+
+            // 基础富文本：支持 **加粗** 和换行
+            function richText(container, text) {
+                String(text || '')
+                    .split(/\n+/)
+                    .forEach(function (line, i) {
+                        var p = el('p');
+                        line.split(/(\*\*[^*]+\*\*)/g).forEach(function (part) {
+                            if (/^\*\*[^*]+\*\*$/.test(part)) {
+                                p.appendChild(el('strong', null, part.slice(2, -2)));
+                            } else if (part) {
+                                p.appendChild(document.createTextNode(part));
+                            }
+                        });
+                        if (i > 0) p.style.marginTop = '10px';
+                        container.appendChild(p);
+                    });
+            }
+
+            function calloutClass(variant) {
+                if (variant === 'warning') return 'warning-box';
+                if (variant === 'info') return 'info-box';
+                return 'step-box';
+            }
+
+            var currentCard = null;
+
+            function newCard() {
+                var card = el('div', 'content-section');
+                wrap.appendChild(card);
+                currentCard = card;
+                return card;
+            }
+
+            function renderBlock(block) {
+                var type = block && block.type;
+
+                if (type === 'heading') {
+                    var card = newCard();
+                    card.appendChild(el('h2', null, block.text || ''));
+                    return;
+                }
+
+                if (type === 'subheading') {
+                    if (!currentCard) newCard();
+                    currentCard.appendChild(el('h3', null, block.text || ''));
+                    return;
+                }
+
+                if (!currentCard) newCard();
+
+                if (type === 'paragraph') {
+                    richText(currentCard, block.text || '');
+                    return;
+                }
+
+                if (type === 'list') {
+                    var list = el(block.ordered ? 'ol' : 'ul');
+                    (block.items || []).forEach(function (item) {
+                        if (String(item).trim()) list.appendChild(el('li', null, item));
+                    });
+                    currentCard.appendChild(list);
+                    return;
+                }
+
+                if (type === 'callout') {
+                    var box = el('div', calloutClass(block.variant));
+                    if (block.title) box.appendChild(el('h4', null, block.title));
+                    if (block.text) richText(box, block.text);
+                    currentCard.appendChild(box);
+                    return;
+                }
+
+                if (type === 'image') {
+                    if (!block.src) return;
+                    var fig = el('div');
+                    fig.style.textAlign = 'center';
+                    var img = el('img');
+                    img.src = block.src;
+                    img.alt = block.alt || '';
+                    img.loading = 'lazy';
+                    img.decoding = 'async';
+                    img.style.maxWidth = '100%';
+                    img.style.borderRadius = '10px';
+                    if (block.full) img.dataset.full = block.full;
+                    fig.appendChild(img);
+                    if (block.caption) {
+                        var cap = el('p', null, block.caption);
+                        cap.style.fontSize = '13px';
+                        cap.style.color = 'var(--label-2)';
+                        cap.style.marginTop = '8px';
+                        fig.appendChild(cap);
+                    }
+                    currentCard.appendChild(fig);
+                    return;
+                }
+
+                if (type === 'video') {
+                    var vc = el('div', 'video-card');
+                    if (block.title) vc.appendChild(el('p', 'video-card-title', block.title));
+                    if (block.url) {
+                        var a = el('a', 'btn-video', block.button || '观看视频');
+                        a.href = block.url;
+                        a.target = '_blank';
+                        a.rel = 'noopener';
+                        vc.appendChild(a);
+                    }
+                    if (block.hint) vc.appendChild(el('p', 'video-card-hint', block.hint));
+                    currentCard.appendChild(vc);
+                    return;
+                }
+
+                if (type === 'faq') {
+                    (block.items || []).forEach(function (item) {
+                        if (!item || (!item.q && !item.a)) return;
+                        var itemBox = el('div', 'faq-item');
+                        var q = el('div', 'faq-question');
+                        q.appendChild(el('h4', null, item.q || ''));
+                        var ans = el('div', 'faq-answer');
+                        richText(ans, item.a || '');
+                        itemBox.appendChild(q);
+                        itemBox.appendChild(ans);
+                        currentCard.appendChild(itemBox);
+                    });
+                    return;
+                }
+
+                if (type === 'table') {
+                    var table = el('table', 'info-table');
+                    if (block.head && block.head.length) {
+                        var thead = el('thead');
+                        var trh = el('tr');
+                        block.head.forEach(function (h) {
+                            trh.appendChild(el('th', null, h));
+                        });
+                        thead.appendChild(trh);
+                        table.appendChild(thead);
+                    }
+                    var tbody = el('tbody');
+                    (block.rows || []).forEach(function (row) {
+                        var tr = el('tr');
+                        row.forEach(function (cell) {
+                            tr.appendChild(el('td', null, cell));
+                        });
+                        tbody.appendChild(tr);
+                    });
+                    table.appendChild(tbody);
+                    currentCard.appendChild(table);
+                    return;
+                }
+
+                if (type === 'divider') {
+                    currentCard.appendChild(el('hr'));
+                }
+            }
+
+            function showError(msg) {
+                stateEl.textContent = msg;
+                stateEl.style.color = 'var(--red)';
+            }
+
+            if (!slug) {
+                titleEl.textContent = '页面不存在';
+                showError('缺少页面参数，请从后台复制完整链接再打开。');
+                return;
+            }
+
+            var base = window.API_BASE || '';
+            var token = '';
+            try {
+                token = localStorage.getItem('auth_token') || '';
+            } catch (e) {
+                token = '';
+            }
+
+            // 带登录状态请求，便于管理员预览未发布的草稿
+            fetch(base + '/api/pages?slug=' + encodeURIComponent(slug), {
+                headers: token ? { Authorization: 'Bearer ' + token } : {},
+            })
+                .then(function (res) {
+                    return res.json().then(function (data) {
+                        return { ok: res.ok, status: res.status, data: data };
+                    });
+                })
+                .then(function (r) {
+                    if (!r.ok || !r.data || !r.data.title) {
+                        titleEl.textContent = '页面不存在';
+                        showError('没有找到这个页面（slug: ' + slug + '）。');
+                        return;
+                    }
+                    var page = r.data;
+                    document.title = page.title + ' - 微修的Blog';
+                    titleEl.textContent = page.title;
+                    subtitleEl.textContent = page.subtitle || '';
+                    stateEl.remove();
+
+                    var blocks = Array.isArray(page.blocks) ? page.blocks : [];
+                    if (!blocks.length) {
+                        newCard().appendChild(el('p', null, '（这个页面还没有内容）'));
+                        return;
+                    }
+                    blocks.forEach(renderBlock);
+                })
+                .catch(function (e) {
+                    titleEl.textContent = '加载失败';
+                    showError('无法连接接口：' + e.message);
+                });
+        }
+
+        // 等 auth.js（defer）执行完、拿到 window.API_BASE 后再渲染
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', start);
+        } else {
+            start();
+        }
+    </script>
+</body>
+</html>

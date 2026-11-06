@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex">
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
-    <link rel="stylesheet" href="styles.css?v=14">
+    <link rel="stylesheet" href="styles.css?v=16">
     <style>
         .check-item {
             display: flex;
@@ -118,7 +118,7 @@
         <p>接口体检页面 · 不对外显示在导航里</p>
     </footer>
 
-    <script src="auth.js?v=14" defer></script>
+    <script src="auth.js?v=16" defer></script>
     <script>
         (function () {
             var resultsEl = document.getElementById('results');
@@ -229,14 +229,26 @@
                         }
 
                         var tables = d.tables || [];
-                        var need = ['users', 'comments', 'sessions'];
+                        var need = ['users', 'comments', 'sessions', 'pages'];
                         var missing = need.filter(function (t) { return tables.indexOf(t) === -1; });
                         if (!tables.length) {
-                            addRow('bad', '数据库里还没有表', '在 D1 控制台执行 api/schema.sql 建表。');
+                            addRow('bad', '数据库里还没有表', '正常情况下 Worker 首次访问会自动建表；如果一直是空的，检查 D1 绑定是否正确。');
                         } else if (missing.length) {
                             addRow('warn', '缺少表：' + missing.join('、'), '已有：' + tables.join('、'));
                         } else {
-                            addRow('ok', '数据表齐全', 'users、comments、sessions 都在。');
+                            addRow('ok', '数据表齐全', 'users、comments、sessions、pages 都在。');
+                        }
+
+                        var f = d.features || {};
+                        if (f.has_admin_api) {
+                            addRow('ok', '后台管理接口已上线', '可以打开 admin.html 登录后台。');
+                        } else {
+                            addRow('warn', '后台管理接口未上线', '说明线上 Worker 还是旧版本，需要重新部署（双击 部署后台.cmd）。');
+                        }
+                        if (f.has_pages_table) {
+                            addRow('ok', '页面表已就绪', '后台可以创建/编辑页面了。');
+                        } else if (f.has_admin_api) {
+                            addRow('warn', '页面表还没建立', '访问一次 /api/pages 会自动创建，或手动执行 api/schema-admin.sql。');
                         }
 
                         // 2. 评论读取
@@ -268,7 +280,7 @@
                                         addRow(
                                             'warn',
                                             '当前账号不是管理员',
-                                            '后端只认 318886406@qq.com 这个邮箱。你登录的是：' + (me.email || '未知') + '，所以不会显示「管理员」徽章。'
+                                            '后台只认白名单里的管理员邮箱。你登录的是：' + (me.email || '未知') + '，所以不会显示「管理员」徽章。'
                                         );
                                     }
                                 } else {

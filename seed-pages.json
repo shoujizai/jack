@@ -1,0 +1,854 @@
+[
+  {
+    "slug": "getting-started",
+    "title": "入坑指南",
+    "subtitle": "新手必看！了解大气层，准备入坑",
+    "published": false,
+    "sort_order": 100,
+    "blocks": [
+      {
+        "type": "heading",
+        "text": "什么是大气层？"
+      },
+      {
+        "type": "paragraph",
+        "text": "大气层（Atmosphere）是一款开源的Nintendo Switch自制系统固件，是目前最流行、最稳定的Switch破解方案。"
+      },
+      {
+        "type": "paragraph",
+        "text": "它允许你在Switch上运行自制软件、游戏备份、模拟器等，同时保持原机系统的完整性。"
+      },
+      {
+        "type": "heading",
+        "text": "为什么选择大气层？"
+      },
+      {
+        "type": "list",
+        "items": [
+          "**免费开源** - 完全免费，代码公开透明",
+          "**安全稳定** - 支持虚拟系统(EMUMMC)，不影响原机",
+          "**功能强大** - 支持游戏备份、金手指、主题、插件等",
+          "**持续更新** - 开发者活跃，及时跟进系统版本",
+          "**社区支持** - 大量教程和插件资源"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "heading",
+        "text": "入坑前需要了解的风险"
+      },
+      {
+        "type": "callout",
+        "variant": "warning",
+        "title": "重要提示",
+        "text": "• 需要抛开你的信仰，接受新的概念\n• 在别人的操作下，操作不当可能会导致机器变砖，但手机仔永远不会\n• 请支持正版游戏，破解仅供学习研究\n• 部分新游戏可能需要更新大气层版本和系统固件版本"
+      },
+      {
+        "type": "heading",
+        "text": "你需要准备什么？"
+      },
+      {
+        "type": "subheading",
+        "text": "硬件准备"
+      },
+      {
+        "type": "list",
+        "items": [
+          "**Switch主机** - 须在正版系统上正常运作及充电的Switch主机",
+          "**内存卡** - 建议128GB或更大（游戏较大），用于安装大气层的文件系统及游戏",
+          "**电脑** - Windows/Mac均可",
+          "**USB数据线**(建议使用3.0的USB-C到USB-A) - 用于连接Switch和电脑",
+          "**读卡器**（可选，不适用于安装游戏，仅用于救黑砖） - 用于将文件写入内存卡",
+          "**投屏电视**(知识盲点提示) - 改机不会影响或增加投屏功能，无论投屏时还是充电需要用原装充电器"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "subheading",
+        "text": "内存卡以及数据线真伪分辨"
+      },
+      {
+        "type": "paragraph",
+        "text": "市面上有很多假冒的内存卡和伪劣的数据线，使用这些产品可能会导致无法制作大气层及数据丢失或传输不稳定。以下是一些辨别真伪的方法："
+      },
+      {
+        "type": "subheading",
+        "text": "闪迪内存卡真伪辨别"
+      },
+      {
+        "type": "list",
+        "items": [
+          "**包装检查** - 正品包装印刷清晰，防伪标签完整，防伪标为九段金属蚀刻，没有或不是金属蚀刻的则为假",
+          "**产地** - 正品产地为中国china，马来西亚malaysia，，台湾taiwan或别的则为假",
+          "**外观细节** - 正品做工精细，字迹清晰"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "image",
+        "src": "images/sd1.jpg",
+        "alt": "内存卡真伪辨别1",
+        "caption": "",
+        "full": ""
+      },
+      {
+        "type": "image",
+        "src": "images/sd2.jpg",
+        "alt": "内存卡真伪辨别2",
+        "caption": "",
+        "full": ""
+      },
+      {
+        "type": "paragraph",
+        "text": "内存卡真伪辨别示意图"
+      },
+      {
+        "type": "subheading",
+        "text": "数据线伪劣辨别"
+      },
+      {
+        "type": "list",
+        "items": [
+          "**是否具备数据传输功能** - 市面上很多便宜的线(内部只2线芯)不具备数据传输功能，USB 2.0（内部4线芯），USB 3.0(内部9线芯)，所以USB 3.0一定可以传输数据(华为的线不行)"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "image",
+        "src": "images/usb.jpg",
+        "alt": "数据线伪劣辨别",
+        "caption": "",
+        "full": ""
+      },
+      {
+        "type": "paragraph",
+        "text": "数据线伪劣辨别示意图（点击图片可放大查看）"
+      },
+      {
+        "type": "heading",
+        "text": "微修Switch机型工艺说明"
+      },
+      {
+        "type": "table",
+        "head": [
+          "机型",
+          "图片展示",
+          "工艺说明"
+        ],
+        "rows": [
+          [
+            "OLED",
+            "",
+            "工艺难度：⭐⭐⭐⭐ 困难\n芯片类型：订制版树莓派rp2040\n焊接要求：贴吧首创，不剪框，精准挖孔，C点无飞线"
+          ],
+          [
+            "续航版\n普通版\nLite",
+            "",
+            "工艺难度：⭐⭐⭐⭐ 困难\n芯片类型：订制版树莓派rp2040\n焊接要求：贴吧首创，不剪框，不移动EMMC，无损方案"
+          ]
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "点击图片可放大查看"
+      },
+      {
+        "type": "heading",
+        "text": "为什么选择微修通讯？独家仅有"
+      },
+      {
+        "type": "subheading",
+        "text": "硬件技术水平"
+      },
+      {
+        "type": "list",
+        "items": [
+          "**焊接能力** - 有直播，有最细节的返图",
+          "**线路板检测** - 有资深的线路板检测维修能力，能够快速定位问题",
+          "**芯片级维修** - 各种掌机，PC，内存颗粒更换",
+          "**较同行水平** - 修复无数次同行翻车的记录"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "subheading",
+        "text": "软件技术水平"
+      },
+      {
+        "type": "list",
+        "items": [
+          "**略懂各种计算机语言** - 能够应付你所有的软件问题",
+          "**熟练各种环境搭建** - devkitPro等工具链+编译环境+调试环境，自制系统固件，能够独立完成软件开发",
+          "**自制一站式APP** - 提供网络维护，在线更新大气层及系统固件，安装游戏、管理工具、备份存档，金手指、在线主题、在线插件等功能"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "subheading",
+        "text": "售后支持"
+      },
+      {
+        "type": "list",
+        "items": [
+          "**更多售后权益** - taobao店比闲鱼更完善售后支持，支持更长的3年改机芯片售后期，兼具更靠谱的线下实体店"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "paragraph",
+        "text": "准备好了？前往 联系手机仔 开始你的折腾之旅！"
+      },
+      {
+        "type": "heading",
+        "text": "常见问题"
+      },
+      {
+        "type": "subheading",
+        "text": "Q: 破解后还能玩正版游戏吗？"
+      },
+      {
+        "type": "paragraph",
+        "text": "A: 可以！大气层支持双系统，可以在正版系统和破解系统之间切换。"
+      },
+      {
+        "type": "subheading",
+        "text": "Q: 破解后会被ban吗？"
+      },
+      {
+        "type": "paragraph",
+        "text": "A: 机仔已做了屏蔽真实系统处理，几千群友的测试，都没有被ban过。"
+      },
+      {
+        "type": "subheading",
+        "text": "Q: 破解系统能连网络吗？能联机吗"
+      },
+      {
+        "type": "paragraph",
+        "text": "A: 可以连WiFi,可以连网络,也可以连私人服务器lanplay，同时还可以进行网络维护，但是不可以连接老任的服务器"
+      },
+      {
+        "type": "subheading",
+        "text": "Q: 还有别的问题吗？"
+      },
+      {
+        "type": "paragraph",
+        "text": "A: 请直接联系机仔。"
+      }
+    ]
+  },
+  {
+    "slug": "tutorial",
+    "title": "入门教程",
+    "subtitle": "Switch大气层双系统使用教程 - 欢迎使用微修通讯大气层双系统——手机仔",
+    "published": false,
+    "sort_order": 101,
+    "blocks": [
+      {
+        "type": "callout",
+        "variant": "warning",
+        "title": "重要警告 - 必读！",
+        "text": "不可以开机拔内存卡\n\n不可以开机拔内存卡\n\n不可以开机拔内存卡\n\n一定要关机才能拔取！\n\n一定要使用原装充电器充电！"
+      },
+      {
+        "type": "heading",
+        "text": "1. 简单的操作解说篇"
+      },
+      {
+        "type": "callout",
+        "variant": "step",
+        "title": "① 系统开关机、重启及强制关机",
+        "text": "• **开机：**关机的情况下只需要按一下开关即可，等待开机完成启动即可。\n• **关机/重启：**系统中长按开机键3秒，点击电源选项，可选择重启及关机\n• **强制关机：**长按12秒左右，多用于卡机死机"
+      },
+      {
+        "type": "callout",
+        "variant": "step",
+        "title": "② 系统启动选择",
+        "text": "每次重启开机后，点击主页——启动，可以选择你喜欢的系统：\n\n• **虚拟系统（推荐）** - 盗版系统，坏了也可以重做，连网络也不用担心ban机，主打一个随便玩\n• **正版系统** - （不装sd卡的情况下另一种进正版的方法，在树莓派的logo下，同时按音量+-也可以进），就是你原来的系统"
+      },
+      {
+        "type": "callout",
+        "variant": "step",
+        "title": "③ 虚拟系统与正版系统的区别",
+        "text": ""
+      },
+      {
+        "type": "callout",
+        "variant": "info",
+        "title": "关于hbmenu",
+        "text": "hbmenu是一款专为任天堂3DS和Switch设备设计的自制程序启动器，主要用于管理和运行第三方开发的自制应用程序、游戏及插件工具。\n\n**注意：**小程序模式和权限模式都一样，不同的是权限模式更为强大稳定，一般使用权限模式进行安装游戏及操作，特别是20+系统。"
+      },
+      {
+        "type": "callout",
+        "variant": "info",
+        "title": "Ultrahand究极手",
+        "text": "游戏中按 ZL+ZR+十字键下▼ 可打开Ultrahand究极手，方便于游戏中进行各种调整。"
+      },
+      {
+        "type": "callout",
+        "variant": "warning",
+        "title": "虚拟系统限制",
+        "text": "除了屏蔽了老任的服务器，无法使用商店以及登录Nintendo的在线帐号与Online会员之外，其他的都和正版一样（包括管理/删除游戏，及游戏的存档）。"
+      },
+      {
+        "type": "heading",
+        "text": "2. 使用习惯小提示"
+      },
+      {
+        "type": "callout",
+        "variant": "step",
+        "title": "游戏不要装太满，空一点点海阔天空",
+        "text": ""
+      },
+      {
+        "type": "heading",
+        "text": "下一步"
+      },
+      {
+        "type": "paragraph",
+        "text": "恭喜你了解了大气层的基础操作！接下来你可以："
+      },
+      {
+        "type": "list",
+        "items": [
+          "前往 安装游戏 学习如何安装游戏",
+          "前往 插件指南 了解实用插件",
+          "前往 资源下载 获取必要文件",
+          "前往 常见问题 解决遇到的问题"
+        ],
+        "ordered": false
+      }
+    ]
+  },
+  {
+    "slug": "download",
+    "title": "资源下载",
+    "subtitle": "游戏资源、大气层整合包、工具软件、固件文件等资源一站式下载",
+    "published": false,
+    "sort_order": 102,
+    "blocks": [
+      {
+        "type": "heading",
+        "text": "游戏资源下载"
+      },
+      {
+        "type": "video",
+        "title": "NS头号玩家",
+        "url": "https://nsthwj.cn/#/switch",
+        "button": "访问网站",
+        "hint": ""
+      },
+      {
+        "type": "video",
+        "title": "GAMER520",
+        "url": "https://www.gamer520.com",
+        "button": "访问网站",
+        "hint": ""
+      },
+      {
+        "type": "heading",
+        "text": "系统文件"
+      },
+      {
+        "type": "paragraph",
+        "text": "**大气层整合包** — 包含大气层、hekate、常用自制软件的完整整合包 — 版本：1.11.0 · 大小：约28MB"
+      },
+      {
+        "type": "paragraph",
+        "text": "**Sigpatches 签名补丁** — 游戏签名补丁，安装游戏必需 — 版本：最新版 · 大小：约1MB"
+      },
+      {
+        "type": "paragraph",
+        "text": "**官方固件文件** — 官方系统固件，用于离线更新系统 — 版本：21.2.0 · 大小：约328MB"
+      },
+      {
+        "type": "heading",
+        "text": "安装工具"
+      },
+      {
+        "type": "paragraph",
+        "text": "**DBI 安装器** — 推荐的游戏安装工具，支持USB传输 — 版本：622 · 大小：约5MB"
+      },
+      {
+        "type": "paragraph",
+        "text": "**Awoo Installer** — 另一款流行的安装器，界面友好 — 版本：1.5.0 · 大小：约3MB"
+      },
+      {
+        "type": "heading",
+        "text": "实用插件"
+      },
+      {
+        "type": "paragraph",
+        "text": "**Tesla 菜单** — 游戏内快捷菜单，插件管理核心 — 版本：最新版 · 大小：约2MB"
+      },
+      {
+        "type": "paragraph",
+        "text": "**金手指文件合集** — 各游戏金手指代码合集 — 持续更新 · 大小：约100MB"
+      },
+      {
+        "type": "paragraph",
+        "text": "**主题合集** — 精选自定义主题包 — 精选版 · 大小：约200MB"
+      },
+      {
+        "type": "heading",
+        "text": "其他工具"
+      },
+      {
+        "type": "paragraph",
+        "text": "**TegraRcmGUI** — Windows端RCM注入工具 — 版本：最新版 · 大小：约10MB"
+      },
+      {
+        "type": "paragraph",
+        "text": "**NS-USBloader** — USB传输工具，配合DBI使用 — 版本：最新版 · 大小：约15MB"
+      }
+    ]
+  },
+  {
+    "slug": "install",
+    "title": "安装游戏",
+    "subtitle": "了解各种游戏格式，掌握多种安装方法，轻松管理你的游戏库",
+    "published": false,
+    "sort_order": 103,
+    "blocks": [
+      {
+        "type": "heading",
+        "text": "游戏下载分类介绍"
+      },
+      {
+        "type": "table",
+        "head": [
+          "分类名称",
+          "说明"
+        ],
+        "rows": [
+          [
+            "本体",
+            "游戏主体文件，包含游戏的基础内容，是运行游戏的必需文件"
+          ],
+          [
+            "Update 升级包",
+            "游戏更新补丁，修复bug、优化性能、添加新功能，建议安装最新版本"
+          ],
+          [
+            "DLC",
+            "下载内容扩展包，包含额外剧情、角色、道具、关卡等付费内容"
+          ],
+          [
+            "整合",
+            "包含本体+升级包+DLC的完整版本，不需要和分体下载重复，通常为XCI整合，签名稳定性不如分体下载。"
+          ]
+        ]
+      },
+      {
+        "type": "callout",
+        "variant": "info",
+        "title": "下载格式选择建议",
+        "text": "推荐使用 **NSP** 原版格式，兼容性最好，安装最方便。**XCI** 整合格式有一些升级后会失效。"
+      },
+      {
+        "type": "heading",
+        "text": "安装方法"
+      },
+      {
+        "type": "callout",
+        "variant": "step",
+        "title": "方法一：SJZ更新(桌面打开)（炫酷，方便）",
+        "text": "SJZ更新是手机仔制做的一个在switch上一站式APP\n\n• 选择MTP工具——点击mtp启动—用数据线连接电脑(按y键可以打开控制台)\n• 打开我的电脑,选择nintendo switch盘，打开5号盘(5.install SDcard)\n• 按提示把游戏文件或者文件夹拉到文件夹(游戏格式要正确,不可以使用zip,rar其他格式的压缩包)\n• 查看进度条，显示安装成功即可，无需其他操作。桌面便可生成游戏\n\n**📺 视频教程：**点击下方按钮观看抖音视频教程 🎬 观看视频教程 （视频将在新标签页中打开）"
+      },
+      {
+        "type": "callout",
+        "variant": "step",
+        "title": "方法二：DBI（权限模式）",
+        "text": "switch小程序中的神\n\n• 按住R键不要放，直到用a键打开一个游戏进入小程序界面再松开R键\n• 选择打开DBI（此时DPI的背景为黑色，不用管弹出的提示）\n• 选择运行MTP程序或者按X键，会提示你用数据线连接电脑\n• 打开我的电脑,选择switch盘，打开5号盘(5.SD card install)\n• 按提示把游戏文件或者文件夹拉到文件夹(游戏格式要正确,不可以使用zip,rar其他格式的压缩包)\n• 查看进度条，显示安装成功即可，无需其他操作。桌面便可生成游戏"
+      },
+      {
+        "type": "callout",
+        "variant": "step",
+        "title": "方法三：U盘安装",
+        "text": "将游戏文件拖拽到U盘上，插入Switch，用DBI安装。\n\n• 按住R键不要放，直到用a键打开一个游戏进入小程序界面再松开R键\n• 选择打开DBI（此时DPI的背景为黑色，不用管弹出的提示）\n• 插上U盘稍等会弹出浏览USB驱动器，选择打开\n• 找到你的游戏文件并安装，选择安装位置sd,进行安装(只能安装文件，不可以选择文件夹)\n• 查看进度条，显示安装成功即可，无需其他操作。桌面便可生成游戏\n\n**📺 视频教程：**点击下方按钮观看U盘安装视频教程 🎬 观看U盘安装教程 （视频将在新标签页中打开）"
+      },
+      {
+        "type": "heading",
+        "text": "DLC和更新包安装"
+      },
+      {
+        "type": "callout",
+        "variant": "info",
+        "title": "DLC和更新包方法",
+        "text": "和装游戏一样，格式一定要正确"
+      },
+      {
+        "type": "callout",
+        "variant": "warning",
+        "title": "注意事项",
+        "text": "• DLC和更新包的版本需要与游戏版本匹配"
+      },
+      {
+        "type": "heading",
+        "text": "游戏管理技巧"
+      },
+      {
+        "type": "list",
+        "items": [
+          "**存档备份** - 使用存档管理器定期备份重要存档",
+          "**空间规划** - 建议预留20GB空闲空间"
+        ],
+        "ordered": false
+      }
+    ]
+  },
+  {
+    "slug": "plugins",
+    "title": "插件指南",
+    "subtitle": "精选常用插件，详细介绍功能和使用方法，提升你的游戏体验",
+    "published": false,
+    "sort_order": 104,
+    "blocks": [
+      {
+        "type": "heading",
+        "text": "UltraHand究极手"
+      },
+      {
+        "type": "callout",
+        "variant": "info",
+        "title": "功能说明",
+        "text": "游戏内快捷菜单，可调用其他插件功能，是使用插件的核心工具。"
+      },
+      {
+        "type": "paragraph",
+        "text": "**使用方法：**按住 ZL + ZR + ↓方向键 呼出菜单"
+      },
+      {
+        "type": "paragraph",
+        "text": "**推荐度：**⭐⭐⭐⭐⭐ 必装插件"
+      },
+      {
+        "type": "heading",
+        "text": "FPS解锁插件"
+      },
+      {
+        "type": "callout",
+        "variant": "info",
+        "title": "功能说明",
+        "text": "解锁游戏帧率限制，提升游戏流畅度。部分游戏可以从30帧提升到60帧。"
+      },
+      {
+        "type": "paragraph",
+        "text": "**使用方法：**在Tesla菜单中设置目标帧率，支持的游戏会自动应用"
+      },
+      {
+        "type": "paragraph",
+        "text": "**推荐度：**⭐⭐⭐⭐"
+      },
+      {
+        "type": "callout",
+        "variant": "warning",
+        "title": "注意",
+        "text": "超频可能导致发热增加，建议配合散热支架使用。"
+      },
+      {
+        "type": "heading",
+        "text": "超频插件 (Sys-Clk)"
+      },
+      {
+        "type": "callout",
+        "variant": "info",
+        "title": "功能说明",
+        "text": "提升CPU/GPU频率，改善游戏性能。可以在掌机模式获得更好的画质和帧率。"
+      },
+      {
+        "type": "paragraph",
+        "text": "**使用方法：**通过Tesla菜单调整频率参数，可以为不同游戏设置不同的超频配置"
+      },
+      {
+        "type": "paragraph",
+        "text": "**推荐度：**⭐⭐⭐⭐"
+      },
+      {
+        "type": "heading",
+        "text": "截图增强插件"
+      },
+      {
+        "type": "callout",
+        "variant": "info",
+        "title": "功能说明",
+        "text": "增强截图功能，支持PNG格式和无损截图，截图质量更高。"
+      },
+      {
+        "type": "paragraph",
+        "text": "**使用方法：**在设置中配置截图参数，按截图键即可保存高质量截图"
+      },
+      {
+        "type": "paragraph",
+        "text": "**推荐度：**⭐⭐⭐"
+      },
+      {
+        "type": "heading",
+        "text": "金手指插件 (EdiZon)"
+      },
+      {
+        "type": "callout",
+        "variant": "info",
+        "title": "功能说明",
+        "text": "游戏修改器，支持各种游戏修改码，如无限生命、无限道具等。"
+      },
+      {
+        "type": "paragraph",
+        "text": "**使用方法：**按 Home键 呼出菜单，选择游戏和金手指代码"
+      },
+      {
+        "type": "paragraph",
+        "text": "**推荐度：**⭐⭐⭐⭐"
+      },
+      {
+        "type": "callout",
+        "variant": "warning",
+        "title": "注意",
+        "text": "使用金手指可能影响游戏体验，建议通关后再使用。"
+      },
+      {
+        "type": "heading",
+        "text": "主题插件 (NXThemes)"
+      },
+      {
+        "type": "callout",
+        "variant": "info",
+        "title": "功能说明",
+        "text": "自定义Switch主题和图标，让你的Switch更加个性化。"
+      },
+      {
+        "type": "paragraph",
+        "text": "**使用方法：**将主题文件放入 themes 文件夹，在设置中切换主题"
+      },
+      {
+        "type": "paragraph",
+        "text": "**推荐度：**⭐⭐⭐⭐"
+      },
+      {
+        "type": "heading",
+        "text": "存档管理器 (Checkpoint)"
+      },
+      {
+        "type": "callout",
+        "variant": "info",
+        "title": "功能说明",
+        "text": "备份和恢复游戏存档，可以管理多个存档版本。"
+      },
+      {
+        "type": "paragraph",
+        "text": "**使用方法：**在相册中打开，选择游戏进行存档备份或恢复操作"
+      },
+      {
+        "type": "paragraph",
+        "text": "**推荐度：**⭐⭐⭐⭐⭐ 必装插件"
+      },
+      {
+        "type": "heading",
+        "text": "局域网联机插件 (lan-play)"
+      },
+      {
+        "type": "callout",
+        "variant": "info",
+        "title": "功能说明",
+        "text": "局域网联机，无需任天堂服务器即可与好友联机游戏。"
+      },
+      {
+        "type": "paragraph",
+        "text": "**使用方法：**安装后配置服务器地址，自动生效，支持本地联机游戏"
+      },
+      {
+        "type": "paragraph",
+        "text": "**推荐度：**⭐⭐⭐⭐"
+      },
+      {
+        "type": "heading",
+        "text": "插件安装方法"
+      },
+      {
+        "type": "list",
+        "items": [
+          "下载插件文件（通常是 .zip 或 .nsp 格式）",
+          "解压后将文件夹复制到TF卡的 atmosphere/contents 目录",
+          "重启Switch使插件生效",
+          "部分插件需要在相册中打开进行配置"
+        ],
+        "ordered": true
+      }
+    ]
+  },
+  {
+    "slug": "update",
+    "title": "系统更新",
+    "subtitle": "大气层更新及固件升级指南",
+    "published": false,
+    "sort_order": 105,
+    "blocks": [
+      {
+        "type": "callout",
+        "variant": "warning",
+        "title": "更新前必读",
+        "text": "• **更新正版系统之前先确认一下大气层是否支持**\n• **建议先咨询一下群聊**\n• **有些同学不玩正版只玩虚拟系统，可以不用一直更新大气层**\n• **只需要偶尔更新一下SJZ更新小程序，就可以保持网络的维护**"
+      },
+      {
+        "type": "heading",
+        "text": "大气层更新"
+      },
+      {
+        "type": "callout",
+        "variant": "step",
+        "title": "为什么要更新大气层？",
+        "text": "• 支持新的系统版本\n• 修复已知问题\n• 添加新功能\n• 提升稳定性"
+      },
+      {
+        "type": "callout",
+        "variant": "step",
+        "title": "更新步骤",
+        "text": "• 更新前如果有安装到主题,请把主题卸载\n• 方案一：使用SJZ更新小程序更新（推荐，简单快捷，只需要连上WiFi就可进行） 连上稳定的WiFi，打开SJZ更新小程序（如果有提示更新小程序请先更新）在小程序中选择\"大气层更新\"选项，选择推送的稳定版本进行下载下载完成手动重启Switch，会跳转到一个特殊的update界面，点击开关键或A键进行更新**📺 视频教程：**点击下方按钮观看大气层更新视频教程 🎬 观看大气层更新教程 （视频将在新标签页中打开）\n• 方案二：手动使用电脑更新（无法正常开机的时候才使用） ⚠️ 注意事项大气层包在群文件领取，换包请注意以下操作，不然大概率出现进不了虚拟、插件显示错误、插件版本不对等问题。**不可以用DBI换整合包**，只能用读卡器或者数据线进入 **hekate → 工具 → USB工具 → SD卡挂载到电脑** 来更换保留\"emuMMC\"以及\"Nintendo\"和JKSV文件夹（如果有的话）移除其他全部文件和文件夹，剪切出去或者删除都随你把整合包所有文件和文件夹拖入内存卡根目录开机或重启💡 备份金手指和mod位置在 **atmosphere/contents** 文件夹及 **atmosphere/exefs_patches** 文件夹下，找自己需要的游戏TID单独提取出来。**禁止换包后再把旧contents文件夹一股脑覆盖回去**，因为里面还包含有插件配置文件，出问题自己排查或按上面教程重新换包，这一步很多萌新踩坑。\n• 重启系统验证"
+      },
+      {
+        "type": "heading",
+        "text": "固件升级"
+      },
+      {
+        "type": "callout",
+        "variant": "step",
+        "title": "什么是固件？",
+        "text": "固件是Switch操作系统的基础版本，不同版本的游戏可能需要不同的固件版本才能运行。"
+      },
+      {
+        "type": "callout",
+        "variant": "step",
+        "title": "固件升级步骤（使用SJZ更新小程序）",
+        "text": "• 连上稳定的WiFi，打开SJZ更新小程序（如果有提示更新小程序请先更新）\n• 在小程序中选择\"固件升级\"选项，板块里面有固件版本检测（降级需要进维护模式格式化），选择推送的稳定版本进行下载\n• 下载完成会自动跳转，使用Daybreak进行离线升级，不懂得按哪一个按钮的同学可以全部选右边按钮\n• 重启验证系统版本\n\n**📺 视频教程：**点击下方按钮观看固件升级视频教程 🎬 观看固件升级教程 （视频将在新标签页中打开）"
+      },
+      {
+        "type": "callout",
+        "variant": "warning",
+        "title": "注意事项",
+        "text": "• 不要使用未确定的文件资料\n• 在进行有风险的操作前先备份存档避免丢失\n• 确保下载的固件来源可靠"
+      },
+      {
+        "type": "heading",
+        "text": "常见问题"
+      },
+      {
+        "type": "callout",
+        "variant": "step",
+        "title": "Q: 更新后游戏打不开怎么办？",
+        "text": "A: 重新更新一遍以排查问题。"
+      },
+      {
+        "type": "callout",
+        "variant": "step",
+        "title": "Q: 更新后黑屏怎么办？",
+        "text": "A: 按住音量减键开机，在整个开机过程中保持音量减键不要松开，直到Switch正常开机。"
+      },
+      {
+        "type": "callout",
+        "variant": "step",
+        "title": "Q: 需要每次都更新吗？",
+        "text": "A: 不需要。如果当前版本运行稳定，没有新游戏需求，又没有正版更新的要求，可以不更新。"
+      },
+      {
+        "type": "heading",
+        "text": "下一步"
+      },
+      {
+        "type": "list",
+        "items": [
+          "前往 资源下载 获取最新整合包和固件",
+          "前往 常见问题 解决更多问题"
+        ],
+        "ordered": false
+      }
+    ]
+  },
+  {
+    "slug": "faq",
+    "title": "常见问题",
+    "subtitle": "遇到问题？先看看FAQ，可能已经有你需要的答案",
+    "published": false,
+    "sort_order": 106,
+    "blocks": [
+      {
+        "type": "heading",
+        "text": "基础问题"
+      },
+      {
+        "type": "faq",
+        "items": [
+          {
+            "q": "我的Switch可以破解吗？",
+            "a": "只要是Switch一代，都可以破解。"
+          },
+          {
+            "q": "破解后会被ban吗？",
+            "a": "不会，已经屏蔽了，除非你用了别人的资料，或者米格烧录卡，或者使用黑号。"
+          },
+          {
+            "q": "破解后还能玩正版游戏吗？",
+            "a": "可以。大气层支持双系统，你可以在原机系统(OFW)上玩正版游戏联机，在虚拟系统(EMUMMC)上玩破解游戏。。"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "游戏问题"
+      },
+      {
+        "type": "faq",
+        "items": [
+          {
+            "q": "游戏安装后无法启动？",
+            "a": "可能是游戏文件损坏，尝试重新下载游戏文件。查看控制台日志，确认是否有错误信息。"
+          },
+          {
+            "q": "如何安装中文游戏？",
+            "a": "大多数游戏自带中文，安装后在游戏内或系统设置中切换语言即可。部分游戏需要下载额外的中文语言包。"
+          },
+          {
+            "q": "DLC和更新包如何安装？",
+            "a": "与游戏安装方法相同。"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "系统问题"
+      },
+      {
+        "type": "faq",
+        "items": [
+          {
+            "q": "如何更新大气层版本？",
+            "a": "使用SJZ更新，在线推送最新版本，或者也可以用电脑更新。"
+          },
+          {
+            "q": "支持多大的TF卡？",
+            "a": "理论上支持最大2TB的TF卡，推荐使用128GB-512GB的高速A2卡。注意TF卡需要格式化为FAT32格式。"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "其他问题"
+      },
+      {
+        "type": "faq",
+        "items": [
+          {
+            "q": "可以联网玩游戏吗？",
+            "a": "正版还是可以支持官方联机，但是破解游戏联不了官方。"
+          },
+          {
+            "q": "游戏存档在哪里？",
+            "a": "存档存在用户下，删除游戏重新安装不影响存档，可用SJZ更新小程序进行备份以恢复。"
+          },
+          {
+            "q": "遇到其他问题怎么办？",
+            "a": "可以联系「微修通讯」群组中寻求帮助。"
+          }
+        ]
+      }
+    ]
+  }
+]

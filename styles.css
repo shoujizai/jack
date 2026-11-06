@@ -26,8 +26,8 @@
     --card: #FFFFFF;
     --card-pressed: #E5E5EA;
     --label: #000000;
-    --label-2: rgba(60, 60, 67, 0.6);
-    --label-3: rgba(60, 60, 67, 0.3);
+    --label-2: rgba(45, 45, 52, 0.82);
+    --label-3: rgba(60, 60, 67, 0.62);
     --separator: rgba(60, 60, 67, 0.18);
     --hairline: rgba(60, 60, 67, 0.29);
     --fill: rgba(120, 120, 128, 0.16);
@@ -67,8 +67,8 @@
         --card: #1C1C1E;
         --card-pressed: #2C2C2E;
         --label: #FFFFFF;
-        --label-2: rgba(235, 235, 245, 0.6);
-        --label-3: rgba(235, 235, 245, 0.3);
+        --label-2: rgba(235, 235, 245, 0.82);
+        --label-3: rgba(235, 235, 245, 0.62);
         --separator: rgba(84, 84, 88, 0.6);
         --hairline: rgba(84, 84, 88, 0.65);
         --fill: rgba(120, 120, 128, 0.36);
@@ -933,7 +933,7 @@ tr:hover {
 
 .download-info p {
     color: var(--label-2);
-    font-size: 14px;
+    font-size: 15px;
     margin: 0;
 }
 
@@ -946,7 +946,7 @@ tr:hover {
 
 .download-meta span {
     color: var(--label-2);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .download-meta .btn {
@@ -1020,7 +1020,7 @@ tr:hover {
 }
 
 .row-sub {
-    font-size: 14px;
+    font-size: 15px;
     color: var(--label-2);
     line-height: 1.35;
 }
@@ -1145,8 +1145,8 @@ tr:hover {
 .site-card-sub {
     display: block;
     margin-top: 4px;
-    font-size: 13px;
-    color: var(--label-3);
+    font-size: 14px;
+    color: var(--label-2);
 }
 
 .site-card-url {
@@ -1158,8 +1158,8 @@ tr:hover {
 }
 
 .site-card-url p {
-    font-size: 12px;
-    color: var(--label-3);
+    font-size: 13px;
+    color: var(--label-2);
     margin-bottom: 5px;
 }
 
@@ -1519,8 +1519,8 @@ footer {
     margin: 0 auto;
     padding: 28px calc(var(--gutter) + var(--safe-right)) calc(40px + var(--safe-bottom)) calc(var(--gutter) + var(--safe-left));
     text-align: center;
-    color: var(--label-3);
-    font-size: 13px;
+    color: var(--label-2);
+    font-size: 13.5px;
     line-height: 1.6;
     border-top: 0.5px solid var(--separator);
 }
@@ -1760,8 +1760,8 @@ footer a:hover {
 
 .selection-hint {
     margin: 10px 2px 0;
-    font-size: 12px;
-    color: var(--label-3);
+    font-size: 13px;
+    color: var(--label-2);
     text-align: center;
 }
 

@@ -13,3 +13,11 @@ node_modules/
 .assetsignore
 .preview/
 worker-dist/
+部署后台.cmd
+部署说明.md
+后台使用说明.md
+tools/
+.github/
+一键上线.cmd
+本地运行接口.cmd
+.local-data/

@@ -1,0 +1,8 @@
+User-agent: *
+# 后台与体检页不需要被搜索引擎收录
+Disallow: /admin.html
+Disallow: /check.html
+Disallow: /pages.html
+Allow: /
+
+# 站点地图（如以后需要可开启）

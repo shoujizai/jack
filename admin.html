@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>后台管理 - 微修的Blog</title>
+    <meta name="robots" content="noindex,nofollow">
+    <meta http-equiv="Cache-Control" content="no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23007AFF'/%3E%3Cpath d='M32 14c-4 0-7 3-7 7v10c0 4 3 7 7 7s7-3 7-7V21c0-4-3-7-7-7zm-13 17v4c0 7 6 13 13 13s13-6 13-13v-4h-4v4a9 9 0 0 1-18 0v-4h-4zm12 13v6h2v-6h-2z' fill='%23fff'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="styles.css?v=16">
+    <style>
+        .adm-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+            background: var(--fill-2);
+            padding: 4px;
+            border-radius: 11px;
+        }
+        .adm-tab {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: var(--label-2);
+            font: inherit;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 9px 6px;
+            border-radius: 9px;
+            cursor: pointer;
+        }
+        .adm-tab.active {
+            background: var(--card);
+            color: var(--label);
+            box-shadow: var(--shadow-card);
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        .stat {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 16px 14px;
+            box-shadow: var(--shadow-card);
+        }
+        .stat b {
+            display: block;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 2px;
+        }
+        .stat span {
+            font-size: 13px;
+            color: var(--label-2);
+        }
+        .adm-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 13px 0;
+            border-bottom: 0.5px solid var(--separator);
+            flex-wrap: wrap;
+        }
+        .adm-row:last-child { border-bottom: none; }
+        .adm-row-main { flex: 1; min-width: 160px; }
+        .adm-row-title { font-size: 16px; font-weight: 500; }
+        .adm-row-sub { font-size: 13px; color: var(--label-2); margin-top: 2px; }
+        .adm-btn {
+            border: none;
+            border-radius: 9px;
+            padding: 7px 13px;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            background: var(--fill);
+            color: var(--blue);
+            white-space: nowrap;
+        }
+        .adm-btn.primary { background: var(--blue); color: #fff; }
+        .adm-btn.danger { background: rgba(255, 59, 48, 0.12); color: var(--red); }
+        .adm-btn.small { padding: 4px 9px; font-size: 13px; }
+        .adm-btn:active { opacity: 0.75; }
+        .adm-field { margin-bottom: 12px; }
+        .adm-field label {
+            display: block;
+            font-size: 13px;
+            color: var(--label-2);
+            margin-bottom: 5px;
+        }
+        .adm-field input[type="text"],
+        .adm-field textarea,
+        .adm-field select {
+            width: 100%;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 10px;
+            background: var(--fill-2);
+            color: var(--label);
+            font: inherit;
+            font-size: 16px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .adm-field textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
+        .adm-field input:focus, .adm-field textarea:focus, .adm-field select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.25);
+        }
+        .blk {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .blk-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+        .blk-type {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--blue);
+            background: rgba(0, 122, 255, 0.1);
+            padding: 3px 9px;
+            border-radius: 999px;
+        }
+        .blk-actions { display: flex; gap: 5px; }
+        .add-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 4px;
+        }
+        .inline-2 { display: flex; gap: 10px; }
+        .inline-2 > * { flex: 1; min-width: 0; }
+        .adm-toolbar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .adm-toolbar h2 { flex: 1; margin: 0; border: none; padding: 0; }
+        .role-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: var(--fill);
+            color: var(--label-2);
+        }
+        .role-badge.admin { background: rgba(255, 159, 10, 0.2); color: #8A5A00; }
+        .role-badge.premium { background: rgba(0, 122, 255, 0.15); color: var(--blue); }
+        .hint-line { font-size: 12.5px; color: var(--label-2); margin-top: 6px; line-height: 1.5; }
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: calc(24px + var(--safe-bottom));
+            transform: translateX(-50%) translateY(12px);
+            background: var(--card);
+            color: var(--label);
+            padding: 11px 18px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-float);
+            font-size: 14px;
+            z-index: 3000;
+            opacity: 0;
+            transition: all 0.2s ease;
+            pointer-events: none;
+            max-width: 90vw;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.err { color: var(--red); }
+        /* 预览浮层 */        .preview-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2500;
+            display: none;
+            flex-direction: column;
+            background: var(--bg);
+        }
+        .preview-overlay.show { display: flex; }
+        .preview-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: calc(8px + var(--safe-top)) 12px 8px;
+            border-bottom: 0.5px solid var(--separator);
+            background: var(--bg-nav);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            backdrop-filter: saturate(180%) blur(20px);
+        }
+        .preview-bar span {
+            flex: 1;
+            min-width: 0;
+            font-size: 14px;
+            color: var(--label-2);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .preview-frame {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background: var(--bg);
+        }
+        /* 本地/自定义接口提示条 */        .api-banner {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 14px;
+            padding: 9px 12px;
+            border-radius: 10px;
+            background: rgba(255, 159, 10, 0.12);
+            color: #8A5A00;
+            font-size: 13px;
+        }
+        .api-banner.show { display: flex; }
+        .api-banner.err {
+            background: rgba(255, 59, 48, 0.12);
+            color: var(--red);
+            font-weight: 500;
+        }
+        .api-banner span { flex: 1; min-width: 0; word-break: break-all; }
+        @media (prefers-color-scheme: dark) {
+            .api-banner { color: var(--orange); }
+        }
+        /* 导入状态 / 错误提示 */
+        .import-status {
+            display: none;
+            margin: 0 0 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: var(--fill-2);
+            color: var(--label);
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        .import-status.info { background: rgba(0, 122, 255, 0.12); color: var(--blue); }
+        .import-status.ok { background: rgba(52, 199, 89, 0.14); color: #1F7A38; }
+        .import-status.err { background: rgba(255, 59, 48, 0.12); color: var(--red); }
+        .js-error-bar {
+            display: none;
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 4000;
+            padding: 10px 14px calc(10px + var(--safe-bottom));
+            background: rgba(255, 59, 48, 0.95);
+            color: #fff;
+            font-size: 13px;
+            line-height: 1.4;
+            word-break: break-all;
+        }
+        .js-error-bar.show { display: block; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a class="logo" href="index.html">后台管理</a>
+            <div style="flex:1"></div>
+            <button id="logoutBtn" class="btn btn-secondary btn-sm" style="display:none" onclick="doLogout()">退出</button>
+        </div>
+    </nav>
+
+    <main>
+        <div class="api-banner" id="apiBanner">
+            <span id="apiBannerText"></span>
+            <button class="adm-btn small" id="apiBannerBtn" onclick="toggleApiTarget()">切换接口</button>
+            <button class="adm-btn small" onclick="toggleDiag()">诊断</button>
+        </div>
+
+        <div class="import-status" id="diagPanel" style="display:none"></div>
+        <!-- 后台口令 -->
+        <div id="gateView" style="display:none">
+            <div class="page-header">
+                <h1>后台口令</h1>
+                <p>这个页面需要口令才能显示内容。</p>
+            </div>
+            <div class="content-section">
+                <div class="adm-field">
+                    <label>口令</label>
+                    <input type="password" id="gateKey" placeholder="输入后台口令" autocomplete="off">
+                </div>
+                <button class="btn btn-primary" style="width:100%" onclick="submitGate()">进入</button>
+                <p class="hint-line">口令由站长在 Cloudflare 的 <code>ADMIN_GATE_KEY</code> 变量中设置。</p>
+            </div>
+        </div>
+
+        <!-- 登录 -->
+        <div id="loginView" style="display:none">
+            <div class="page-header">
+                <h1>管理员登录</h1>
+                <p>只允许管理员账号进入后台。</p>
+            </div>
+            <div class="content-section">
+                <div class="adm-field">
+                    <label>邮箱</label>
+                    <input type="text" id="loginEmail" placeholder="请输入邮箱" autocomplete="username">
+                </div>
+                <div class="adm-field">
+                    <label>密码</label>
+                    <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="current-password">
+                </div>
+                <button class="btn btn-primary" style="width:100%" onclick="doLogin()">登录</button>
+                <button class="adm-btn" style="width:100%;margin-top:8px" onclick="doRegister()">首次使用：用上面的邮箱密码注册</button>
+                <p class="hint-line">注册是邀请制，只有白名单里的邮箱能注册成功。</p>
+            </div>
+        </div>
+
+        <!-- 主体 -->
+        <div id="appView" style="display:none">
+            <div class="adm-tabs">
+                <button class="adm-tab active" data-tab="stats" onclick="switchTab('stats')">概览</button>
+                <button class="adm-tab" data-tab="pages" onclick="switchTab('pages')">页面</button>
+                <button class="adm-tab" data-tab="comments" onclick="switchTab('comments')">评论</button>
+                <button class="adm-tab" data-tab="users" onclick="switchTab('users')">用户</button>
+            </div>
+
+            <div id="tabStats">
+                <div class="stat-grid" id="statGrid"></div>
+            </div>
+
+            <div id="tabPages" style="display:none">
+                <div class="adm-toolbar">
+                    <h2 class="list-header" style="flex:1;padding:0">页面列表</h2>
+                    <button id="importBtn" class="adm-btn" onclick="importSeed()">导入内置内容</button>
+                    <button class="adm-btn" onclick="exportPages()">导出 JSON</button>
+                    <button class="adm-btn" onclick="pickImportJson()">导入 JSON</button>
+                    <a class="adm-btn" href="pages.html" target="_blank">前台列表</a>
+                    <button class="adm-btn primary" onclick="newPage()">＋ 新建页面</button>
+                    <input type="file" id="jsonFile" accept=".json,application/json" style="display:none" onchange="handleJsonFile(this)">
+                </div>
+                <div class="import-status" id="importStatus"></div>
+                <div class="content-section" id="pageList"></div>
+            </div>
+
+            <div id="tabUsers" style="display:none">
+                <div class="adm-toolbar">
+                    <h2 class="list-header" style="flex:1;padding:0">用户列表</h2>
+                    <button class="adm-btn" onclick="loadUsers()">刷新</button>
+                </div>
+                <div class="content-section" id="userList"></div>
+            </div>
+
+            <div id="tabComments" style="display:none">
+                <div class="adm-toolbar">
+                    <h2 class="list-header" style="flex:1;padding:0">评论列表</h2>
+                    <button class="adm-btn" onclick="loadCommentsAdmin()">刷新</button>
+                </div>
+                <div class="content-section" id="commentList"></div>
+            </div>
+        </div>
+
+        <!-- 编辑器 -->
+        <div id="editorView" style="display:none">
+            <div class="page-header">
+                <h1 id="editorTitle">编辑页面</h1>
+                <p id="editorSlugHint"></p>
+            </div>
+
+            <div class="content-section">
+                <div class="adm-field">
+                    <label>页面地址（可留空，保存时自动生成）</label>
+                    <input type="text" id="fSlug" placeholder="留空自动生成，例如 p-3f8k2m">
+                </div>
+                <div class="adm-field">
+                    <label>大标题</label>
+                    <input type="text" id="fTitle" placeholder="例如 新手入门">
+                </div>
+                <div class="adm-field">
+                    <label>副标题（可选）</label>
+                    <input type="text" id="fSubtitle" placeholder="一句话说明">
+                </div>
+                <div class="inline-2">
+                    <div class="adm-field">
+                        <label>排序（小的在前）</label>
+                        <input type="text" id="fSort" value="100">
+                    </div>
+                    <div class="adm-field">
+                        <label>发布状态</label>
+                        <select id="fPublished">
+                            <option value="1">已发布</option>
+                            <option value="0">草稿</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="list-header">内容方块</h2>
+            <div class="content-section">
+                <div id="blockList"></div>
+                <div class="add-bar" id="addBar"></div>
+                <p class="hint-line">
+                    文字方块支持换行；用 <code>**文字**</code> 可以加粗。保存后点「预览」查看效果。
+                </p>
+            </div>
+
+            <div class="adm-toolbar">
+                <button class="adm-btn primary" onclick="savePage()">保存</button>
+                <button class="adm-btn" onclick="previewPage()">预览</button>
+                <button class="adm-btn danger" onclick="deletePage()">删除页面</button>
+                <button class="adm-btn" onclick="backToPages()">返回列表</button>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- 预览浮层 -->
+    <div class="preview-overlay" id="previewOverlay">
+        <div class="preview-bar">
+            <span id="previewTitle">预览</span>
+            <a id="previewOpen" class="adm-btn small" target="_blank" rel="noopener">新窗口</a>
+            <button class="adm-btn small" onclick="closePreview()">关闭</button>
+        </div>
+        <iframe id="previewFrame" class="preview-frame" title="页面预览"></iframe>
+    </div>
+
+    <div class="js-error-bar" id="jsErrorBar"></div>
+
+    <script src="auth.js?v=16" defer></script>
+    <script>
+        /* 全局错误提示：任何脚本错误都会在底部显示，避免"点了没反应"却看不到原因 */
+        function showJsError(message, where) {
+            try {
+                var bar = document.getElementById('jsErrorBar');
+                if (!bar) return;
+                bar.textContent = '脚本出错：' + (message || '未知错误') + (where ? ' @' + where : '');
+                bar.classList.add('show');
+            } catch (err) {
+                /* 忽略 */
+            }
+        }
+
+        if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+            window.addEventListener('error', function (e) {
+                var where = e && e.filename ? String(e.filename).split('/').pop() + ':' + e.lineno : '';
+                showJsError(e && e.message, where);
+            });
+            window.addEventListener('unhandledrejection', function (e) {
+                var reason = e && e.reason ? e.reason.message || String(e.reason) : '';
+                showJsError('未处理的错误：' + reason, '');
+            });
+        }
+
+        /* ==========================================================
+           后台管理逻辑
+           ========================================================== */
+        var token = localStorage.getItem('auth_token') || '';
+        var me = null;
+        var gateOn = false;
+        var apiCodeVersion = '';
+        var requestLog = [];
+        var bootSteps = [];
+        var PAGE_VERSION = 'ui-6';
+
+        function bootStep(text) {
+            bootSteps.push(new Date().toLocaleTimeString('zh-CN') + '  ' + text);
+            if (bootSteps.length > 20) bootSteps.shift();
+        }
+
+        // 记录每一次请求，方便排查"点了没反应"
+        function logRequest(entry) {
+            entry.time = new Date().toLocaleTimeString('zh-CN');
+            requestLog.push(entry);
+            if (requestLog.length > 30) requestLog.shift();
+        }
+
+        function describeError(e) {
+            if (!e) return '未知错误';
+            var s = e.name ? e.name + ': ' : '';
+            s += e.message || String(e);
+            if (e.status) s += ' [HTTP ' + e.status + ']';
+            return s;
+        }
+
+        function toggleDiag() {
+            var panel = $('diagPanel');
+            if (!panel) return;
+            if (panel.style.display === 'block') {
+                panel.style.display = 'none';
+                return;
+            }
+            var lines = [];
+            lines.push('接口地址：' + (apiBase() || location.origin));
+            lines.push('页面版本：' + PAGE_VERSION);
+            lines.push('代码版本：' + (apiCodeVersion || '未知（可能是旧版）'));
+            lines.push('请求记录：' + requestLog.length + ' 条');
+            lines.push('登录凭证：' + (token ? '已保存（' + token.length + ' 字符）' : '无'));
+            lines.push('后台口令：' + (gateOn ? '启用' : '未启用') + (savedGateKey() ? '（已输入）' : ''));
+            lines.push('页面地址：' + location.href);
+            lines.push('浏览器：' + (navigator.userAgent || ''));
+            lines.push('');
+            lines.push('启动流程：');
+            if (!bootSteps.length) {
+                lines.push('（没有记录，可能是旧版页面）');
+            } else {
+                bootSteps.forEach(function (s) {
+                    lines.push('  ' + s);
+                });
+            }
+            lines.push('');
+            lines.push('最近请求（最新在下）：');
+            if (!requestLog.length) {
+                lines.push('（还没有发起过请求）');
+            } else {
+                requestLog.slice(-12).forEach(function (r) {
+                    lines.push(r.time + '  ' + r.method + ' ' + r.url + '  →  ' + (r.result || '进行中'));
+                });
+            }
+            panel.textContent = lines.join('\n');
+            panel.className = 'import-status info';
+            panel.style.display = 'block';
+        }
+
+        function savedGateKey() {
+            try {
+                return localStorage.getItem('admin_key') || '';
+            } catch (e) {
+                return '';
+            }
+        }
+
+        // 当前页面所在的主机（手机访问电脑时是 192.168.x.x）
+        function pageHost() {
+            var h = location.hostname || '';
+            return /^(127\.0\.0\.1|localhost|)$/.test(h) ? '127.0.0.1' : h;
+        }
+
+        // 本地接口地址：用"页面所在主机"，这样手机上会指向电脑的局域网 IP
+        function localApiBase() {
+            return 'http://' + pageHost() + ':8787';
+        }
+
+        // 把用户粘贴的各种地址统一成"只有 origin"的形式
+        // 例如 http://127.0.0.1:8787/api/health → http://127.0.0.1:8787
+        function normalizeApiBase(value) {
+            var s = String(value || '').trim().replace(/\/+$/, '');
+            if (!s) return '';
+            var m = s.match(/^(https?:\/\/[^/:]+)(:\d+)?/i);
+            if (!m) return s;
+            var host = m[1].replace(/^https?:\/\//i, '');
+            var port = m[2] || '';
+            // 手机上保存的 127.0.0.1 自动换成电脑的局域网地址
+            if (/^(127\.0\.0\.1|localhost)$/i.test(host) && pageHost() !== '127.0.0.1') {
+                host = pageHost();
+            }
+            return (m[1].indexOf('https:') === 0 ? 'https://' : 'http://') + host + port;
+        }
+
+        // auth.js 是 defer 加载的，这里延迟读取接口地址
+        function apiBase() {
+            var override = '';
+            try {
+                override = localStorage.getItem('admin_api_base') || '';
+            } catch (e) {
+                override = '';
+            }
+            if (override) return normalizeApiBase(override);
+            return window.API_BASE || '';
+        }
+
+        // 用 ?api=http://127.0.0.1:8787 切到本地接口
+        function applyApiOverride() {
+            var params = new URLSearchParams(location.search);
+            var api = params.get('api');
+            try {
+                if (api) {
+                    var fixed = normalizeApiBase(api);
+                    localStorage.setItem('admin_api_base', fixed);
+                    if (fixed !== api.trim().replace(/\/+$/, '')) {
+                        setTimeout(function () {
+                            toast('已自动把接口地址修正为 ' + fixed);
+                        }, 100);
+                    }
+                } else {
+                    // 修正常见错误：之前把 /api/health 也存进去了
+                    var stored = localStorage.getItem('admin_api_base') || '';
+                    var normalized = normalizeApiBase(stored);
+                    if (stored && normalized !== stored) {
+                        localStorage.setItem('admin_api_base', normalized);
+                    }
+                }
+            } catch (e) {
+                /* 忽略 */
+            }
+            updateApiBanner();
+        }
+
+        function updateApiBanner() {
+            var override = '';
+            try {
+                override = localStorage.getItem('admin_api_base') || '';
+            } catch (e) {
+                override = '';
+            }
+            var banner = document.getElementById('apiBanner');
+            var text = document.getElementById('apiBannerText');
+            var btn = document.getElementById('apiBannerBtn');
+            if (!banner || !text) return;
+            banner.classList.remove('err');
+            banner.classList.add('show');
+            if (override) {
+                text.textContent = '接口：' + override + '（本地/自定义）' + (apiCodeVersion ? ' · 代码 ' + apiCodeVersion : '');
+                if (btn) btn.textContent = '切回线上';
+            } else {
+                var base = (window.API_BASE || location.origin) + '';
+                text.textContent = '接口：' + base + '（线上）' + (apiCodeVersion ? ' · 代码 ' + apiCodeVersion : '');
+                if (btn) btn.textContent = '用本地接口';
+            }
+        }
+
+        // 接口不可用时的高亮提示（比如线上还是旧版 Worker）
+        function showApiProblem(message) {
+            var banner = document.getElementById('apiBanner');
+            var text = document.getElementById('apiBannerText');
+            if (!banner || !text) return;
+            banner.classList.add('show');
+            banner.classList.add('err');
+            text.textContent = message;
+        }
+
+        // 点击横幅按钮：线上 ⇄ 本地切换
+        function toggleApiTarget() {
+            var override = '';
+            try {
+                override = localStorage.getItem('admin_api_base') || '';
+            } catch (e) {
+                override = '';
+            }
+            if (override) {
+                clearApiOverride();
+            } else {
+                try {
+                    localStorage.setItem('admin_api_base', localApiBase());
+                } catch (e) {
+                    /* 忽略 */
+                }
+                location.reload();
+            }
+        }
+
+        function clearApiOverride() {
+            try {
+                localStorage.removeItem('admin_api_base');
+            } catch (e) {
+                /* 忽略 */
+            }
+            location.href = location.pathname;
+        }
+
+        var state = {
+            pages: [],
+            users: [],
+            editing: null,
+            blocks: [],
+        };
+
+        /* ---------- 小工具 ---------- */
+        function $(id) {
+            return document.getElementById(id);
+        }
+
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        function toast(msg, isErr) {
+            var t = $('toast');
+            t.textContent = msg;
+            t.className = 'toast show' + (isErr ? ' err' : '');
+            clearTimeout(t._timer);
+            t._timer = setTimeout(function () {
+                t.className = 'toast';
+            }, 2600);
+        }
+
+        function api(path, options) {
+            options = options || {};
+            var headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+            if (token) headers.Authorization = 'Bearer ' + token;
+            var gateKey = '';
+            try {
+                gateKey = localStorage.getItem('admin_key') || '';
+            } catch (e) {
+                gateKey = '';
+            }
+            if (gateKey) headers['X-Admin-Key'] = gateKey;
+            var fullUrl = apiBase() + path;
+            var method = (options.method || 'GET').toUpperCase();
+            var logEntry = { method: method, url: fullUrl, result: '进行中' };
+            logRequest(logEntry);
+            return fetch(fullUrl, Object.assign({}, options, { headers: headers }))
+                .then(function (res) {
+                    return res.text().then(function (text) {
+                        var data = {};
+                        try {
+                            data = JSON.parse(text);
+                        } catch (e) {
+                            data = {};
+                        }
+                        if (!res.ok) {
+                            var err = new Error(data.error || '请求失败 (' + res.status + ')');
+                            err.status = res.status;
+                            err.code = data.code;
+                            err.url = fullUrl;
+                            logEntry.result = 'HTTP ' + res.status + (data.error ? ' ' + data.error : '');
+                            if (data.code === 'gate') {
+                                gateOn = true;
+                                try {
+                                    localStorage.removeItem('admin_key');
+                                } catch (e) {
+                                    /* 忽略 */
+                                }
+                                showGate();
+                            } else if (res.status === 404) {
+                                // 线上还是旧版 Worker：没有任何管理接口
+                                showApiProblem(
+                                    '接口返回 404：当前连接的接口没有后台管理接口（可能是线上旧版）。' +
+                                        '解决办法：① 双击「本地运行接口.cmd」并点右侧按钮切到本地；② 或双击「一键上线.cmd」把线上更新到最新。'
+                                );
+                            }
+                            throw err;
+                        }
+                        logEntry.result = 'HTTP ' + res.status;
+                        return data;
+                    });
+                })
+                .catch(function (e) {
+                    // 网络层失败（接口没启动 / 断网 / 被拦）
+                    logEntry.result = describeError(e);
+                    var msg = (e && e.message) || '';
+                    if (/Failed to fetch|NetworkError|Load failed|fetch failed|ERR_CONNECTION/i.test(msg)) {
+                        var base = apiBase() || location.origin;
+                        if (/127\.0\.0\.1|localhost/.test(base)) {
+                            showApiProblem(
+                                '连不上本地接口 ' + base + '：请先双击「本地运行接口.cmd」，看到「本地接口已启动」后再刷新本页。'
+                            );
+                        } else {
+                            showApiProblem('连不上接口 ' + base + '：检查网络，或点右侧按钮切到本地接口。');
+                        }
+                    }
+                    throw e;
+                });
+        }
+
+        /* ---------- 后台口令 ---------- */
+        function showGate() {
+            $('gateView').style.display = 'block';
+            $('loginView').style.display = 'none';
+            $('appView').style.display = 'none';
+            $('editorView').style.display = 'none';
+            $('logoutBtn').style.display = 'none';
+        }
+
+        function submitGate() {
+            var key = $('gateKey').value.trim();
+            if (!key) {
+                toast('请输入口令', true);
+                return;
+            }
+            fetch(apiBase() + '/api/admin/gate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: key }),
+            })
+                .then(function (res) {
+                    return res.json().then(function (data) {
+                        return { ok: res.ok, data: data };
+                    });
+                })
+                .then(function (r) {
+                    if (!r.ok) {
+                        toast((r.data && r.data.error) || '口令不正确', true);
+                        return;
+                    }
+                    localStorage.setItem('admin_key', key);
+                    toast('口令正确');
+                    startAuth();
+                })
+                .catch(function (e) {
+                    toast('校验失败：' + e.message, true);
+                });
+        }
+
+        // 任何管理接口返回"需要口令"时，回到口令页
+        function handleAuthError(e) {
+            if (e && e.code === 'gate') {
+                localStorage.removeItem('admin_key');
+                showGate();
+                return true;
+            }
+            if (e && (e.status === 401 || e.status === 403)) {
+                showLogin();
+                return true;
+            }
+            return false;
+        }
+
+        /* ---------- 登录 ---------- */
+
+        function showLogin() {
+            // 启用了后台口令且还没输入过 → 先显示口令页
+            if (gateOn && !savedGateKey()) {
+                showGate();
+                return;
+            }
+            $('loginView').style.display = 'block';
+            $('appView').style.display = 'none';
+            $('editorView').style.display = 'none';
+            $('logoutBtn').style.display = 'none';
+        }
+
+        function doLogin() {
+            var email = $('loginEmail').value.trim();
+            var password = $('loginPassword').value;
+            if (!email || !password) {
+                toast('请输入邮箱和密码', true);
+                return;
+            }
+            api('/api/login', { method: 'POST', body: JSON.stringify({ email: email, password: password }) })
+                .then(function (data) {
+                    if (!data.user || !data.user.is_admin) {
+                        toast('该账号不是管理员', true);
+                        return;
+                    }
+                    token = data.token;
+                    localStorage.setItem('auth_token', token);
+                    me = data.user;
+                    enterApp();
+                })
+                .catch(function (e) {
+                    toast(e.message, true);
+                });
+        }
+
+        function doRegister() {
+            var email = $('loginEmail').value.trim();
+            var password = $('loginPassword').value;
+            if (!email || !password) {
+                toast('先在上面的输入框填好邮箱和密码', true);
+                return;
+            }
+            if (password.length < 6) {
+                toast('密码至少 6 位', true);
+                return;
+            }
+            api('/api/register', { method: 'POST', body: JSON.stringify({ email: email, password: password, nickname: email.split('@')[0] }) })
+                .then(function () {
+                    toast('注册成功，正在登录…');
+                    doLogin();
+                })
+                .catch(function (e) {
+                    toast(e.message, true);
+                });
+        }
+
+        function doLogout() {
+            localStorage.removeItem('auth_token');
+            token = '';
+            me = null;
+            showLogin();
+        }
+
+        function enterApp() {
+            $('loginView').style.display = 'none';
+            $('appView').style.display = 'block';
+            $('logoutBtn').style.display = 'inline-block';
+            loadStats();
+            loadPages();
+        }
+
+        /* ---------- 标签页 ---------- */
+        function switchTab(name) {
+            ['stats', 'pages', 'comments', 'users'].forEach(function (n) {
+                $('tab' + n[0].toUpperCase() + n.slice(1)).style.display = 'none';
+            });
+            document.querySelectorAll('.adm-tab').forEach(function (b) {
+                b.classList.toggle('active', b.dataset.tab === name);
+            });
+            $('tab' + name[0].toUpperCase() + name.slice(1)).style.display = 'block';
+            $('editorView').style.display = 'none';
+            $('appView').style.display = 'block';
+            if (name === 'stats') loadStats();
+            if (name === 'pages') loadPages();
+            if (name === 'comments') loadCommentsAdmin();
+            if (name === 'users') loadUsers();
+        }
+
+        /* ---------- 概览 ---------- */
+        function loadStats() {
+            api('/api/admin/stats')
+                .then(function (s) {
+                    $('statGrid').innerHTML =
+                        '<div class="stat"><b>' + s.users + '</b><span>注册用户</span></div>' +
+                        '<div class="stat"><b>' + s.customers + '</b><span>已激活客户</span></div>' +
+                        '<div class="stat"><b>' + s.pages + '</b><span>页面（' + s.published_pages + ' 已发布）</span></div>' +
+                        '<div class="stat"><b>' + s.comments + '</b><span>评论</span></div>';
+                })
+                .catch(function (e) {
+                    if (e.status === 401 || e.status === 403) {
+                        showLogin();
+                    } else {
+                        toast(e.message, true);
+                    }
+                });
+        }
+
+        /* ---------- 页面列表 ---------- */
+        function loadPages() {
+            api('/api/admin/pages')
+                .then(function (data) {
+                    state.pages = data.pages || [];
+                    if (!state.pages.length) {
+                        $('pageList').innerHTML = '<p style="color:var(--label-2)">还没有页面，点右上角「新建页面」开始。</p>';
+                        return;
+                    }
+                    $('pageList').innerHTML = state.pages
+                        .map(function (p) {
+                            return (
+                                '<div class="adm-row">' +
+                                '<div class="adm-row-main">' +
+                                '<div class="adm-row-title">' + esc(p.title) +
+                                (p.published ? '' : ' <span class="role-badge">草稿</span>') +
+                                '</div>' +
+                                '<div class="adm-row-sub">地址：<code>' + esc(p.slug) + '</code>' +
+                                ' · page.html?slug=' + esc(p.slug) +
+                                ' · 排序 ' + p.sort_order + '</div>' +
+                                '</div>' +
+                                '<button class="adm-btn small" onclick="copyPageLink(\'' + esc(p.slug) + '\')">复制链接</button>' +
+                                '<button class="adm-btn small" onclick="openEditor(\'' + esc(p.slug) + '\')">编辑</button>' +
+                                '<a class="adm-btn small" href="page.html?slug=' + encodeURIComponent(p.slug) + '" target="_blank" rel="noopener">查看</a>' +
+                                '</div>'
+                            );
+                        })
+                        .join('');
+                })
+                .catch(function (e) {
+                    if (e.status === 401 || e.status === 403) showLogin();
+                    else toast(e.message, true);
+                });
+        }
+
+        /* ---------- 导入内置内容（两步确认 + 常驻状态栏） ---------- */
+        var importState = { stage: '', running: false, timer: null };
+
+        function setImportStatus(text, kind) {
+            var el = $('importStatus');
+            if (!el) return;
+            el.className = 'import-status' + (kind ? ' ' + kind : '');
+            el.textContent = text || '';
+            el.style.display = text ? 'block' : 'none';
+        }
+
+        function resetImportButton() {
+            var btn = $('importBtn');
+            importState.stage = '';
+            if (btn) btn.textContent = '导入内置内容';
+            if (importState.timer) {
+                clearTimeout(importState.timer);
+                importState.timer = null;
+            }
+        }
+
+        function importSeed() {
+            if (importState.running) {
+                setImportStatus('正在导入中，请稍候…', 'info');
+                return;
+            }
+            var btn = $('importBtn');
+
+            // 第一次点击：给出确认提示（不依赖系统弹窗）
+            if (importState.stage !== 'confirm') {
+                importState.stage = 'confirm';
+                if (btn) btn.textContent = '确认导入（再点一次）';
+                setImportStatus(
+                    '即将把现有 7 个教程页导入成「草稿」页面，不会影响线上静态页面。\n确认请再点一次按钮；8 秒内不点会自动取消。',
+                    'info'
+                );
+                importState.timer = setTimeout(function () {
+                    resetImportButton();
+                    setImportStatus('已取消（超时）。', '');
+                }, 8000);
+                return;
+            }
+
+            // 第二次点击：真正执行
+            resetImportButton();
+            importState.running = true;
+            setImportStatus('正在读取内容包 seed-pages.json …', 'info');
+
+            var seedUrl = 'seed-pages.json';
+            fetch(seedUrl)
+                .then(function (r) {
+                    if (!r.ok) throw new Error('读取 ' + seedUrl + ' 失败（HTTP ' + r.status + '）');
+                    return r.json();
+                })
+                .then(function (pages) {
+                    if (!Array.isArray(pages) || !pages.length) {
+                        throw new Error('内容包是空的或格式不对');
+                    }
+                    setImportStatus('内容包读取成功，共 ' + pages.length + ' 个页面，开始导入…', 'info');
+
+                    var done = 0;
+                    var failed = [];
+                    var chain = Promise.resolve();
+
+                    pages.forEach(function (p, idx) {
+                        chain = chain.then(function () {
+                            setImportStatus(
+                                '正在导入 ' + (idx + 1) + ' / ' + pages.length + '：' + (p.title || p.slug) + '…',
+                                'info'
+                            );
+                            return api('/api/pages', { method: 'POST', body: JSON.stringify(p) })
+                                .then(function () {
+                                    done++;
+                                })
+                                .catch(function (e) {
+                                    failed.push((p.slug || p.title) + '：' + e.message + (e && e.url ? '  [' + e.url + ']' : ''));
+                                });
+                        });
+                    });
+
+                    return chain.then(function () {
+                        if (failed.length) {
+                            setImportStatus(
+                                '导入完成：成功 ' + done + ' 个，失败 ' + failed.length + ' 个\n' + failed.join('\n') +
+                                    '\n\n当前接口：' + (apiBase() || location.origin),
+                                'err'
+                            );
+                        } else {
+                            setImportStatus('✅ 已导入 ' + done + ' 个页面（草稿）。可以在下面的列表里逐页检查、修改、再发布。', 'ok');
+                        }
+                        loadPages();
+                    });
+                })
+                .catch(function (e) {
+                    setImportStatus('导入失败：' + e.message + '\n' + (e.status ? '接口返回 HTTP ' + e.status : ''), 'err');
+                })
+                .then(function () {
+                    importState.running = false;
+                    if (btn) btn.textContent = '导入内置内容';
+                });
+        }
+
+        /* ---------- 导出 / 导入 JSON（本地 ⇄ 线上搬运） ---------- */
+        function exportPages() {
+            setImportStatus('正在读取所有页面（含草稿）…', 'info');
+            api('/api/admin/pages?full=1')
+                .then(function (data) {
+                    var pages = (data.pages || []).map(function (p) {
+                        return {
+                            slug: p.slug,
+                            title: p.title,
+                            subtitle: p.subtitle || '',
+                            published: p.published === 1,
+                            sort_order: p.sort_order || 100,
+                            blocks: Array.isArray(p.blocks) ? p.blocks : [],
+                        };
+                    });
+                    if (!pages.length) {
+                        setImportStatus('当前接口里还没有页面，没什么可导出的。', '');
+                        return;
+                    }
+                    var json = JSON.stringify(pages, null, 2);
+                    var blob = new Blob([json], { type: 'application/json' });
+                    var url = URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    var stamp = new Date().toISOString().slice(0, 10);
+                    a.href = url;
+                    a.download = 'blog-pages-' + stamp + '.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(function () {
+                        URL.revokeObjectURL(url);
+                    }, 2000);
+                    setImportStatus('✅ 已导出 ' + pages.length + ' 个页面到下载文件。切到另一个接口后用「导入 JSON」搬过去。', 'ok');
+                })
+                .catch(function (e) {
+                    setImportStatus('导出失败：' + e.message, 'err');
+                });
+        }
+
+        function pickImportJson() {
+            var input = $('jsonFile');
+            if (!input) return;
+            input.value = '';
+            input.click();
+        }
+
+        function handleJsonFile(input) {
+            var file = input.files && input.files[0];
+            if (!file) return;
+            setImportStatus('正在读取文件 ' + file.name + ' …', 'info');
+            var reader = new FileReader();
+            reader.onload = function () {
+                var pages;
+                try {
+                    pages = JSON.parse(String(reader.result || ''));
+                } catch (e) {
+                    setImportStatus('这个文件不是合法 JSON：' + e.message, 'err');
+                    return;
+                }
+                importJsonPages(pages);
+            };
+            reader.onerror = function () {
+                setImportStatus('读取文件失败，请重试', 'err');
+            };
+            reader.readAsText(file);
+        }
+
+        function importJsonPages(pages) {
+            if (!Array.isArray(pages) || !pages.length) {
+                setImportStatus('文件里没有页面数据（应该是页面数组）', 'err');
+                return;
+            }
+            var done = 0;
+            var failed = [];
+            var chain = Promise.resolve();
+            pages.forEach(function (p, idx) {
+                chain = chain.then(function () {
+                    setImportStatus('正在导入 ' + (idx + 1) + ' / ' + pages.length + '：' + (p.title || p.slug || '未命名') + '…', 'info');
+                    return api('/api/pages', { method: 'POST', body: JSON.stringify(p) })
+                        .then(function () {
+                            done++;
+                        })
+                        .catch(function (e) {
+                            failed.push((p.slug || p.title || '未命名') + '：' + e.message + (e && e.url ? '  [' + e.url + ']' : ''));
+                        });
+                });
+            });
+            chain.then(function () {
+                if (failed.length) {
+                    setImportStatus('导入完成：成功 ' + done + ' 个，失败 ' + failed.length + ' 个\n' + failed.join('\n'), 'err');
+                } else {
+                    setImportStatus('✅ 已导入 ' + done + ' 个页面。同地址会覆盖原内容。', 'ok');
+                }
+                loadPages();
+            });
+        }
+
+        /* ---------- 编辑器 ---------- */
+        var BLOCK_TYPES = [
+            { type: 'heading', label: '标题' },
+            { type: 'subheading', label: '小标题' },
+            { type: 'paragraph', label: '段落' },
+            { type: 'list', label: '列表' },
+            { type: 'callout', label: '提示框' },
+            { type: 'image', label: '图片' },
+            { type: 'video', label: '视频按钮' },
+            { type: 'faq', label: '问答' },
+            { type: 'table', label: '表格' },
+            { type: 'divider', label: '分隔线' },
+        ];
+
+        function newPage() {
+            state.editing = 'new';
+            state.blocks = [{ type: 'paragraph', text: '' }];
+            $('editorTitle').textContent = '新建页面';
+            $('editorSlugHint').textContent = '地址可以留空，保存时自动生成';
+            $('fSlug').value = '';
+            $('fTitle').value = '';
+            $('fSubtitle').value = '';
+            $('fSort').value = '100';
+            $('fPublished').value = '1';
+            showEditor();
+        }
+
+        function openEditor(slug) {
+            api('/api/pages?slug=' + encodeURIComponent(slug))
+                .then(function (page) {
+                    state.editing = slug;
+                    state.blocks = Array.isArray(page.blocks) ? JSON.parse(JSON.stringify(page.blocks)) : [];
+                    $('editorTitle').textContent = '编辑页面';
+                    $('editorSlugHint').textContent = '前台地址：page.html?slug=' + page.slug;
+                    $('fSlug').value = page.slug;
+                    $('fTitle').value = page.title || '';
+                    $('fSubtitle').value = page.subtitle || '';
+                    $('fSort').value = String(page.sort_order || 100);
+                    $('fPublished').value = String(page.published ? 1 : 0);
+                    showEditor();
+                })
+                .catch(function (e) {
+                    toast(e.message, true);
+                });
+        }
+
+        function showEditor() {
+            $('appView').style.display = 'none';
+            $('editorView').style.display = 'block';
+            renderBlocks();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function backToPages() {
+            $('editorView').style.display = 'none';
+            $('appView').style.display = 'block';
+            loadPages();
+        }
+
+        function renderBlocks() {
+            var bar = $('addBar');
+            bar.innerHTML = BLOCK_TYPES.map(function (t) {
+                return '<button class="adm-btn small" onclick="addBlock(\'' + t.type + '\')">＋ ' + t.label + '</button>';
+            }).join('');
+
+            var list = $('blockList');
+            if (!state.blocks.length) {
+                list.innerHTML = '<p style="color:var(--label-2)">还没有方块，用下面的按钮添加。</p>';
+                return;
+            }
+            list.innerHTML = state.blocks
+                .map(function (b, i) {
+                    return (
+                        '<div class="blk">' +
+                        '<div class="blk-head">' +
+                        '<span class="blk-type">' + blockLabel(b.type) + '</span>' +
+                        '<div class="blk-actions">' +
+                        '<button class="adm-btn small" onclick="moveBlock(' + i + ',-1)">↑</button>' +
+                        '<button class="adm-btn small" onclick="moveBlock(' + i + ',1)">↓</button>' +
+                        '<button class="adm-btn small danger" onclick="delBlock(' + i + ')">✕</button>' +
+                        '</div></div>' +
+                        '<div class="blk-body">' + blockFields(b, i) + '</div>' +
+                        '</div>'
+                    );
+                })
+                .join('');
+        }
+
+        function blockLabel(type) {
+            var found = BLOCK_TYPES.filter(function (t) {
+                return t.type === type;
+            })[0];
+            return found ? found.label : type;
+        }
+
+        function blockFields(b, i) {
+            function textarea(field, value, placeholder, rows) {
+                return (
+                    '<div class="adm-field"><textarea rows="' + (rows || 4) + '" placeholder="' + esc(placeholder || '') +
+                    '" oninput="setField(' + i + ',\'' + field + '\',this.value)">' + esc(value || '') + '</textarea></div>'
+                );
+            }
+            function input(field, value, placeholder) {
+                return (
+                    '<div class="adm-field"><input type="text" placeholder="' + esc(placeholder || '') +
+                    '" value="' + esc(value || '') + '" oninput="setField(' + i + ',\'' + field + '\',this.value)"></div>'
+                );
+            }
+
+            if (b.type === 'heading') return input('text', b.text, '标题文字');
+            if (b.type === 'subheading') return input('text', b.text, '小标题文字（卡片内的小节标题）');
+            if (b.type === 'paragraph') return textarea('text', b.text, '正文，支持换行', 5);
+
+            if (b.type === 'list') {
+                var lines = (b.items || []).join('\n');
+                return (
+                    textarea('itemsText', lines, '一行一项', 5) +
+                    '<label style="font-size:13px;color:var(--label-2)">' +
+                    '<input type="checkbox" ' + (b.ordered ? 'checked' : '') +
+                    ' onchange="setField(' + i + ',\'ordered\',this.checked)"> 使用数字编号</label>'
+                );
+            }
+
+            if (b.type === 'callout') {
+                return (
+                    '<div class="adm-field"><select onchange="setField(' + i + ',\'variant\',this.value)">' +
+                    '<option value="step"' + (b.variant === 'step' || !b.variant ? ' selected' : '') + '>步骤（灰底）</option>' +
+                    '<option value="info"' + (b.variant === 'info' ? ' selected' : '') + '>提示（蓝底）</option>' +
+                    '<option value="warning"' + (b.variant === 'warning' ? ' selected' : '') + '>警告（红底）</option>' +
+                    '</select></div>' +
+                    input('title', b.title, '小标题（可选）') +
+                    textarea('text', b.text, '提示内容', 4)
+                );
+            }
+
+            if (b.type === 'image') {
+                return (
+                    input('src', b.src, '图片地址，例如 images/sd1.jpg 或 https://...') +
+                    input('alt', b.alt, '图片描述（可选，利于搜索）') +
+                    input('caption', b.caption, '图注（可选）')
+                );
+            }
+
+            if (b.type === 'video') {
+                return (
+                    input('title', b.title, '卡片标题，例如 点击下方按钮观看视频') +
+                    input('url', b.url, '视频链接，例如 https://v.douyin.com/xxx') +
+                    input('button', b.button, '按钮文字（默认：观看视频）') +
+                    input('hint', b.hint, '底部提示（可选）')
+                );
+            }
+
+            if (b.type === 'faq') {
+                var faqLines = (b.items || [])
+                    .map(function (x) {
+                        return (x.q || '') + '|' + (x.a || '');
+                    })
+                    .join('\n');
+                return textarea('faqText', faqLines, '每行一个问答，用 | 分隔问题与答案', 6);
+            }
+
+            if (b.type === 'table') {
+                var tableLines = []
+                    .concat([(b.head || []).join('|')])
+                    .concat(
+                        (b.rows || []).map(function (r) {
+                            return r.join('|');
+                        })
+                    )
+                    .filter(function (l) {
+                        return l.trim();
+                    })
+                    .join('\n');
+                return textarea('tableText', tableLines, '第一行是表头，其余是数据；用 | 分隔列', 6);
+            }
+
+            return '<p class="hint-line">这个方块没有可编辑的字段。</p>';
+        }
+
+        /* 把输入写回 state */
+        function setField(index, field, value) {
+            var b = state.blocks[index];
+            if (!b) return;
+            if (field === 'itemsText') {
+                b.items = String(value).split('\n');
+                return;
+            }
+            if (field === 'faqText') {
+                b.items = String(value)
+                    .split('\n')
+                    .filter(function (l) {
+                        return l.trim();
+                    })
+                    .map(function (l) {
+                        var parts = l.split('|');
+                        return { q: (parts[0] || '').trim(), a: (parts.slice(1).join('|') || '').trim() };
+                    });
+                return;
+            }
+            if (field === 'tableText') {
+                var rows = String(value)
+                    .split('\n')
+                    .filter(function (l) {
+                        return l.trim();
+                    })
+                    .map(function (l) {
+                        return l.split('|').map(function (c) {
+                            return c.trim();
+                        });
+                    });
+                b.head = rows.shift() || [];
+                b.rows = rows;
+                return;
+            }
+            b[field] = value;
+        }
+
+        function addBlock(type) {
+            var b = { type: type };
+            if (type === 'list') b.items = [];
+            if (type === 'faq') b.items = [];
+            if (type === 'table') {
+                b.head = ['列1', '列2'];
+                b.rows = [];
+            }
+            if (type === 'callout') b.variant = 'step';
+            state.blocks.push(b);
+            renderBlocks();
+        }
+
+        function moveBlock(i, dir) {
+            var j = i + dir;
+            if (j < 0 || j >= state.blocks.length) return;
+            var tmp = state.blocks[i];
+            state.blocks[i] = state.blocks[j];
+            state.blocks[j] = tmp;
+            renderBlocks();
+        }
+
+        function delBlock(i) {
+            if (!confirm('删除这个方块？')) return;
+            state.blocks.splice(i, 1);
+            renderBlocks();
+        }
+
+        function collectPage() {
+            return {
+                slug: $('fSlug').value.trim().toLowerCase(),
+                title: $('fTitle').value.trim(),
+                subtitle: $('fSubtitle').value.trim(),
+                sort_order: parseInt($('fSort').value) || 100,
+                published: $('fPublished').value === '1',
+                blocks: state.blocks,
+            };
+        }
+
+        function savePage() {
+            var payload = collectPage();
+            if (!payload.title) {
+                toast('标题不能为空', true);
+                return;
+            }
+            api('/api/pages', { method: 'POST', body: JSON.stringify(payload) })
+                .then(function (res) {
+                    var slug = (res && res.slug) || payload.slug;
+                    state.editing = slug;
+                    if (slug) $('fSlug').value = slug;
+                    if (slug) $('editorSlugHint').textContent = '前台地址：page.html?slug=' + slug;
+                    toast(res && res.generated ? '已保存，地址自动生成：' + slug : '已保存');
+                })
+                .catch(function (e) {
+                    toast(e.message, true);
+                });
+        }
+
+        function previewPage() {
+            var slug = $('fSlug').value.trim();
+            if (!slug) {
+                toast('先点「保存」，系统会自动生成页面地址', true);
+                return;
+            }
+            var url = 'page.html?slug=' + encodeURIComponent(slug);
+            $('previewTitle').textContent = '预览：' + slug;
+            $('previewOpen').href = url;
+            $('previewFrame').src = url;
+            $('previewOverlay').classList.add('show');
+        }
+
+        function closePreview() {
+            $('previewOverlay').classList.remove('show');
+            $('previewFrame').src = 'about:blank';
+        }
+
+        // 复制页面完整链接
+        function copyPageLink(slug) {
+            var url = location.origin + location.pathname.replace(/[^/]*$/, '') + 'page.html?slug=' + encodeURIComponent(slug);
+            function done() {
+                toast('链接已复制：' + url);
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(done, function () {
+                    window.prompt('复制下面这个链接：', url);
+                });
+            } else {
+                window.prompt('复制下面这个链接：', url);
+            }
+        }
+
+        function deletePage() {
+            var slug = $('fSlug').value.trim();
+            if (!slug) return;
+            if (!confirm('确定删除页面「' + slug + '」？此操作不可恢复。')) return;
+            api('/api/pages?slug=' + encodeURIComponent(slug), { method: 'DELETE' })
+                .then(function () {
+                    toast('已删除');
+                    backToPages();
+                })
+                .catch(function (e) {
+                    toast(e.message, true);
+                });
+        }
+
+        /* ---------- 评论 ---------- */
+        function loadCommentsAdmin() {
+            api('/api/admin/comments')
+                .then(function (data) {
+                    var list = data.comments || [];
+                    var box = $('commentList');
+                    if (!list.length) {
+                        box.innerHTML = '<p style="color:var(--label-2)">还没有评论。评论区目前是关闭状态。</p>';
+                        return;
+                    }
+                    box.innerHTML = list
+                        .map(function (c) {
+                            return (
+                                '<div class="adm-row">' +
+                                '<div class="adm-row-main">' +
+                                '<div class="adm-row-sub" style="margin-bottom:4px">' +
+                                esc(c.nickname || (c.email || '').split('@')[0]) +
+                                ' · ' + esc(c.page_id) +
+                                ' · ' + new Date(c.created_at * 1000).toLocaleString('zh-CN') +
+                                '</div>' +
+                                '<div class="adm-row-title" style="font-weight:400;white-space:pre-wrap">' + esc(c.content) + '</div>' +
+                                '</div>' +
+                                '<button class="adm-btn small danger" onclick="deleteCommentAdmin(' + c.id + ')">删除</button>' +
+                                '</div>'
+                            );
+                        })
+                        .join('');
+                })
+                .catch(function (e) {
+                    if (e.status === 401 || e.status === 403) showLogin();
+                    else toast(e.message, true);
+                });
+        }
+
+        function deleteCommentAdmin(id) {
+            if (!confirm('确定删除这条评论？')) return;
+            api('/api/admin/comments?id=' + id, { method: 'DELETE' })
+                .then(function () {
+                    toast('已删除');
+                    loadCommentsAdmin();
+                })
+                .catch(function (e) {
+                    toast(e.message, true);
+                });
+        }
+
+        /* ---------- 用户 ---------- */
+        function loadUsers() {
+            api('/api/admin/users')
+                .then(function (data) {
+                    state.users = data.users || [];
+                    if (!state.users.length) {
+                        $('userList').innerHTML = '<p style="color:var(--label-2)">还没有用户。</p>';
+                        return;
+                    }
+                    $('userList').innerHTML = state.users
+                        .map(function (u) {
+                            var roleText = u.role === 'admin' ? '管理员' : u.role === 'premium' ? '高级用户' : u.role === 'player' ? '游戏玩家' : '普通';
+                            var roleCls = u.role === 'admin' ? 'admin' : u.role === 'premium' ? 'premium' : '';
+                            var banned = u.banned_until && u.banned_until * 1000 > Date.now();
+                            return (
+                                '<div class="adm-row">' +
+                                '<div class="adm-row-main">' +
+                                '<div class="adm-row-title">' + esc(u.nickname || u.email.split('@')[0]) +
+                                ' <span class="role-badge ' + roleCls + '">' + roleText + '</span>' +
+                                (banned ? ' <span class="role-badge" style="color:var(--red)">已封禁</span>' : '') +
+                                (u.is_customer ? ' <span class="role-badge" style="color:var(--green)">客户</span>' : '') +
+                                '</div>' +
+                                '<div class="adm-row-sub">' + esc(u.email) +
+                                ' · 注册 ' + new Date(u.created_at * 1000).toLocaleDateString('zh-CN') +
+                                (u.order_id ? ' · 订单 ' + esc(u.order_id) : '') +
+                                '</div>' +
+                                '</div>' +
+                                '<button class="adm-btn small" onclick="toggleCustomer(' + u.id + ',' + (u.is_customer ? 0 : 1) + ')">' +
+                                (u.is_customer ? '取消客户' : '设为客户') + '</button>' +
+                                '<button class="adm-btn small" onclick="toggleBan(' + u.id + ',' + (banned ? 0 : 1) + ')">' +
+                                (banned ? '解封' : '封禁') + '</button>' +
+                                '<button class="adm-btn small danger" onclick="deleteUser(' + u.id + ')">删除</button>' +
+                                '</div>'
+                            );
+                        })
+                        .join('');
+                })
+                .catch(function (e) {
+                    if (e.status === 401 || e.status === 403) showLogin();
+                    else toast(e.message, true);
+                });
+        }
+
+        function toggleCustomer(id, value) {
+            api('/api/admin/users?id=' + id, { method: 'PATCH', body: JSON.stringify({ is_customer: !!value }) })
+                .then(function () {
+                    toast(value ? '已设为客户' : '已取消客户');
+                    loadUsers();
+                })
+                .catch(function (e) {
+                    toast(e.message, true);
+                });
+        }
+
+        function toggleBan(id, value) {
+            var until = value ? Math.floor(Date.now() / 1000) + 365 * 24 * 3600 : 0;
+            api('/api/admin/users?id=' + id, { method: 'PATCH', body: JSON.stringify({ banned_until: until }) })
+                .then(function () {
+                    toast(value ? '已封禁' : '已解封');
+                    loadUsers();
+                })
+                .catch(function (e) {
+                    toast(e.message, true);
+                });
+        }
+
+        function deleteUser(id) {
+            if (!confirm('确定删除这个用户？其评论也会被删除。')) return;
+            api('/api/admin/users?id=' + id, { method: 'DELETE' })
+                .then(function () {
+                    toast('已删除');
+                    loadUsers();
+                })
+                .catch(function (e) {
+                    toast(e.message, true);
+                });
+        }
+
+        // 检查接口代码版本；没有版本标记说明跑的是旧代码
+        function warnIfOldApi(version) {
+            apiCodeVersion = version || '';
+            updateApiBanner();
+            if (!apiCodeVersion) {
+                showApiProblem(
+                    '当前接口是旧版本（没有 code_version 标记）。请把运行「本地运行接口.cmd」的窗口关掉（Ctrl+C），重新双击启动，然后刷新本页。'
+                );
+                return false;
+            }
+            return true;
+        }
+
+        /* ---------- 启动 ---------- */
+        function boot() {
+            bootStep('boot 开始，接口=' + (apiBase() || '未设置'));
+            applyApiOverride();
+            // 先问服务端是否启用了后台口令
+            var healthUrl = apiBase() + '/api/health';
+            var healthEntry = { method: 'GET', url: healthUrl, result: '进行中' };
+            logRequest(healthEntry);
+            fetch(healthUrl)
+                .then(function (r) {
+                    healthEntry.result = 'HTTP ' + r.status;
+                    return r.json();
+                })
+                .then(function (h) {
+                    gateOn = !!(h && h.features && h.features.admin_gate);
+                    var fresh = warnIfOldApi(h && h.code_version);
+                    bootStep('health 完成：版本=' + (h && h.code_version ? h.code_version : '无') + '，口令=' + (gateOn ? '开' : '关'));
+                    if (fresh && h && h.features && h.features.has_admin_api === false) {
+                        showApiProblem(
+                            '当前接口是旧版（没有后台管理接口），概览/页面/用户都会失败。' +
+                                '请点右侧按钮切到本地接口（先双击「本地运行接口.cmd」），或双击「一键上线.cmd」更新线上。'
+                        );
+                    }
+                    if (gateOn && !savedGateKey()) {
+                        showGate();
+                        return;
+                    }
+                    startAuth();
+                })
+                .catch(function (e) {
+                    healthEntry.result = describeError(e);
+                    bootStep('health 失败：' + describeError(e));
+                    startAuth();
+                });
+        }
+
+        function startAuth() {
+            bootStep('startAuth：' + (token ? '有凭证，请求 /api/me' : '无凭证，显示登录页'));
+            if (!token) {
+                showLogin();
+                return;
+            }
+            api('/api/me')
+                .then(function (u) {
+                    if (!u.is_admin) {
+                        localStorage.removeItem('auth_token');
+                        token = '';
+                        showLogin();
+                        toast('该账号不是管理员', true);
+                        return;
+                    }
+                    me = u;
+                    enterApp();
+                })
+                .catch(function () {
+                    localStorage.removeItem('auth_token');
+                    token = '';
+                    showLogin();
+                });
+        }
+
+        // 等 auth.js（defer）先执行完，拿到 window.API_BASE 再启动
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', boot);
+        } else {
+            boot();
+        }
+    </script>
+</body>
+</html>
