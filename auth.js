@@ -6,7 +6,6 @@ const API_BASE = 'https://api.jacksjz.qzz.io';
 window.API_BASE = API_BASE;
 
 // 与 Worker 里的 REGISTRATION_OPEN 保持一致：
-// false = 只允许管理员邮箱登录、注册对外关闭
 const REGISTRATION_OPEN = false;
 
 let currentUser = null;
@@ -168,7 +167,6 @@ function showAuthModal(type = 'login') {
         <div class="auth-modal-content">
             <button class="auth-close" onclick="closeAuthModal()">&times;</button>
             <h2 id="authModalTitle">${type === 'login' ? '登录' : '注册'}</h2>
-            ${!REGISTRATION_OPEN ? '<p class="auth-note">邀请制：仅名单内的邮箱可注册 / 登录</p>' : ''}
             <form id="authForm" onsubmit="handleAuthSubmit(event, '${type}')">
                 ${type === 'register' ? `
                     <div class="auth-field">
