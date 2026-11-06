@@ -2202,3 +2202,10 @@ footer a:hover {
         border-color: rgba(10, 132, 255, 0.45) !important;
     }
 }
+
+/* 移动端输入框不低于 16px（防 iOS 自动放大） */
+@media (max-width: 820px) {
+    input, textarea, select {
+        font-size: 16px !important;
+    }
+}
