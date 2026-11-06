@@ -68,10 +68,14 @@ async function verifyTurnstile(request, env) {
 }
 /* 登录查询：11 位 1 开头当手机号，否则按邮箱（不区分大小写） */
 function loginQuery(env, account, passwordHash) {
-    const isPhone = /^1\d{10}$/.test(account.trim());
-    return isPhone
-        ? env.DB.prepare('SELECT * FROM users WHERE phone = ? AND password_hash = ?').bind(account.trim(), passwordHash)
-        : env.DB.prepare('SELECT * FROM users WHERE lower(email) = lower(?) AND password_hash = ?').bind(account.trim(), passwordHash);
+    const acc = account.trim();
+    if (/^1\d{10}$/.test(acc)) {
+        return env.DB.prepare('SELECT * FROM users WHERE phone = ? AND password_hash = ?').bind(acc, passwordHash);
+    }
+    if (acc.indexOf('@') !== -1) {
+        return env.DB.prepare('SELECT * FROM users WHERE lower(email) = lower(?) AND password_hash = ?').bind(acc, passwordHash);
+    }
+    return env.DB.prepare('SELECT * FROM users WHERE nickname = ? AND password_hash = ?').bind(acc, passwordHash);
 }
 async function hashPassword(password) {
     const encoder = new TextEncoder();
@@ -344,7 +348,9 @@ export default {
                 /* 已开放注册，不再限制邮箱白名单 */
                 // 昵称规则：中文 ≤6 字，其他 ≤10 字符
                 const nickRaw = String(body.nickname || '').trim();
-                if (nickRaw) {
+                if (!nickRaw)
+                    return errorResponse('请填写昵称');
+                {
                     const cjk = (nickRaw.match(/[\u4e00-\u9fa5]/g) || []).length;
                     if (cjk > 0 && cjk > 6)
                         return errorResponse("昵称最多 6 个中文字");
