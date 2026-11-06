@@ -1921,6 +1921,7 @@
                                 (u.order_id ? ' · 订单 ' + esc(u.order_id) : '') +
                                 '</div>' +
                                 '</div>' +
+                                '<button class="adm-btn small" onclick="sendMsgRow(' + u.id + ', \'' + String(u.nickname || u.email).replace(/'/g, '') + '\')">发消息</button>' +
                                 '<button class="adm-btn small" onclick="toggleCustomer(' + u.id + ',' + (u.is_customer ? 0 : 1) + ')">' +
                                 (u.is_customer ? '取消客户' : '设为客户') + '</button>' +
                                 '<button class="adm-btn small" onclick="toggleBan(' + u.id + ',' + (banned ? 0 : 1) + ')">' +
@@ -1938,6 +1939,14 @@
         }
 
         /* ---------- 站内消息：一对一 / 群发 ---------- */
+        function sendMsgRow(id, name) {
+            try {
+                sendMessage(id, name);
+            } catch (e) {
+                alert('发送失败：' + e.message);
+            }
+        }
+
         function askMessage() {
             var title = window.prompt('消息标题（可留空）', '');
             if (title === null) return null;
