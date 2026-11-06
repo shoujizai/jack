@@ -1,3 +1,14 @@
+/* ------------------------------------------------------------------
+ * 访问开关（想开放给所有人时，把 REGISTRATION_OPEN 改成 true 即可）
+ * ------------------------------------------------------------------ */
+const REGISTRATION_OPEN = false;
+// 允许登录 / 注册的管理员邮箱（只有这些账号能用）
+const ADMIN_EMAILS = ['318886406@qq.com'];
+function isAdminEmail(email) {
+    if (!email)
+        return false;
+    return ADMIN_EMAILS.indexOf(String(email).trim().toLowerCase()) !== -1;
+}
 async function hashPassword(password) {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -99,6 +110,10 @@ export default {
                 if (body.password.length < 6) {
                     return errorResponse('密码至少需要6位');
                 }
+                // 注册开关：当前只允许管理员邮箱注册
+                if (!REGISTRATION_OPEN && !isAdminEmail(body.email)) {
+                    return errorResponse('注册暂未开放，敬请期待', 403);
+                }
                 const passwordHash = await hashPassword(body.password);
                 try {
                     const result = await env.DB.prepare('INSERT INTO users (email, password_hash, nickname) VALUES (?, ?, ?)').bind(body.email, passwordHash, body.nickname || body.email.split('@')[0]).run();
@@ -116,6 +131,10 @@ export default {
                 if (!body.email || !body.password) {
                     return errorResponse('邮箱和密码不能为空');
                 }
+                // 未开放注册期间，只允许管理员邮箱登录
+                if (!REGISTRATION_OPEN && !isAdminEmail(body.email)) {
+                    return errorResponse('当前仅限管理员登录，注册暂未开放', 403);
+                }
                 const passwordHash = await hashPassword(body.password);
                 const user = await env.DB.prepare('SELECT * FROM users WHERE email = ? AND password_hash = ?').bind(body.email, passwordHash).first();
                 if (!user) {
@@ -132,6 +151,7 @@ export default {
                         email: user.email,
                         nickname: user.nickname,
                         is_customer: user.is_customer === 1,
+                        is_admin: isAdminEmail(user.email),
                     },
                 });
             }
@@ -145,6 +165,8 @@ export default {
                     email: user.email,
                     nickname: user.nickname,
                     is_customer: user.is_customer === 1,
+                    is_admin: isAdminEmail(user.email),
+                    registration_open: REGISTRATION_OPEN,
                     order_id: user.order_id,
                     serial_numbers: user.serial_numbers,
                 });

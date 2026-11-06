@@ -1454,6 +1454,23 @@ tr:hover {
     margin-top: 6px;
 }
 
+.auth-note {
+    margin: -8px 0 16px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    background: rgba(255, 159, 10, 0.12);
+    color: #8A5A00;
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.4;
+}
+
+@media (prefers-color-scheme: dark) {
+    .auth-note {
+        color: var(--orange);
+    }
+}
+
 .auth-switch {
     text-align: center;
     margin-top: 16px;

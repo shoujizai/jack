@@ -6,6 +6,10 @@ const API_BASE = 'https://blog.318886406.workers.dev';
 // 供体检页等其他脚本复用同一个接口地址
 window.API_BASE = API_BASE;
 
+// 与 Worker 里的 REGISTRATION_OPEN 保持一致：
+// false = 只允许管理员邮箱登录、注册对外关闭
+const REGISTRATION_OPEN = false;
+
 let currentUser = null;
 
 function escapeHtml(text) {
@@ -80,7 +84,15 @@ function updateAuthUI() {
             userMenu.style.display = 'flex';
             if (userNickname) userNickname.textContent = currentUser.nickname || currentUser.email;
             if (customerBadge) {
-                customerBadge.style.display = currentUser.is_customer ? 'inline' : 'none';
+                if (currentUser.is_admin) {
+                    customerBadge.textContent = '管理员';
+                    customerBadge.style.display = 'inline';
+                } else if (currentUser.is_customer) {
+                    customerBadge.textContent = '客户';
+                    customerBadge.style.display = 'inline';
+                } else {
+                    customerBadge.style.display = 'none';
+                }
             }
             if (userKeys) {
                 if (currentUser.is_customer && currentUser.serial_numbers) {
@@ -130,6 +142,7 @@ function showAuthModal(type = 'login') {
         <div class="auth-modal-content">
             <button class="auth-close" onclick="closeAuthModal()">&times;</button>
             <h2 id="authModalTitle">${type === 'login' ? '登录' : '注册'}</h2>
+            ${!REGISTRATION_OPEN ? '<p class="auth-note">当前仅限管理员登录，注册暂未开放</p>' : ''}
             <form id="authForm" onsubmit="handleAuthSubmit(event, '${type}')">
                 ${type === 'register' ? `
                     <div class="auth-field">
@@ -148,9 +161,11 @@ function showAuthModal(type = 'login') {
                 <button type="submit" class="btn btn-primary auth-submit">${type === 'login' ? '登录' : '注册'}</button>
             </form>
             <div class="auth-switch">
-                ${type === 'login' 
-                    ? '没有账号？<a href="#" onclick="showAuthModal(\'register\'); return false;">注册</a>'
-                    : '已有账号？<a href="#" onclick="showAuthModal(\'login\'); return false;">登录</a>'}
+                ${REGISTRATION_OPEN
+                    ? (type === 'login'
+                        ? '没有账号？<a href="#" onclick="showAuthModal(\'register\'); return false;">注册</a>'
+                        : '已有账号？<a href="#" onclick="showAuthModal(\'login\'); return false;">登录</a>')
+                    : '账号暂未开放注册，如需开通请联系站长'}
             </div>
         </div>
     `;
