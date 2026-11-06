@@ -2281,12 +2281,13 @@
                     .then(function () { fetching = false; });
             }
 
+            // 只在前 5 秒内尝试补齐，之后不再轮询
             var tries = 0;
             var timer = setInterval(function () {
                 tries++;
                 ensure();
-                if (tries > 60) clearInterval(timer);
-            }, 150);
+                if (tries > 10) clearInterval(timer);
+            }, 500);
             setTimeout(ensure, 0);
         })();
 
