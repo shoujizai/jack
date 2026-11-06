@@ -222,7 +222,7 @@ async function ensureSchema(env) {
         )`,
         `CREATE TABLE IF NOT EXISTS activate_failures (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, ts INTEGER)`,
         `CREATE TABLE IF NOT EXISTS ai_chats (id INTEGER PRIMARY KEY AUTOINCREMENT, question TEXT, reply TEXT, ip TEXT, created_at INTEGER DEFAULT (strftime('%s','now')))`,
-        `CREATE TABLE IF NOT EXISTS ai_usage (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, day TEXT, ts INTEGER)`,
+        `CREATE TABLE IF NOT EXISTS ai_usage (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, day TEXT, ts INTEGER, neurons REAL DEFAULT 0)`,
         `CREATE TABLE IF NOT EXISTS register_failures (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, ts INTEGER)`,
         `CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1035,7 +1035,9 @@ export default {
                     const used = await env.DB.prepare('SELECT COUNT(*) AS n FROM ai_usage WHERE key = ? AND day = ?').bind(ip, dayKey).first();
                     if ((used?.n || 0) >= 15)
                         return errorResponse('今天的 15 次对话已用完，明天再来吧', 429);
-                    await env.DB.prepare('INSERT INTO ai_usage (key, day, ts) VALUES (?, ?, ?)').bind(ip, dayKey, Math.floor(Date.now() / 1000)).run();
+                    const estIn = Math.ceil(question.length / 1.6);
+                    const estNeurons = (Math.ceil(question.length / 1.6) * 4119 + 300 * 34868) / 1000000;
+                    await env.DB.prepare('INSERT INTO ai_usage (key, day, ts, neurons) VALUES (?, ?, ?, ?)').bind(ip, dayKey, Math.floor(Date.now() / 1000), estNeurons).run();
                 }
                 catch (e) { }
                 let context = '';
@@ -1066,6 +1068,14 @@ export default {
                     '遇到政治、医疗、法律等话题礼貌拒绝。',
                     context ? '\n【本站资料】\n' + context : '',
                 ].filter(Boolean).join('\n');
+                // 全站每日总量上限
+                try {
+                    const totalToday = await env.DB.prepare('SELECT COALESCE(SUM(neurons),0) AS n FROM ai_usage WHERE day = ?').bind(dayKey).first();
+                    if ((totalToday?.n || 0) >= 10000) {
+                        return errorResponse('AI 今日神经元额度已用完（10000），明天再来吧', 429);
+                    }
+                }
+                catch (e) { }
                 const ai = env.AI;
                 if (!ai)
                     return errorResponse('AI 服务尚未启用', 503);
@@ -1181,6 +1191,29 @@ export default {
                 }
                 return jsonResponse({ success: true, sent: ids.length });
             }
+            /* 管理：AI 对话记录 */
+            if (path === '/api/admin/ai' && request.method === 'GET') {
+                const admin = await requireAdmin(request, env);
+                if (admin instanceof Response)
+                    return admin;
+                const limit = Math.min(parseInt(url.searchParams.get('limit') || '100'), 500);
+                let rows = { results: [] };
+                try {
+                    rows = await env.DB.prepare('SELECT id, question, reply, ip, created_at FROM ai_chats ORDER BY id DESC LIMIT ?').bind(limit).all();
+                }
+                catch (e) { }
+                return jsonResponse({ chats: rows.results || [] });
+            }
+            if (path === '/api/admin/ai' && request.method === 'DELETE') {
+                const admin = await requireAdmin(request, env);
+                if (admin instanceof Response)
+                    return admin;
+                const id = parseInt(url.searchParams.get('id') || '0');
+                if (!id)
+                    return errorResponse('缺少 id');
+                await env.DB.prepare('DELETE FROM ai_chats WHERE id = ?').bind(id).run();
+                return jsonResponse({ success: true });
+            }
             if (path === '/api/admin/stats' && request.method === 'GET') {
                 const admin = await requireAdmin(request, env);
                 if (admin instanceof Response)
@@ -1191,7 +1224,7 @@ export default {
                 try {
                     const dayKey = new Date().toISOString().slice(0, 10);
                     const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
-                    const t1 = await env.DB.prepare('SELECT COUNT(*) AS n FROM ai_usage WHERE day = ?').bind(dayKey).first();
+                    const t1 = await env.DB.prepare('SELECT COALESCE(SUM(neurons),0) AS n FROM ai_usage WHERE day = ?').bind(dayKey).first();
                     const t2 = await env.DB.prepare('SELECT COUNT(*) AS n FROM ai_usage WHERE day = ? AND key = ?').bind(dayKey, ip).first();
                     aiToday = t1?.n || 0;
                     aiMine = t2?.n || 0;
@@ -1205,9 +1238,18 @@ export default {
                     comments: c?.n || 0,
                     pages: p?.n || 0,
                     published_pages: p?.published || 0,
+                    ai_left: Math.max(0, 10000 - aiToday),
+                    ai_chats_total: await (async () => {
+                        try {
+                            const r = await env.DB.prepare('SELECT COUNT(*) AS n FROM ai_chats').first();
+                            return r?.n || 0;
+                        }
+                        catch (e) {
+                            return 0;
+                        }
+                    })(),
                     ai_today: aiToday,
-                    ai_my_used: aiMine,
-                    ai_my_left: Math.max(0, 15 - aiMine),
+                    ai_limit: 10000,
                 });
             }
             if (path === '/api/verify-order' && request.method === 'POST') {
