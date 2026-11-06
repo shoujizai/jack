@@ -172,6 +172,15 @@ async function ensureSchema(env) {
             sort_order INTEGER DEFAULT 100,
             created_at INTEGER DEFAULT (strftime('%s','now'))
         )`,
+        `CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            title TEXT,
+            content TEXT NOT NULL,
+            read_at INTEGER,
+            created_at INTEGER DEFAULT (strftime('%s','now'))
+        )`,
+        `CREATE INDEX IF NOT EXISTS idx_messages_user ON messages(user_id)`,
         `CREATE INDEX IF NOT EXISTS idx_comments_page ON comments(page_id)`,
         `CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`,
         `CREATE TABLE IF NOT EXISTS login_failures (
@@ -418,6 +427,12 @@ export default {
                 const user = await getUserFromRequest(request, env);
                 if (!user) {
                     return errorResponse('请先登录', 401);
+                }
+                // 只有资深玩家（premium）/管理员 才能评论；普通玩家需要先激活
+                const commentRole = user.role || 'player';
+                const canComment = user.is_admin === 1 || commentRole === 'admin' || commentRole === 'premium' || user.is_customer === 1;
+                if (!canComment) {
+                    return errorResponse('激活后才能评论', 403);
                 }
                 const body = await request.json();
                 if (!body.page_id || !body.content) {
@@ -667,7 +682,7 @@ export default {
                 if (!(await hasTable(env, 'games'))) {
                     return jsonResponse({ games: [], total: 0 });
                 }
-                const rows = await env.DB.prepare('SELECT id, name, size, sort_order FROM games ORDER BY sort_order ASC, id ASC').all();
+                const rows = await env.DB.prepare('SELECT id, name, size, sort_order FROM games ORDER BY sort_order ASC, CASE WHEN id GLOB \'[0-9]*\' THEN 1 ELSE 0 END, id ASC').all();
                 const list = rows.results || [];
                 return jsonResponse({ games: list, total: list.length });
             }
@@ -748,6 +763,83 @@ export default {
                     }
                 }
                 return jsonResponse({ success: true, added: ok, failed });
+            }
+            /* ================= 站内消息 ================= */
+            // 用户：拉取自己的消息（含未读数）
+            if (path === '/api/messages' && request.method === 'GET') {
+                const user = await getUserFromRequest(request, env);
+                if (!user)
+                    return errorResponse('请先登录', 401);
+                if (!(await hasTable(env, 'messages')))
+                    return jsonResponse({ messages: [], unread: 0 });
+                const rows = await env.DB.prepare('SELECT id, title, content, read_at, created_at FROM messages WHERE user_id = ? ORDER BY created_at DESC, id DESC LIMIT 100').bind(user.id).all();
+                const list = rows.results || [];
+                const unread = list.filter((m) => !m.read_at).length;
+                return jsonResponse({ messages: list, unread });
+            }
+            // 用户：标记已读
+            if (path === '/api/messages/read' && request.method === 'POST') {
+                const user = await getUserFromRequest(request, env);
+                if (!user)
+                    return errorResponse('请先登录', 401);
+                const body = await request.json();
+                const id = parseInt(String(body.id || '0'));
+                if (!id)
+                    return errorResponse('缺少消息 id');
+                await env.DB.prepare("UPDATE messages SET read_at = strftime('%s','now') WHERE id = ? AND user_id = ? AND read_at IS NULL").bind(id, user.id).run();
+                return jsonResponse({ success: true });
+            }
+            // 用户：删除自己的消息（无标题的系统消息也允许）
+            if (path === '/api/messages' && request.method === 'DELETE') {
+                const user = await getUserFromRequest(request, env);
+                if (!user)
+                    return errorResponse('请先登录', 401);
+                const id = parseInt(String(url.searchParams.get('id') || '0'));
+                if (!id)
+                    return errorResponse('缺少消息 id');
+                await env.DB.prepare('DELETE FROM messages WHERE id = ? AND user_id = ?').bind(id, user.id).run();
+                return jsonResponse({ success: true });
+            }
+            // 管理员：给某个用户发消息
+            if (path === '/api/admin/messages' && request.method === 'POST') {
+                const admin = await requireAdmin(request, env);
+                if (admin instanceof Response)
+                    return admin;
+                const body = await request.json();
+                const userId = parseInt(String(body.user_id || '0'));
+                const content = String(body.content || '').trim();
+                const title = String(body.title || '').trim().slice(0, 60);
+                if (!userId)
+                    return errorResponse('缺少用户 id');
+                if (!content)
+                    return errorResponse('消息内容不能为空');
+                if (content.length > 1000)
+                    return errorResponse('消息太长了（上限 1000 字）');
+                await env.DB.prepare('INSERT INTO messages (user_id, title, content) VALUES (?, ?, ?)')
+                    .bind(userId, title, content)
+                    .run();
+                return jsonResponse({ success: true });
+            }
+            // 管理员：群发（发给所有已注册用户）
+            if (path === '/api/admin/messages/all' && request.method === 'POST') {
+                const admin = await requireAdmin(request, env);
+                if (admin instanceof Response)
+                    return admin;
+                const body = await request.json();
+                const content = String(body.content || '').trim();
+                const title = String(body.title || '').trim().slice(0, 60);
+                if (!content)
+                    return errorResponse('消息内容不能为空');
+                if (content.length > 1000)
+                    return errorResponse('消息太长了（上限 1000 字）');
+                const users = await env.DB.prepare('SELECT id FROM users').all();
+                const ids = (users.results || []).map((u) => u.id);
+                for (const uid of ids) {
+                    await env.DB.prepare('INSERT INTO messages (user_id, title, content) VALUES (?, ?, ?)')
+                        .bind(uid, title, content)
+                        .run();
+                }
+                return jsonResponse({ success: true, sent: ids.length });
             }
             if (path === '/api/admin/stats' && request.method === 'GET') {
                 const admin = await requireAdmin(request, env);
