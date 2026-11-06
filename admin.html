@@ -312,11 +312,11 @@
                 <form id="adminLoginForm" onsubmit="doLogin(); return false;" style="margin:0">
                 <div class="adm-field">
                     <label>邮箱</label>
-                    <input type="text" id="loginEmail" placeholder="请输入邮箱" autocomplete="username">
+                    <input type="text" id="loginEmail" name="username" placeholder="请输入邮箱" autocomplete="username" autocapitalize="off" spellcheck="false">
                 </div>
                 <div class="adm-field">
                     <label>密码</label>
-                    <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="current-password">
+                    <input type="password" id="loginPassword" name="password" placeholder="请输入密码" autocomplete="current-password">
                 </div>
                 <button class="btn btn-primary" style="width:100%" onclick="doLogin()">登录</button>
                 </form>
