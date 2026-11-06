@@ -2243,6 +2243,49 @@
             setTimeout(decorate, 800);
         })();
 
+    
+        /* ===== 左右滑动切换标签（SWIPE_TABS_V1） ===== */
+        (function () {
+            var TABS = ['stats', 'pages', 'comments', 'users', 'games', 'ai'];
+            var startX = 0;
+            var startY = 0;
+            var tracking = false;
+            var target = null;
+
+            function begin(e) {
+                if (!e.touches || e.touches.length !== 1) return;
+                var t = e.touches[0];
+                startX = t.clientX;
+                startY = t.clientY;
+                tracking = true;
+                target = e.target;
+            }
+
+            function finish(e) {
+                if (!tracking) return;
+                tracking = false;
+                var t = e.changedTouches && e.changedTouches[0];
+                if (!t) return;
+                var dx = t.clientX - startX;
+                var dy = t.clientY - startY;
+                if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+                // 输入框/文本域里滑动不切页
+                var tag = (target && target.tagName) || '';
+                if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+
+                var active = document.querySelector('.adm-tab.active');
+                var cur = active ? active.dataset.tab : 'stats';
+                var i = TABS.indexOf(cur);
+                if (i === -1) return;
+                var next = dx < 0 ? TABS[i + 1] : TABS[i - 1];
+                if (!next) return;
+                switchTab(next);
+            }
+
+            document.addEventListener('touchstart', begin, { passive: true });
+            document.addEventListener('touchend', finish, { passive: true });
+        })();
+
     </script>
 </body>
 </html>
