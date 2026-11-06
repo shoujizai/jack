@@ -481,46 +481,64 @@ export default {
                     serial_numbers: user.serial_numbers,
                 });
             }
+            /* 激活：订单号必须在名单内且未被使用 → 升级为资深玩家 */
             if (path === '/api/activate' && request.method === 'POST') {
                 const user = await getUserFromRequest(request, env);
-                if (!user) {
+                if (!user)
                     return errorResponse('请先登录', 401);
-                }
                 const body = await request.json();
-                if (!body.order_id || !body.serial_numbers) {
-                    return errorResponse('订单号和序列号不能为空');
+                const orderNo = String(body.order_id || '').trim();
+                if (!orderNo)
+                    return errorResponse('请填写订单号');
+                const nowTs = Math.floor(Date.now() / 1000);
+                // ① 订单号必须在名单里
+                let orderRow = null;
+                try {
+                    orderRow = await env.DB.prepare('SELECT order_no, used_by FROM orders WHERE order_no = ?').bind(orderNo).first();
                 }
-                const serialList = body.serial_numbers.split(',').map(s => s.trim().toUpperCase()).filter(s => s.length === 4);
-                if (serialList.length === 0 || serialList.length > 3) {
-                    return errorResponse('请输入1-3个序列号后4位');
+                catch (e) {
+                    orderRow = null;
                 }
-                const orderList = await fetchOrderList(env.ORDER_JSON_URL);
-                const orderValue = orderList[body.order_id];
-                if (orderValue === undefined) {
+                if (!orderRow) {
+                    try {
+                        await env.DB.prepare('INSERT INTO activate_failures (user_id, ts) VALUES (?, ?)').bind(user.id, nowTs).run();
+                        const fails = await env.DB.prepare('SELECT COUNT(*) AS n FROM activate_failures WHERE user_id = ? AND ts > ?').bind(user.id, nowTs - 30 * 24 * 3600).first();
+                        if ((fails?.n || 0) >= 5) {
+                            await env.DB.prepare('UPDATE users SET suspicious = 1 WHERE id = ?').bind(user.id).run();
+                        }
+                    }
+                    catch (e) {
+                        /* 忽略 */
+                    }
                     return errorResponse('订单号不存在');
                 }
-                const existingUser = await env.DB.prepare('SELECT id FROM users WHERE order_id = ? AND id != ?').bind(body.order_id, user.id).first();
-                if (existingUser) {
+                // ② 订单号不能被别人占用
+                if (orderRow.used_by && Number(orderRow.used_by) !== Number(user.id)) {
                     return errorResponse('该订单号已被其他用户激活');
                 }
-                if (user.is_customer === 1 && user.order_id && user.order_id !== body.order_id) {
-                    return errorResponse('您已激活过其他订单，无法更换');
+                // ③ 同一个订单号不能被多个账号绑定
+                const taken = await env.DB.prepare('SELECT id FROM users WHERE order_id = ? AND id != ?').bind(orderNo, user.id).first();
+                if (taken) {
+                    return errorResponse('该订单号已被其他用户激活');
                 }
-                // 合并现有序列号和新序列号
-                let finalSerialList = serialList;
-                if (user.serial_numbers) {
-                    const existingSerials = user.serial_numbers.split(',');
-                    const mergedSerials = [...new Set([...existingSerials, ...serialList])];
-                    if (mergedSerials.length > 3) {
-                        return errorResponse('序列号总数不能超过3个');
-                    }
-                    finalSerialList = mergedSerials;
+                // ④ 写入序列号（最多 5 个）
+                const rawSerials = Array.isArray(body.serial_numbers) ? body.serial_numbers : [];
+                const cleanedSerials = rawSerials.map((x) => String(x).trim()).filter((x) => x.length > 0).slice(0, 5);
+                if (cleanedSerials.length > 5)
+                    return errorResponse('序列号最多 5 个');
+                await env.DB.prepare("UPDATE users SET role_override = 'premium', is_customer = 0, order_id = ?, serial_numbers = ?, suspicious = 0 WHERE id = ?").bind(orderNo, cleanedSerials.join(','), user.id).run();
+                // ⑤ 标记订单已被使用
+                try {
+                    await env.DB.prepare('UPDATE orders SET used_by = ? WHERE order_no = ?').bind(user.id, orderNo).run();
                 }
-                await env.DB.prepare('UPDATE users SET is_customer = 1, order_id = ?, serial_numbers = ? WHERE id = ?').bind(body.order_id, finalSerialList.join(','), user.id).run();
+                catch (e) {
+                    /* 忽略 */
+                }
                 return jsonResponse({
                     success: true,
-                    message: '激活成功',
-                    serial_numbers: finalSerialList,
+                    message: '激活成功，你已成为资深玩家',
+                    role: 'premium',
+                    serial_numbers: cleanedSerials,
                 });
             }
             if (path === '/api/comments' && request.method === 'GET') {
