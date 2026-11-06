@@ -156,7 +156,17 @@ function updateAuthUI() {
     }
 }
 
-function showAuthModal(type = 'login') {
+function loadTurnstile() {
+        if (document.getElementById('cfTurnstileScript')) return;
+        var s = document.createElement('script');
+        s.id = 'cfTurnstileScript';
+        s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+        s.async = true;
+        s.defer = true;
+        document.head.appendChild(s);
+    }
+
+    function showAuthModal(type = 'login') {
     let modal = document.getElementById('authModal');
     if (modal) modal.remove();
 
@@ -182,7 +192,8 @@ function showAuthModal(type = 'login') {
                     <label>密码</label>
                     <input type="password" id="authPassword" placeholder="请输入密码" required minlength="6">
                 </div>
-                <button type="submit" class="btn btn-primary auth-submit">${type === 'login' ? '登录' : '注册'}</button>
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAAF2qWq_WUxV1UGUl" data-theme="auto" data-size="flexible" style="margin:12px 0"></div>
+        <button type="submit" class="btn btn-primary auth-submit">${type === 'login' ? '登录' : '注册'}</button>
             </form>
             <div class="auth-switch">
                 ${type === 'login'
@@ -204,6 +215,8 @@ async function handleAuthSubmit(event, type) {
     const email = document.getElementById('authEmail').value;
     const password = document.getElementById('authPassword').value;
     const nickname = document.getElementById('authNickname')?.value;
+    const tsEl = document.querySelector('[name="cf-turnstile-response"]');
+    const turnstileToken = tsEl ? tsEl.value : '';
 
     const submitBtn = document.querySelector('.auth-submit');
     submitBtn.disabled = true;
@@ -213,7 +226,7 @@ async function handleAuthSubmit(event, type) {
         if (type === 'register') {
             await api('/api/register', {
                 method: 'POST',
-                body: JSON.stringify({ email, password, nickname }),
+                body: JSON.stringify({ email, password, nickname, turnstile_token: turnstileToken }),
             });
             alert('注册成功！请登录');
             showAuthModal('login');
