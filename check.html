@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex">
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
-    <link rel="stylesheet" href="styles.css?v=5">
+    <link rel="stylesheet" href="styles.css?v=7">
     <style>
         .check-item {
             display: flex;
@@ -85,7 +85,7 @@
 
         <div class="content-section" id="local-note" style="display: none; background: rgba(255, 159, 10, 0.1); box-shadow: none;">
             <p style="color: var(--label); font-weight: 600; margin-bottom: 6px;">你正在本地预览</p>
-            <p style="margin: 0;">本地没有 Worker，所以下面 <code>/api</code> 一定连不上 —— <strong>属于正常现象</strong>。要把这些改动推送到 Cloudflare 之后，用线上域名打开本页，结果才有意义。</p>
+            <p style="margin: 0;">本页会请求**独立 Worker** 的接口（地址写在 <code>auth.js</code> 的 <code>API_BASE</code> 里）。如果那个 Worker 还没部署，这里会显示 404 或请求失败 —— 那不是页面坏了。</p>
         </div>
 
         <h2 class="list-header">检查项</h2>
@@ -118,6 +118,7 @@
         <p>接口体检页面 · 不对外显示在导航里</p>
     </footer>
 
+    <script src="auth.js?v=7" defer></script>
     <script>
         (function () {
             var resultsEl = document.getElementById('results');
@@ -168,8 +169,9 @@
             }
 
             function fetchJSON(url, options) {
+                var base = window.API_BASE || '';
                 var started = Date.now();
-                return fetch(url, options || {})
+                return fetch(base + url, options || {})
                     .then(function (res) {
                         return res.text().then(function (text) {
                             var data;
@@ -258,7 +260,7 @@
                     });
             }
 
-            run();
+            document.addEventListener('DOMContentLoaded', run);
         })();
     </script>
 </body>

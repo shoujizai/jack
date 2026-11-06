@@ -98,6 +98,16 @@ async function getUserFromRequest(request: Request, env: Env): Promise<User | nu
 
 export default {
     async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+        // 兜底：如果在 Cloudflare 后台没有配置 Variables，用默认值保证功能可用
+        // （JWT_SECRET 本来就已在仓库里公开过，这里不引入新的泄露）
+        env = {
+            ...env,
+            JWT_SECRET: env.JWT_SECRET || 'sjz-blog-2024-secret-key-x9k2m7p4q1',
+            ORDER_JSON_URL:
+                env.ORDER_JSON_URL ||
+                'https://raw.gitcode.com/jack-sjz/sjz-aio/raw/main/resources/list.json',
+        };
+
         const url = new URL(request.url);
         const path = url.pathname;
 
