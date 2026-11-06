@@ -2209,3 +2209,21 @@ footer a:hover {
         font-size: 16px !important;
     }
 }
+
+/* 概览卡片缩小 */
+.stat-grid {
+    grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+    gap: 8px;
+}
+.stat {
+    padding: 11px 10px;
+    border-radius: 11px;
+}
+.stat b {
+    font-size: 21px;
+    margin-bottom: 1px;
+}
+.stat span {
+    font-size: 11.5px;
+    line-height: 1.35;
+}
