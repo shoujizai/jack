@@ -222,6 +222,7 @@ async function ensureSchema(env) {
         )`,
         `CREATE TABLE IF NOT EXISTS activate_failures (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, ts INTEGER)`,
         `CREATE TABLE IF NOT EXISTS ai_chats (id INTEGER PRIMARY KEY AUTOINCREMENT, question TEXT, reply TEXT, ip TEXT, created_at INTEGER DEFAULT (strftime('%s','now')))`,
+        `CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT)`,
         `CREATE TABLE IF NOT EXISTS ai_usage (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, day TEXT, ts INTEGER, neurons REAL DEFAULT 0)`,
         `CREATE TABLE IF NOT EXISTS register_failures (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, ts INTEGER)`,
         `CREATE TABLE IF NOT EXISTS messages (
@@ -1060,14 +1061,20 @@ export default {
                     }
                 }
                 catch (e) { }
-                const system = [
+                let customPrompt = '';
+                try {
+                    const row = await env.DB.prepare("SELECT v FROM settings WHERE k = 'ai_prompt'").first();
+                    customPrompt = (row && row.v) || '';
+                }
+                catch (e) { }
+                const system = (customPrompt ? [customPrompt] : [
                     '你是微修 Blog 的站内助手，用中文简短回答（150 字以内）。',
                     '优先依据本站资料回答；没有资料就凭常识回答，并说明站内没有详细说明。',
                     '可以回答 Switch 大气层 Atmosphere、模拟器、插件、游戏安装等问题，给出具体步骤。',
                     '可以正常闲聊，但不要编造链接、价格、订单号、联系方式。',
                     '遇到政治、医疗、法律等话题礼貌拒绝。',
                     context ? '\n【本站资料】\n' + context : '',
-                ].filter(Boolean).join('\n');
+                ]).filter(Boolean).join('\n');
                 // 全站每日总量上限
                 try {
                     const totalToday = await env.DB.prepare('SELECT COALESCE(SUM(neurons),0) AS n FROM ai_usage WHERE day = ?').bind(dayKey).first();
@@ -1192,6 +1199,28 @@ export default {
                 return jsonResponse({ success: true, sent: ids.length });
             }
             /* 管理：AI 对话记录 */
+            /* 管理：AI 提示词 */
+            if (path === '/api/admin/ai/prompt' && request.method === 'GET') {
+                const admin = await requireAdmin(request, env);
+                if (admin instanceof Response)
+                    return admin;
+                let prompt = '';
+                try {
+                    const row = await env.DB.prepare("SELECT v FROM settings WHERE k = 'ai_prompt'").first();
+                    prompt = (row && row.v) || '';
+                }
+                catch (e) { }
+                return jsonResponse({ prompt });
+            }
+            if (path === '/api/admin/ai/prompt' && request.method === 'POST') {
+                const admin = await requireAdmin(request, env);
+                if (admin instanceof Response)
+                    return admin;
+                const body = await request.json();
+                const prompt = String(body.prompt || '').slice(0, 4000);
+                await env.DB.prepare("INSERT INTO settings (k, v) VALUES ('ai_prompt', ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v").bind(prompt).run();
+                return jsonResponse({ success: true });
+            }
             if (path === '/api/admin/ai' && request.method === 'GET') {
                 const admin = await requireAdmin(request, env);
                 if (admin instanceof Response)
