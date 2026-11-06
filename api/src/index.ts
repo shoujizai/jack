@@ -291,6 +291,9 @@ async function ensureSchema(env: Env): Promise<boolean> {
         )`,
         `CREATE TABLE IF NOT EXISTS activate_failures (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, ts INTEGER)`,
         `CREATE TABLE IF NOT EXISTS ai_chats (id INTEGER PRIMARY KEY AUTOINCREMENT, question TEXT, reply TEXT, ip TEXT, created_at INTEGER DEFAULT (strftime('%s','now')))`,
+        `CREATE TABLE IF NOT EXISTS visits (id INTEGER PRIMARY KEY AUTOINCREMENT, day TEXT, source TEXT, visitor TEXT, ts INTEGER)`,
+        `CREATE INDEX IF NOT EXISTS idx_visits_day ON visits(day)`,
+        `CREATE INDEX IF NOT EXISTS idx_visits_ts ON visits(ts)`,
         `CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT)`,
         `CREATE TABLE IF NOT EXISTS ai_usage (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, day TEXT, ts INTEGER, neurons REAL DEFAULT 0)`,
         `CREATE TABLE IF NOT EXISTS register_failures (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, ts INTEGER)`,
@@ -1142,6 +1145,24 @@ export default {
             }
 
 
+
+            /* 访问采集：网页端与客户端共用 */
+            if (path === '/api/hit' && request.method === 'POST') {
+                const body = await request.json().catch(() => ({})) as any;
+                const source = String(body.source || 'web').toLowerCase() === 'switch' ? 'switch' : 'web';
+                const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+                const ua = request.headers.get('User-Agent') || '';
+                const day = new Date().toISOString().slice(0, 10);
+                const ts = Math.floor(Date.now() / 1000);
+                const visitor = (ip + '|' + ua).slice(0, 120);
+                try {
+                    const seen = await env.DB.prepare('SELECT id FROM visits WHERE visitor = ? AND ts > ? LIMIT 1').bind(visitor, ts - 1800).first();
+                    if (!seen) {
+                        await env.DB.prepare('INSERT INTO visits (day, source, visitor, ts) VALUES (?, ?, ?, ?)').bind(day, source, visitor, ts).run();
+                    }
+                } catch (e) {}
+                return jsonResponse({ ok: true });
+            }
             /* ================= AI 聊天 ================= */
 
             /* ================= AI 聊天 ================= */
@@ -1385,6 +1406,32 @@ try {
                             const r: any = await env.DB.prepare('SELECT COUNT(*) AS n FROM ai_chats').first();
                             return r?.n || 0;
                         } catch (e) { return 0; }
+                    })(),
+                    online_now: await (async () => {
+                        try {
+                            const r: any = await env.DB.prepare('SELECT COUNT(DISTINCT visitor) AS n FROM visits WHERE ts > ?').bind(Math.floor(Date.now() / 1000) - 300).first();
+                            return r?.n || 0;
+                        } catch (e) { return 0; }
+                    })(),
+                    visitors_today: await (async () => {
+                        try {
+                            const d = new Date().toISOString().slice(0, 10);
+                            const r: any = await env.DB.prepare('SELECT COUNT(DISTINCT visitor) AS n FROM visits WHERE day = ?').bind(d).first();
+                            return r?.n || 0;
+                        } catch (e) { return 0; }
+                    })(),
+                    visitors_yesterday: await (async () => {
+                        try {
+                            const d = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+                            const r: any = await env.DB.prepare('SELECT COUNT(DISTINCT visitor) AS n FROM visits WHERE day = ?').bind(d).first();
+                            return r?.n || 0;
+                        } catch (e) { return 0; }
+                    })(),
+                    visits_7d: await (async () => {
+                        try {
+                            const rows: any = await env.DB.prepare("SELECT day, SUM(CASE WHEN source='switch' THEN 1 ELSE 0 END) AS sw, SUM(CASE WHEN source='web' THEN 1 ELSE 0 END) AS web FROM visits WHERE day >= ? GROUP BY day").bind(new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10)).all();
+                            return rows.results || [];
+                        } catch (e) { return []; }
                     })(),
                     ai_today: aiToday,
                     ai_limit: 10000,
