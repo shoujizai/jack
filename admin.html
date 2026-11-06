@@ -1255,7 +1255,9 @@
                         '<div class="stat"><b>' + s.users + '</b><span>注册用户</span></div>' +
                         '<div class="stat"><b>' + s.customers + '</b><span>资深玩家</span></div>' +
                         '<div class="stat"><b>' + s.pages + '</b><span>页面（' + s.published_pages + ' 已发布）</span></div>' +
-                        '<div class="stat"><b>' + s.comments + '</b><span>评论</span></div>';
+                        '<div class="stat"><b>' + s.comments + '</b><span>评论</span></div>' +
+                '<div class="stat"><b>' + (s.ai_my_left !== undefined ? s.ai_my_left : '—') + '</b><span>AI 今日剩余（你）</span></div>' +
+                '<div class="stat"><b>' + (s.ai_today || 0) + '</b><span>AI 今日总调用</span></div>';
                 })
                 .catch(function (e) {
                     if (e.status === 401 || e.status === 403) {
