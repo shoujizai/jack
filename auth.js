@@ -425,8 +425,7 @@ function initAuth() {
 
 document.addEventListener('DOMContentLoaded', initAuth);
 
-
-/* ===== 站内消息收件箱（INBOX_VERSION 1） ===== */
+/* ===== 站内消息收件箱（INBOX_VERSION 2：信封闪动） ===== */
 (function () {
     function apiBase() {
         if (window.__LOCAL_API_SAME_ORIGIN__) return location.origin;
@@ -435,65 +434,93 @@ document.addEventListener('DOMContentLoaded', initAuth);
     function getToken() {
         try { return localStorage.getItem('auth_token') || ''; } catch (e) { return ''; }
     }
-    function el(tag, cls, text) {
-        var n = document.createElement(tag);
-        if (cls) n.className = cls;
-        if (text !== undefined) n.textContent = text;
-        return n;
+    var styleDone = false;
+    function injectStyle() {
+        if (styleDone || document.getElementById('inboxStyle')) return;
+        styleDone = true;
+        var css = document.createElement('style');
+        css.id = 'inboxStyle';
+        css.textContent =
+            '@keyframes inboxBlink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(1.12)}}' +
+            '.inbox-envelope{position:relative;border:none;background:transparent;font-size:20px;cursor:pointer;padding:6px 8px;line-height:1;}' +
+            '.inbox-envelope.has-unread{animation:inboxBlink 1.1s ease-in-out infinite;color:#FF3B30;}' +
+            '.inbox-dot{position:absolute;top:2px;right:2px;min-width:15px;height:15px;line-height:15px;border-radius:9px;background:#FF3B30;color:#fff;font-size:10px;text-align:center;padding:0 3px;}';
+        document.head.appendChild(css);
     }
-    var badge = null;
-    function ensureBell() {
-        if (document.getElementById('inboxBell')) return document.getElementById('inboxBell');
+
+    function ensureEntry() {
+        if (document.getElementById('inboxEntry')) return document.getElementById('inboxEntry');
         if (!getToken()) return null;
         var nav = document.querySelector('.nav-container') || document.querySelector('nav');
         if (!nav) return null;
-        var btn = el('button', 'inbox-bell');
-        btn.id = 'inboxBell';
+        injectStyle();
+        var btn = document.createElement('button');
+        btn.id = 'inboxEntry';
         btn.type = 'button';
+        btn.className = 'inbox-envelope';
         btn.title = '我的消息';
-        btn.textContent = '🔔';
-        btn.style.cssText = 'border:none;background:transparent;font-size:19px;cursor:pointer;padding:6px 8px;position:relative;';
-        badge = el('span', 'inbox-badge');
-        badge.style.cssText = 'position:absolute;top:0;right:0;min-width:16px;height:16px;line-height:16px;border-radius:9px;background:#FF3B30;color:#fff;font-size:11px;text-align:center;padding:0 4px;display:none;';
-        btn.appendChild(badge);
+        btn.textContent = '✉️';
         btn.onclick = openInbox;
         nav.appendChild(btn);
         return btn;
     }
-    function refreshBadge() {
+
+    function renderUnread(count) {
+        var btn = ensureEntry();
+        if (!btn) return;
+        var dot = btn.querySelector('.inbox-dot');
+        if (count > 0) {
+            btn.classList.add('has-unread');
+            if (!dot) {
+                dot = document.createElement('span');
+                dot.className = 'inbox-dot';
+                btn.appendChild(dot);
+            }
+            dot.textContent = count > 99 ? '99+' : String(count);
+        } else {
+            btn.classList.remove('has-unread');
+            if (dot) dot.remove();
+        }
+    }
+
+    function refresh() {
         if (!getToken()) return;
         fetch(apiBase() + '/api/messages', { headers: { Authorization: 'Bearer ' + getToken() } })
             .then(function (r) { return r.ok ? r.json() : null; })
-            .then(function (d) {
-                var unread = (d && d.unread) || 0;
-                var b = document.getElementById('inboxBell');
-                if (!b) { ensureBell(); b = document.getElementById('inboxBell'); }
-                if (!b) return;
-                var badgeEl = b.querySelector('.inbox-badge');
-                if (badgeEl) {
-                    badgeEl.textContent = unread > 99 ? '99+' : String(unread);
-                    badgeEl.style.display = unread > 0 ? 'block' : 'none';
-                }
-            })
+            .then(function (d) { renderUnread((d && d.unread) || 0); })
             .catch(function () {});
     }
+
     function openInbox() {
         var old = document.getElementById('inboxOverlay');
         if (old) { old.remove(); return; }
-        var overlay = el('div');
+        injectStyle();
+        var overlay = document.createElement('div');
         overlay.id = 'inboxOverlay';
         overlay.style.cssText = 'position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center;';
-        var panel = el('div');
-        panel.style.cssText = 'width:100%;max-width:560px;max-height:76vh;overflow:auto;background:var(--bg,#F2F2F7);border-radius:16px 16px 0 0;padding:16px;box-shadow:0 -8px 30px rgba(0,0,0,.18);';
-        var head = el('div');
-        head.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:10px;';
-        head.appendChild(el('b', '', '我的消息'));
-        var spacer = el('div'); spacer.style.flex = '1'; head.appendChild(spacer);
-        var close = el('button', 'btn btn-secondary btn-sm', '关闭');
+        var panel = document.createElement('div');
+        panel.style.cssText = 'width:100%;max-width:560px;max-height:76vh;overflow:auto;background:#F2F2F7;border-radius:16px 16px 0 0;padding:16px;box-shadow:0 -8px 30px rgba(0,0,0,.18);';
+
+        var head = document.createElement('div');
+        head.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:16px;';
+        var icon = document.createElement('span');
+        icon.textContent = '✉️';
+        icon.style.fontSize = '20px';
+        var title = document.createElement('b');
+        title.textContent = '我的消息';
+        var count = document.createElement('span');
+        count.style.cssText = 'color:#8E8E93;font-size:13px;';
+        var spacer = document.createElement('div');
+        spacer.style.flex = '1';
+        var close = document.createElement('button');
+        close.className = 'btn btn-secondary btn-sm';
+        close.textContent = '关闭';
         close.onclick = function () { overlay.remove(); };
-        head.appendChild(close);
+        head.appendChild(icon); head.appendChild(title); head.appendChild(count); head.appendChild(spacer); head.appendChild(close);
         panel.appendChild(head);
-        var body = el('div', '', '加载中…');
+
+        var body = document.createElement('div');
+        body.textContent = '加载中…';
         panel.appendChild(body);
         overlay.appendChild(panel);
         overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
@@ -503,14 +530,22 @@ document.addEventListener('DOMContentLoaded', initAuth);
             .then(function (r) { return r.ok ? r.json() : null; })
             .then(function (d) {
                 var list = (d && d.messages) || [];
+                var unread = (d && d.unread) || 0;
+                count.textContent = unread ? '（' + unread + ' 条未读）' : '';
                 body.textContent = '';
-                if (!list.length) { body.appendChild(el('p', '', '暂时没有消息。')); return; }
+                if (!list.length) {
+                    body.appendChild(document.createTextNode('暂时没有消息。'));
+                    return;
+                }
+                list.sort(function (a, b) { return (a.read_at ? 1 : 0) - (b.read_at ? 1 : 0); });
                 list.forEach(function (m) {
-                    var card = el('div');
-                    card.style.cssText = 'padding:10px 12px;margin-bottom:8px;border-radius:10px;background:#fff;cursor:pointer;' + (m.read_at ? 'opacity:.65;' : '');
-                    var t = el('div', '', (m.title || '通知') + (m.read_at ? '' : ' · 未读'));
+                    var card = document.createElement('div');
+                    card.style.cssText = 'padding:10px 12px;margin-bottom:8px;border-radius:10px;background:#fff;cursor:pointer;' + (m.read_at ? 'opacity:.6;' : 'border-left:3px solid #FF3B30;');
+                    var t = document.createElement('div');
+                    t.textContent = (m.read_at ? '' : '✉️ ') + (m.title || '通知');
                     t.style.cssText = 'font-weight:' + (m.read_at ? '400' : '600') + ';margin-bottom:4px;';
-                    var c = el('div', '', m.content);
+                    var c = document.createElement('div');
+                    c.textContent = m.content;
                     c.style.cssText = 'font-size:14px;color:#3A3A3C;white-space:pre-wrap;';
                     card.appendChild(t); card.appendChild(c);
                     card.onclick = function () {
@@ -518,20 +553,26 @@ document.addEventListener('DOMContentLoaded', initAuth);
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + getToken() },
                             body: JSON.stringify({ id: m.id }),
-                        }).then(function () { card.style.opacity = '.65'; refreshBadge(); }).catch(function () {});
+                        }).then(function () {
+                            card.style.opacity = '.6';
+                            card.style.borderLeft = 'none';
+                            t.textContent = m.title || '通知';
+                            refresh();
+                        }).catch(function () {});
                     };
                     body.appendChild(card);
                 });
             })
             .catch(function () { body.textContent = '读取失败，请稍后再试。'; });
     }
+
     function boot() {
         if (!getToken()) return;
-        ensureBell();
-        refreshBadge();
-        setInterval(refreshBadge, 60000);
+        ensureEntry();
+        refresh();
+        setInterval(refresh, 60000);
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
     else boot();
-    window.refreshInboxBadge = refreshBadge;
+    window.refreshInboxBadge = refresh;
 })();
