@@ -123,6 +123,15 @@ async function verifyTurnstile(request: Request, env: Env): Promise<boolean> {
     }
 }
 
+
+/* 登录查询：11 位 1 开头当手机号，否则按邮箱（不区分大小写） */
+function loginQuery(env: Env, account: string, passwordHash: string) {
+    const isPhone = /^1\d{10}$/.test(account.trim());
+    return isPhone
+        ? env.DB.prepare('SELECT * FROM users WHERE phone = ? AND password_hash = ?').bind(account.trim(), passwordHash)
+        : env.DB.prepare('SELECT * FROM users WHERE lower(email) = lower(?) AND password_hash = ?').bind(account.trim(), passwordHash);
+}
+
 async function hashPassword(password: string): Promise<string> {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -292,7 +301,12 @@ async function ensureSchema(env: Env): Promise<boolean> {
         }
         // 老库补充字段（已存在会报错，忽略即可）
         try {
-            await env.DB.prepare('ALTER TABLE users ADD COLUMN banned_until INTEGER').run();
+try {
+            await env.DB.prepare('ALTER TABLE users ADD COLUMN phone TEXT').run();
+        } catch (e) {
+            /* 列已存在 */
+        }
+                    await env.DB.prepare('ALTER TABLE users ADD COLUMN banned_until INTEGER').run();
         try {
             await env.DB.prepare('ALTER TABLE users ADD COLUMN role_override TEXT').run();
         } catch (e) {
@@ -424,9 +438,7 @@ export default {
                 }
 
                 const passwordHash = await hashPassword(body.password);
-                const user = await env.DB.prepare(
-                    'SELECT * FROM users WHERE email = ? AND password_hash = ?'
-                ).bind(body.email, passwordHash).first<User>();
+                const user = await loginQuery(env, body.email, passwordHash).first<User>();
                 if (!user) {
                     try {
                         await env.DB.prepare('INSERT INTO login_failures (email, ts) VALUES (?, ?)')
