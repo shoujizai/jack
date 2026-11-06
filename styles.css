@@ -281,6 +281,31 @@ nav {
     min-height: 30px;
 }
 
+/* 导航里的"注册"文字按钮（比实心按钮轻，省空间） */
+.nav-auth-link {
+    background: none;
+    border: none;
+    padding: 6px 6px;
+    color: var(--blue);
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+}
+
+.nav-auth-link:hover {
+    background: rgba(0, 122, 255, 0.1);
+}
+
+@media (max-width: 380px) {
+    .nav-auth-link {
+        padding: 6px 2px;
+        font-size: 14px;
+    }
+}
+
 .user-menu {
     position: relative;
     display: flex;

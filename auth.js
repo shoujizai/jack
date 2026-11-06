@@ -83,6 +83,7 @@ async function checkAuth() {
 
 function updateAuthUI() {
     const loginBtn = document.getElementById('authLoginBtn');
+    const registerBtn = document.getElementById('authRegisterBtn');
     const userMenu = document.getElementById('authUserMenu');
     const userNickname = document.getElementById('authUserNickname');
     const customerBadge = document.getElementById('authCustomerBadge');
@@ -95,17 +96,22 @@ function updateAuthUI() {
     const hiddenContent = document.querySelectorAll('.customer-content');
 
     if (currentUser) {
-        // 管理员等同于"已开通全部权限"：不需要订单激活，也不再看得到激活入口
-        const isAdmin = !!currentUser.is_admin;
-        const hasAccess = isAdmin || !!currentUser.is_customer;
+        // 角色：admin 管理员 / premium 高级用户 / player 游戏玩家
+        const role = currentUser.role || (currentUser.is_admin ? 'admin' : '');
+        const roleLabel = { admin: '管理员', premium: '高级用户', player: '游戏玩家' }[role] || '';
+        // 高级分区权限：管理员、高级用户、已激活客户
+        const hasAccess = !!currentUser.is_premium || role === 'admin' || role === 'premium' || !!currentUser.is_customer;
+        // 这些人不需要（也不应该看到）订单激活入口
+        const noActivate = role === 'admin' || role === 'premium';
 
         if (loginBtn) loginBtn.style.display = 'none';
+        if (registerBtn) registerBtn.style.display = 'none';
         if (userMenu) {
             userMenu.style.display = 'flex';
             if (userNickname) userNickname.textContent = currentUser.nickname || currentUser.email;
             if (customerBadge) {
-                if (isAdmin) {
-                    customerBadge.textContent = '管理员';
+                if (roleLabel) {
+                    customerBadge.textContent = roleLabel;
                     customerBadge.style.display = 'inline';
                 } else if (currentUser.is_customer) {
                     customerBadge.textContent = '客户';
@@ -124,8 +130,7 @@ function updateAuthUI() {
             }
             if (activateBtn) {
                 const serialCount = currentUser.serial_numbers ? currentUser.serial_numbers.split(',').length : 0;
-                // 管理员不需要激活订单
-                activateBtn.style.display = isAdmin || serialCount >= 3 ? 'none' : 'block';
+                activateBtn.style.display = noActivate || serialCount >= 3 ? 'none' : 'block';
                 activateBtn.textContent = currentUser.is_customer ? '添加密钥' : '激活订单';
             }
             if (dropdown) {
@@ -142,6 +147,7 @@ function updateAuthUI() {
         });
     } else {
         if (loginBtn) loginBtn.style.display = 'inline-block';
+        if (registerBtn) registerBtn.style.display = 'inline-block';
         if (userMenu) userMenu.style.display = 'none';
         if (commentForm) commentForm.style.display = 'none';
         if (loginHint) loginHint.style.display = 'block';
@@ -163,7 +169,7 @@ function showAuthModal(type = 'login') {
         <div class="auth-modal-content">
             <button class="auth-close" onclick="closeAuthModal()">&times;</button>
             <h2 id="authModalTitle">${type === 'login' ? '登录' : '注册'}</h2>
-            ${!REGISTRATION_OPEN ? '<p class="auth-note">当前仅限管理员登录，注册暂未开放</p>' : ''}
+            ${!REGISTRATION_OPEN ? '<p class="auth-note">邀请制：仅名单内的邮箱可注册 / 登录</p>' : ''}
             <form id="authForm" onsubmit="handleAuthSubmit(event, '${type}')">
                 ${type === 'register' ? `
                     <div class="auth-field">
@@ -182,11 +188,9 @@ function showAuthModal(type = 'login') {
                 <button type="submit" class="btn btn-primary auth-submit">${type === 'login' ? '登录' : '注册'}</button>
             </form>
             <div class="auth-switch">
-                ${REGISTRATION_OPEN
-                    ? (type === 'login'
-                        ? '没有账号？<a href="#" onclick="showAuthModal(\'register\'); return false;">注册</a>'
-                        : '已有账号？<a href="#" onclick="showAuthModal(\'login\'); return false;">登录</a>')
-                    : '账号暂未开放注册，如需开通请联系站长'}
+                ${type === 'login'
+                    ? '没有账号？<a href="#" onclick="showAuthModal(\'register\'); return false;">注册</a>'
+                    : '已有账号？<a href="#" onclick="showAuthModal(\'login\'); return false;">登录</a>'}
             </div>
         </div>
     `;

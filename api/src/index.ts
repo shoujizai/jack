@@ -9,12 +9,40 @@ export interface Env {
  * ------------------------------------------------------------------ */
 const REGISTRATION_OPEN = false;
 
-// 允许登录 / 注册的管理员邮箱（只有这些账号能用）
-const ADMIN_EMAILS = ['318886406@qq.com'];
+/* ------------------------------------------------------------------
+ * 白名单：只有名单里的邮箱可以注册 / 登录，并附带角色
+ *   admin   = 管理员（全部权限，自动拥有高级分区）
+ *   premium = 高级用户（可看高级分区）
+ *   player  = 游戏玩家（可登录、评论，不含高级分区）
+ * ------------------------------------------------------------------ */
+type UserRole = 'admin' | 'premium' | 'player';
+
+const ROLE_BY_EMAIL: Record<string, UserRole> = {
+    '318886406@qq.com': 'admin',
+    '1258528471@qq.com': 'premium',
+    '123@qq.com': 'premium',
+    '456@qq.com': 'player',
+    '789@qq.com': 'player',
+    '147@qq.com': 'player',
+};
+
+function normalizeEmail(email: string | null | undefined): string {
+    return email ? String(email).trim().toLowerCase() : '';
+}
+
+function getRole(email: string | null | undefined): UserRole | null {
+    const key = normalizeEmail(email);
+    return ROLE_BY_EMAIL[key] || null;
+}
 
 function isAdminEmail(email: string | null | undefined): boolean {
-    if (!email) return false;
-    return ADMIN_EMAILS.indexOf(String(email).trim().toLowerCase()) !== -1;
+    return getRole(email) === 'admin';
+}
+
+// 能看高级分区的人：管理员、高级用户，以及在后台激活过订单的客户
+function hasPremiumAccess(user: User): boolean {
+    const role = getRole(user.email);
+    return role === 'admin' || role === 'premium' || user.is_customer === 1;
 }
 
 interface User {
@@ -146,9 +174,9 @@ export default {
                 if (body.password.length < 6) {
                     return errorResponse('密码至少需要6位');
                 }
-                // 注册开关：当前只允许管理员邮箱注册
-                if (!REGISTRATION_OPEN && !isAdminEmail(body.email)) {
-                    return errorResponse('注册暂未开放，敬请期待', 403);
+                // 注册开关：当前只允许白名单邮箱注册
+                if (!REGISTRATION_OPEN && !getRole(body.email)) {
+                    return errorResponse('该邮箱不在邀请名单内，暂不能注册', 403);
                 }
                 const passwordHash = await hashPassword(body.password);
                 try {
@@ -169,9 +197,9 @@ export default {
                 if (!body.email || !body.password) {
                     return errorResponse('邮箱和密码不能为空');
                 }
-                // 未开放注册期间，只允许管理员邮箱登录
-                if (!REGISTRATION_OPEN && !isAdminEmail(body.email)) {
-                    return errorResponse('当前仅限管理员登录，注册暂未开放', 403);
+                // 邀请制期间，只允许白名单邮箱登录
+                if (!REGISTRATION_OPEN && !getRole(body.email)) {
+                    return errorResponse('该邮箱不在邀请名单内，暂不能登录', 403);
                 }
                 const passwordHash = await hashPassword(body.password);
                 const user = await env.DB.prepare(
@@ -192,6 +220,8 @@ export default {
                         nickname: user.nickname,
                         is_customer: user.is_customer === 1,
                         is_admin: isAdminEmail(user.email),
+                        role: getRole(user.email),
+                        is_premium: hasPremiumAccess(user),
                     },
                 });
             }
@@ -207,6 +237,8 @@ export default {
                     nickname: user.nickname,
                     is_customer: user.is_customer === 1,
                     is_admin: isAdminEmail(user.email),
+                    role: getRole(user.email),
+                    is_premium: hasPremiumAccess(user),
                     registration_open: REGISTRATION_OPEN,
                     order_id: user.order_id,
                     serial_numbers: user.serial_numbers,
@@ -333,9 +365,11 @@ export default {
                     tables: [] as string[],
                     // 版本指纹：用于确认线上跑的是不是最新代码
                     features: {
-                        admin_only_login: !REGISTRATION_OPEN,
-                        admin_email_count: ADMIN_EMAILS.length,
+                        whitelist_login_only: !REGISTRATION_OPEN,
+                        allowed_email_count: Object.keys(ROLE_BY_EMAIL).length,
+                        roles: Object.values(ROLE_BY_EMAIL),
                         has_is_admin: true,
+                        has_roles: true,
                         has_comment_limit: false,
                     },
                     env: {
