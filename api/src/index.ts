@@ -290,6 +290,33 @@ export default {
                 return jsonResponse({ exists });
             }
 
+            if (path === '/api/health' && request.method === 'GET') {
+                const result: any = {
+                    ok: true,
+                    service: 'jack-blog',
+                    time: Math.floor(Date.now() / 1000),
+                    db: 'unknown',
+                    tables: [] as string[],
+                    env: {
+                        hasDb: !!env.DB,
+                        hasSecret: !!env.JWT_SECRET,
+                        hasOrderUrl: !!env.ORDER_JSON_URL,
+                    },
+                };
+                try {
+                    const tables = await env.DB.prepare(
+                        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%'"
+                    ).all();
+                    result.db = 'connected';
+                    result.tables = (tables.results || []).map((t: any) => t.name);
+                } catch (e: any) {
+                    result.ok = false;
+                    result.db = 'error';
+                    result.error = e.message;
+                }
+                return jsonResponse(result);
+            }
+
             return errorResponse('Not Found', 404);
         } catch (error: any) {
             console.error('Error:', error);

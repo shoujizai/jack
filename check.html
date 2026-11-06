@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>接口体检 - 微修的Blog</title>
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+    <link rel="stylesheet" href="styles.css?v=5">
+    <style>
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 0;
+            border-bottom: 0.5px solid var(--separator);
+        }
+        .check-item:last-child { border-bottom: none; }
+        .check-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            flex-shrink: 0;
+            background: var(--fill-2);
+            color: var(--label-2);
+        }
+        .check-icon.ok { background: rgba(52, 199, 89, 0.18); color: #248A3D; }
+        .check-icon.bad { background: rgba(255, 59, 48, 0.15); color: #C1272D; }
+        .check-icon.warn { background: rgba(255, 159, 10, 0.18); color: #A05A00; }
+        .check-body { flex: 1; min-width: 0; }
+        .check-title { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+        .check-desc { font-size: 13px; color: var(--label-2); word-break: break-all; line-height: 1.5; }
+        pre {
+            margin: 8px 0 0;
+            padding: 10px 12px;
+            background: var(--fill-2);
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.5;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: var(--label-2);
+        }
+        .pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--fill-2);
+            color: var(--label-2);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a class="logo" href="index.html">微修的Blog</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-header">
+            <h1>接口体检</h1>
+            <p>逐项检查网页能否连上 Worker 接口和 D1 数据库，方便定位问题。</p>
+        </div>
+
+        <h2 class="list-header">环境</h2>
+        <div class="content-section">
+            <div class="check-item">
+                <div class="check-icon ok" id="icon-origin">·</div>
+                <div class="check-body">
+                    <div class="check-title">当前访问地址</div>
+                    <div class="check-desc" id="desc-origin">—</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section" id="local-note" style="display: none; background: rgba(255, 159, 10, 0.1); box-shadow: none;">
+            <p style="color: var(--label); font-weight: 600; margin-bottom: 6px;">你正在本地预览</p>
+            <p style="margin: 0;">本地没有 Worker，所以下面 <code>/api</code> 一定连不上 —— <strong>属于正常现象</strong>。要把这些改动推送到 Cloudflare 之后，用线上域名打开本页，结果才有意义。</p>
+        </div>
+
+        <h2 class="list-header">检查项</h2>
+        <div class="content-section" id="results">
+            <div class="check-item">
+                <div class="check-icon">…</div>
+                <div class="check-body">
+                    <div class="check-title">正在检查…</div>
+                    <div class="check-desc">请稍候</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="list-header">原始返回</h2>
+        <div class="content-section">
+            <div class="check-desc" style="margin-bottom:8px;">如果上面的结论看不懂，把这里的内容截图发出来即可。</div>
+            <pre id="raw">等待检查…</pre>
+        </div>
+
+        <h2 class="list-header">说明</h2>
+        <div class="content-section">
+            <p><strong>健康</strong>：<code>/api/health</code> 返回 200，且 <code>db</code> 为 <code>connected</code>，<code>tables</code> 里能看到 <code>users</code>、<code>comments</code>、<code>sessions</code>。</p>
+            <p><strong>接口 404</strong>：说明 <code>/api/*</code> 请求没有交到 Worker，而是被静态资源吞掉了 —— 需要确认 <code>wrangler.toml</code> 里有 <code>main</code> 入口，或改用 Worker 路由。</p>
+            <p><strong>db 为 error</strong>：说明 Worker 里拿不到 D1 数据库，需要在 Worker 的 Settings → Bindings 里绑定 D1，变量名必须是 <code>DB</code>。</p>
+            <p><strong>tables 为空</strong>：说明数据库连上了但没建表，需要在 D1 控制台执行 <code>api/schema.sql</code>。</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>接口体检页面 · 不对外显示在导航里</p>
+    </footer>
+
+    <script>
+        (function () {
+            var resultsEl = document.getElementById('results');
+            var rawEl = document.getElementById('raw');
+            var rawLog = [];
+
+            document.getElementById('desc-origin').textContent =
+                location.origin + location.pathname;
+
+            // 本地环境（file:// 、localhost、局域网 IP）下 /api 必然连不上，显示提示
+            var host = location.hostname;
+            var isLocal =
+                location.protocol === 'file:' ||
+                host === 'localhost' ||
+                host === '' ||
+                /^127\./.test(host) ||
+                /^10\./.test(host) ||
+                /^192\.168\./.test(host) ||
+                /^172\.(1[6-9]|2\d|3[01])\./.test(host);
+            if (isLocal) {
+                document.getElementById('local-note').style.display = 'block';
+            }
+
+            function el(tag, cls, text) {
+                var e = document.createElement(tag);
+                if (cls) e.className = cls;
+                if (text !== undefined) e.textContent = text;
+                return e;
+            }
+
+            function addRow(state, title, desc, detail) {
+                var icon = el('div', 'check-icon ' + (state || ''), state === 'ok' ? '✓' : state === 'bad' ? '✕' : state === 'warn' ? '!' : '…');
+                var body = el('div', 'check-body');
+                body.appendChild(el('div', 'check-title', title));
+                if (desc) body.appendChild(el('div', 'check-desc', desc));
+                if (detail) {
+                    var pre = el('pre', null, detail);
+                    body.appendChild(pre);
+                }
+                var row = el('div', 'check-item');
+                row.appendChild(icon);
+                row.appendChild(body);
+                resultsEl.appendChild(row);
+            }
+
+            function reset() {
+                resultsEl.innerHTML = '';
+            }
+
+            function fetchJSON(url, options) {
+                var started = Date.now();
+                return fetch(url, options || {})
+                    .then(function (res) {
+                        return res.text().then(function (text) {
+                            var data;
+                            try { data = JSON.parse(text); } catch (e) { data = text; }
+                            return { status: res.status, ok: res.ok, data: data, ms: Date.now() - started };
+                        });
+                    });
+            }
+
+            function record(name, result) {
+                rawLog.push(
+                    '### ' + name + '\n' +
+                    'status: ' + result.status + '  (' + result.ms + 'ms)\n' +
+                    (typeof result.data === 'string' ? result.data : JSON.stringify(result.data, null, 2)).slice(0, 1200)
+                );
+            }
+
+            function run() {
+                reset();
+
+                // 1. 健康检查
+                fetchJSON('/api/health')
+                    .then(function (r) {
+                        record('GET /api/health', r);
+
+                        if (r.status === 404) {
+                            addRow('bad', '接口没有生效（404）', '请求 /api/health 返回 404，说明 /api/* 没有交给 Worker 处理。');
+                            return;
+                        }
+                        if (!r.ok) {
+                            addRow('bad', '健康检查失败（HTTP ' + r.status + '）', '接口存在但返回了错误。', JSON.stringify(r.data, null, 2).slice(0, 600));
+                            return;
+                        }
+
+                        var d = r.data || {};
+                        addRow('ok', 'Worker 接口正常', 'GET /api/health → 200, ' + r.ms + 'ms');
+
+                        if (d.db === 'connected') {
+                            addRow('ok', 'D1 数据库已绑定', 'Worker 成功读到数据库。');
+                        } else {
+                            addRow('bad', 'D1 没连上', '代码里 env.DB 为空或查询失败：' + (d.error || '未知错误'));
+                        }
+
+                        var tables = d.tables || [];
+                        var need = ['users', 'comments', 'sessions'];
+                        var missing = need.filter(function (t) { return tables.indexOf(t) === -1; });
+                        if (!tables.length) {
+                            addRow('bad', '数据库里还没有表', '在 D1 控制台执行 api/schema.sql 建表。');
+                        } else if (missing.length) {
+                            addRow('warn', '缺少表：' + missing.join('、'), '已有：' + tables.join('、'));
+                        } else {
+                            addRow('ok', '数据表齐全', 'users、comments、sessions 都在。');
+                        }
+
+                        // 2. 评论读取
+                        return fetchJSON('/api/comments?page=index').then(function (r2) {
+                            record('GET /api/comments?page=index', r2);
+                            if (r2.ok) {
+                                var n = (r2.data && r2.data.comments) ? r2.data.comments.length : 0;
+                                addRow('ok', '评论接口正常', '读到 ' + n + ' 条评论。');
+                            } else {
+                                addRow('bad', '评论接口报错（HTTP ' + r2.status + '）', (r2.data && r2.data.error) || '无返回内容');
+                            }
+
+                            // 3. 登录态检查（未登录返回 401 属正常）
+                            return fetchJSON('/api/me', {
+                                headers: { Authorization: 'Bearer ' + (localStorage.getItem('auth_token') || 'none') },
+                            }).then(function (r3) {
+                                record('GET /api/me', r3);
+                                if (r3.status === 401) {
+                                    addRow('ok', '登录接口正常', '未登录时返回 401，符合预期。');
+                                } else if (r3.ok) {
+                                    addRow('ok', '登录接口正常', '当前已登录：' + ((r3.data && (r3.data.nickname || r3.data.email)) || ''));
+                                } else {
+                                    addRow('warn', '登录接口返回 HTTP ' + r3.status, '需要进一步排查。');
+                                }
+                            });
+                        });
+                    })
+                    .catch(function (e) {
+                        addRow('bad', '请求失败', e.message + '（可能是网络或 Worker 没有部署）');
+                        rawLog.push('### fetch error\n' + e.message);
+                    })
+                    .then(function () {
+                        rawEl.textContent = rawLog.join('\n\n') || '无';
+                    });
+            }
+
+            run();
+        })();
+    </script>
+</body>
+</html>

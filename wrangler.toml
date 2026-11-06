@@ -1,5 +1,25 @@
+# 站点主 Worker：静态页面 + /api 接口 + D1 数据库，全部在同一个 Worker 里
+# 前端用同域 /api 调用即可，不需要在 Cloudflare 后台配置任何路由
 name = "jack"
+main = "api/src/index.ts"
 compatibility_date = "2024-01-01"
 
 [assets]
+# 静态文件所在目录（仓库根目录）
 directory = "."
+# 未命中静态文件的请求（例如 /api/*）会自动交给上面的 Worker 处理
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+# 代码里通过 env.DB 访问数据库
+binding = "DB"
+database_name = "blog-db"
+database_id = "08a3652b-d0d1-4d8a-b651-300310dd3108"
+
+[vars]
+# 订单校验用的淘宝订单列表（JSON）
+ORDER_JSON_URL = "https://raw.gitcode.com/jack-sjz/sjz-aio/raw/main/resources/list.json"
+# 注意：生产环境建议在 Cloudflare 后台把 JWT_SECRET 设为加密变量（Secret），
+# 不写在这里。当前先保留，避免已有登录状态失效。
+JWT_SECRET = "sjz-blog-2024-secret-key-x9k2m7p4q1"

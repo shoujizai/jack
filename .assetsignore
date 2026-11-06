@@ -1,0 +1,14 @@
+# Workers 静态资源上传时忽略的文件（语法同 .gitignore）
+# 目的：不要把接口源码、依赖、版本库等当成网页静态文件传上去
+api/
+functions/
+worker/
+.wrangler/
+node_modules/
+**/node_modules/
+.git/
+*.log
+.gitignore
+.wranglerignore
+.assetsignore
+.preview/
