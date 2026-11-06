@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex">
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
-    <link rel="stylesheet" href="styles.css?v=16">
+    <link rel="stylesheet" href="styles.css?v=224">
     <style>
         .check-item {
             display: flex;
@@ -118,7 +118,7 @@
         <p>接口体检页面 · 不对外显示在导航里</p>
     </footer>
 
-    <script src="auth.js?v=16" defer></script>
+    <script src="auth.js?v=224" defer></script>
     <script>
         (function () {
             var resultsEl = document.getElementById('results');
@@ -280,7 +280,6 @@
                                         addRow(
                                             'warn',
                                             '当前账号不是管理员',
-                                            '后台只认白名单里的管理员邮箱。你登录的是：' + (me.email || '未知') + '，所以不会显示「管理员」徽章。'
                                         );
                                     }
                                 } else {
