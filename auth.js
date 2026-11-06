@@ -756,6 +756,8 @@ document.addEventListener('DOMContentLoaded', initAuth);
     }
 
     function boot() {
+        // 后台管理页不显示收件箱
+        if (/admin\.html/i.test(location.pathname)) return;
         if (!getToken()) return;
         refresh();
 
