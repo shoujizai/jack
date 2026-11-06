@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
 
 /* ===== 站内消息收件箱（INBOX_VERSION 4：徽章变信封 + 显示时间） ===== */
 (function () {
-    var BADGE_SELECTORS = ['.nav-auth-link', '#authLink', '.nav-user', '.user-badge', '.nav-container .btn-auth'];
+    var BADGE_SELECTORS = ['#authUserNickname', '#authUserMenu', '.nav-auth-link', '#authLink', '.nav-user'];
 
     function apiBase() {
         if (window.__LOCAL_API_SAME_ORIGIN__) return location.origin;
@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
         if (!getToken()) return;
         fetch(apiBase() + '/api/messages', { headers: { Authorization: 'Bearer ' + getToken() } })
             .then(function (r) { return r.ok ? r.json() : null; })
-            .then(function (d) { setBadgeEnvelope((d && d.unread) || 0); })
+            .then(function (d) { window.__inboxUnread = (d && d.unread) || 0; setBadgeEnvelope(window.__inboxUnread); })
             .catch(function () {});
     }
 
@@ -742,20 +742,9 @@ document.addEventListener('DOMContentLoaded', initAuth);
     var insertedFor = null;
 
     function findPanel() {
-        // 找出包含「激活」和「退出」的容器
-        var nodes = document.querySelectorAll('button, a, li, div');
-        var exitNode = null;
-        for (var i = 0; i < nodes.length; i++) {
-            var t = (nodes[i].textContent || '').trim();
-            if ((t === '退出' || t === '退出登录') && nodes[i].parentElement) {
-                exitNode = nodes[i];
-                break;
-            }
-        }
-        if (!exitNode) return null;
-        var p = exitNode.parentElement;
-        if ((p.textContent || '').indexOf('激活') === -1) return null;
-        return { parent: p, exit: exitNode };
+        var act = document.getElementById('authActivateBtn');
+        if (!act || !act.parentElement) return null;
+        return { parent: act.parentElement, anchor: act };
     }
 
     function tryInsert() {
@@ -771,13 +760,17 @@ document.addEventListener('DOMContentLoaded', initAuth);
         entry.className = hit.exit.className || '';
         entry.style.cssText =
             'width:100%;text-align:left;background:transparent;border:none;padding:10px 14px;font:inherit;cursor:pointer;color:inherit;';
-        entry.textContent = '✉️ 我的消息';
+        entry.textContent = '✉️ 我的消息' + (window.__inboxUnread ? '（' + window.__inboxUnread + ' 条未读）' : '');
         entry.onclick = function (ev) {
             ev.preventDefault();
             ev.stopPropagation();
             if (window.__openInbox) window.__openInbox();
         };
-        hit.parent.insertBefore(entry, hit.exit);
+        if (hit.anchor && hit.anchor.nextSibling) {
+            hit.parent.insertBefore(entry, hit.anchor.nextSibling);
+        } else {
+            hit.parent.appendChild(entry);
+        }
     }
 
     // 只在用户点击后检查两次（面板是点开才渲染的），不做任何持续轮询
