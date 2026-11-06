@@ -1,7 +1,6 @@
-// 接口地址：独立的 Cloudflare Worker（名字：blog）。
-// 如果你以后改了 Worker 名字或换了域名，只改这一行即可。
-// 留空字符串则表示"同域 /api"（适合 API 和页面在同一个 Worker 的情况）。
-const API_BASE = 'https://blog.318886406.workers.dev';
+// 接口地址：独立的 Cloudflare Worker，已绑定自有子域名（国内可直连，不需要翻墙）
+// 如果你以后换了域名，只改这一行即可。留空字符串表示"同域 /api"。
+const API_BASE = 'https://api.jacksjz.qzz.io';
 
 // 供体检页等其他脚本复用同一个接口地址
 window.API_BASE = API_BASE;
