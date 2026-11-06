@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
         if (!getToken()) return;
         fetch(apiBase() + '/api/messages', { headers: { Authorization: 'Bearer ' + getToken() } })
             .then(function (r) { return r.ok ? r.json() : null; })
-            .then(function (d) { lastUnread = (d && d.unread) || 0; setBadgeEnvelope(lastUnread); injectMenuEntry(); })
+            .then(function (d) { setBadgeEnvelope((d && d.unread) || 0); })
             .catch(function () {});
     }
 
@@ -677,8 +677,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
     }
 
     /* 把「我的消息」插进用户面板（激活 / 退出 之间） */
-    var lastUnread = 0;
-
+    
     var injecting = false;
 
     function injectMenuEntry() {
@@ -729,7 +728,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
     function boot() {
         if (!getToken()) return;
         refresh();
-        watchMenu();
+
         setInterval(refresh, 60000);
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
