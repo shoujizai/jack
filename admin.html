@@ -400,6 +400,7 @@
                 <div class="adm-toolbar">
                     <h2 class="list-header" style="flex:1;padding:0">AI 对话记录</h2>
                     <button class="adm-btn" onclick="loadAiChats()">刷新</button>
+                    <button class="adm-btn danger" onclick="clearAiChats()">清空全部</button>
                 </div>
                 <div class="content-section" style="margin-bottom:12px">
                     <details>
@@ -2062,6 +2063,14 @@
                         })
                         .join('');
                 })
+                .catch(function (e) { toast(e.message, true); });
+        }
+
+        function clearAiChats() {
+            if (!confirm('确定清空所有 AI 对话记录？此操作不可恢复。')) return;
+            if (!confirm('再确认一次：全部记录都会被删除。继续？')) return;
+            api('/api/admin/ai?all=1', { method: 'DELETE' })
+                .then(function () { toast('已清空全部记录'); loadAiChats(); })
                 .catch(function (e) { toast(e.message, true); });
         }
 
