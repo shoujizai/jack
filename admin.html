@@ -1904,7 +1904,7 @@
                     }
                     $('userList').innerHTML = state.users
                         .map(function (u) {
-                            var roleText = u.role === 'admin' ? '管理员' : u.role === 'premium' ? '高级用户' : u.role === 'player' ? '游戏玩家' : '普通';
+                            var roleText = u.role === 'admin' ? '管理员' : u.role === 'premium' ? '资深玩家' : u.role === 'player' ? '游戏玩家' : '普通';
                             var roleCls = u.role === 'admin' ? 'admin' : u.role === 'premium' ? 'premium' : '';
                             var banned = u.banned_until && u.banned_until * 1000 > Date.now();
                             return (
