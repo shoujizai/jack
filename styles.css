@@ -2088,6 +2088,7 @@ footer a:hover {
 #menuToggle {
     transform-origin: center;
     border-radius: 9px;
+    background: var(--fill-2);
     animation: menuBreath 1s ease-in-out infinite;
     transition: background-color 0.22s ease;
 }
