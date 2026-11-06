@@ -710,52 +710,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
     
     var injecting = false;
 
-    function injectMenuEntry() {
-        if (injecting) return;
-        injecting = true;
-        try {
-            injectMenuEntryInner();
-        } finally {
-            injecting = false;
-        }
-    }
-
-    function injectMenuEntryInner() {
-        var nodes = document.querySelectorAll('button, a, li, div[role="menuitem"]');
-        for (var i = 0; i < nodes.length; i++) {
-            var n = nodes[i];
-            var t = (n.textContent || '').trim();
-            if (t !== '退出' && t !== '退出登录') continue;
-            var parent = n.parentElement;
-            if (!parent) continue;
-            if ((parent.textContent || '').indexOf('激活') === -1) continue;
-            var desired = '✉️ 我的消息' + (lastUnread ? '（' + lastUnread + ' 条未读）' : '');
-            var existing = parent.querySelector('[data-inbox-entry]');
-            if (existing) {
-                if (existing.textContent !== desired) existing.textContent = desired;
-                return;
-            }
-            var entry = document.createElement('button');
-            entry.setAttribute('data-inbox-entry', '1');
-            entry.className = n.className || '';
-            entry.style.cssText = 'width:100%;text-align:left;background:transparent;border:none;padding:10px 14px;font:inherit;cursor:pointer;color:inherit;';
-            entry.textContent = '✉️ 我的消息' + (lastUnread ? '（' + lastUnread + ' 条未读）' : '');
-            entry.onclick = function (ev) {
-                ev.preventDefault();
-                ev.stopPropagation();
-                openInbox();
-            };
-            parent.insertBefore(entry, n);
-            return;
-        }
-    }
-
-    function watchMenu() {
-        injectMenuEntry();
-        setInterval(injectMenuEntry, 2000);
-    }
-
-    function boot() {
+function boot() {
         // 后台管理页不显示收件箱
         if (/admin\.html/i.test(location.pathname)) return;
         if (!getToken()) return;
