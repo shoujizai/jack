@@ -277,6 +277,8 @@ async function ensureSchema(env: Env): Promise<boolean> {
             sort_order INTEGER DEFAULT 100,
             created_at INTEGER DEFAULT (strftime('%s','now'))
         )`,
+        `CREATE TABLE IF NOT EXISTS activate_failures (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, ts INTEGER)`,
+        `CREATE TABLE IF NOT EXISTS register_failures (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, ts INTEGER)`,
         `CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
@@ -302,6 +304,11 @@ async function ensureSchema(env: Env): Promise<boolean> {
         // 老库补充字段（已存在会报错，忽略即可）
         try {
 try {
+            await env.DB.prepare('ALTER TABLE users ADD COLUMN suspicious INTEGER DEFAULT 0').run();
+        } catch (e) {
+            /* 列已存在 */
+        }
+        try {
             await env.DB.prepare('ALTER TABLE users ADD COLUMN phone TEXT').run();
         } catch (e) {
             /* 列已存在 */
@@ -394,14 +401,39 @@ export default {
                 // 注册开关：当前只允许白名单邮箱注册
                 /* 已开放注册，不再限制邮箱白名单 */
                 const rawOrderCheck = String((body as any).order_no || '').trim();
+                const rawPhoneCheck = String((body as any).phone || '').trim();
+                const LOCK_WINDOW = 12 * 60; // 12 分钟
+                const lockKey = rawPhoneCheck || String(body.email || '').trim().toLowerCase() || 'unknown';
+                const nowTs = Math.floor(Date.now() / 1000);
+
+                // ① 12 分钟内失败过 → 锁定
+                try {
+                    const failRow = await env.DB.prepare(
+                        'SELECT COUNT(*) AS n FROM register_failures WHERE key = ? AND ts > ?'
+                    ).bind(lockKey, nowTs - LOCK_WINDOW).first<any>();
+                    if ((failRow?.n || 0) > 0) {
+                        return errorResponse('注册失败次数过多，请 12 分钟后再试', 429);
+                    }
+                } catch (e) {
+                    /* 表不存在时跳过 */
+                }
+
+                // ② 订单必须在名单里，且未被使用
                 if (rawOrderCheck) {
-                    const used = await env.DB.prepare('SELECT id FROM users WHERE order_id = ?').bind(rawOrderCheck).first();
-                    if (used) return errorResponse('该订单已被注册', 403);
+                    let exists: any = null;
+                    try {
+                        exists = await env.DB.prepare('SELECT order_no, used_by FROM orders WHERE order_no = ?').bind(rawOrderCheck).first();
+                    } catch (e) {
+                        exists = null;
+                    }
+                }
+
+                // ③ 手机号不能重复注册
+                if (rawPhoneCheck) {
+                    const dup = await env.DB.prepare('SELECT id FROM users WHERE phone = ?').bind(rawPhoneCheck).first();
+                    if (dup) return errorResponse('该手机号已注册', 403);
                 }
                 const rawPhoneReg = String((body as any).phone || '').trim();
-                if (/^1\d{10}$/.test(rawPhoneReg) && !String((body as any).order_no || '').trim()) {
-                    return errorResponse('请填写订单号');
-                }
                 const passwordHash = await hashPassword(body.password);
                 try {
                     const result = await env.DB.prepare(
@@ -422,7 +454,15 @@ export default {
                     })(),
                     String((body as any).order_no || '').trim() || null
                 ).run();
-                    return jsonResponse({ success: true, message: '注册成功' });
+                    try {
+                    const newId = result.meta && (result.meta as any).last_row_id;
+                    if (rawOrderCheck && newId) {
+                        await env.DB.prepare('UPDATE orders SET used_by = ? WHERE order_no = ?').bind(newId, rawOrderCheck).run();
+                    }
+                } catch (e) {
+                    /* 忽略 */
+                }
+                return jsonResponse({ success: true, message: '注册成功' });
                 } catch (e: any) {
                     if (e.message?.includes('UNIQUE constraint')) {
                         return errorResponse('该邮箱已被注册');
@@ -778,7 +818,7 @@ export default {
                 const admin = await requireAdmin(request, env);
                 if (admin instanceof Response) return admin;
                 const rows = await env.DB.prepare(
-                    'SELECT id, email, nickname, is_customer, order_id, serial_numbers, created_at, last_login, banned_until, role_override FROM users ORDER BY id DESC'
+                    'SELECT id, email, nickname, phone, is_customer, order_id, serial_numbers, created_at, last_login, banned_until, role_override, suspicious FROM users ORDER BY COALESCE(suspicious,0) DESC, id DESC'
                 ).all();
                 const users = (rows.results || []).map((u: any) => ({ ...u, role: effectiveRole(u) }));
                 return jsonResponse({ users });
