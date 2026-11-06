@@ -1256,8 +1256,8 @@
                         '<div class="stat"><b>' + s.customers + '</b><span>资深玩家</span></div>' +
                         '<div class="stat"><b>' + s.pages + '</b><span>页面（' + s.published_pages + ' 已发布）</span></div>' +
                         '<div class="stat"><b>' + s.comments + '</b><span>评论</span></div>' +
-                '<div class="stat"><b>' + (s.ai_my_left !== undefined ? s.ai_my_left : '—') + '</b><span>AI 今日剩余（你）</span></div>' +
-                '<div class="stat"><b>' + (s.ai_today || 0) + '</b><span>AI 今日总调用</span></div>';
+                '<div class="stat"><b>' + Math.round(s.ai_left !== undefined ? s.ai_left : 10000) + '</b><span>AI 今日剩余 neurons</span></div>' +
+                '<div class="stat"><b>' + (s.ai_chats_total || 0) + '</b><span>AI 累计对话</span></div>';
                 })
                 .catch(function (e) {
                     if (e.status === 401 || e.status === 403) {
