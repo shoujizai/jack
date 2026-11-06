@@ -192,7 +192,7 @@ function loadTurnstile() {
                     <label>密码</label>
                     <input type="password" id="authPassword" placeholder="请输入密码" required minlength="6">
                 </div>
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAAF2qWq_WUxV1UGUl" data-theme="auto" data-size="flexible" style="margin:12px 0"></div>
+                ${type === 'register' ? '<div class="cf-turnstile" data-sitekey="0x4AAAAAAF2qWq_WUxV1UGUl" data-theme="auto" data-size="flexible" style="margin:12px 0"></div>' : ''}
         <button type="submit" class="btn btn-primary auth-submit">${type === 'login' ? '登录' : '注册'}</button>
             </form>
             <div class="auth-switch">
@@ -203,6 +203,7 @@ function loadTurnstile() {
         </div>
     `;
     document.body.appendChild(modal);
+    if (typeof type !== 'undefined' && type === 'register') { loadTurnstile(); }
 }
 
 function closeAuthModal() {
