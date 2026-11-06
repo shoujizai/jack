@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
 
 /* ===== 站内消息收件箱（INBOX_VERSION 4：徽章变信封 + 显示时间） ===== */
 (function () {
-    var BADGE_SELECTORS = ['#authUserNickname', '#authUserMenu', '.nav-auth-link', '#authLink', '.nav-user'];
+    var BADGE_SELECTORS = ['#authCustomerBadge', '#authRoleBadge', '.role-badge'];
 
     function apiBase() {
         if (window.__LOCAL_API_SAME_ORIGIN__) return location.origin;
@@ -591,11 +591,13 @@ document.addEventListener('DOMContentLoaded', initAuth);
                     openInbox();
                 };
             }
+            el.style.display = 'inline-block';
             el.innerHTML = '<span class="msg-envelope">✉️</span>' + (count > 1 ? '<sup style="font-size:11px;color:#FF3B30;">' + count + '</sup>' : '');
             el.title = count + ' 条未读消息';
         } else if (swapped) {
             el.innerHTML = savedHtml || '';
             el.title = '';
+            if (!savedHtml) el.style.display = '';
             swapped = false;
         }
     }
