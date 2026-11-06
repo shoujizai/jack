@@ -2,278 +2,31 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>游戏预选 - 微修通讯的预选预选</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        .games-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding: 20px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .search-box {
-            margin-bottom: 15px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .search-input-wrapper {
-            flex: 1;
-            position: relative;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 12px 40px 12px 15px;
-            border: none;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            font-size: 14px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            font-weight: 500;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            box-shadow: 0 4px 12px rgba(123, 44, 191, 0.3);
-        }
-
-        .search-box input::placeholder {
-            color: #999;
-        }
-
-        .clear-search-btn {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #999;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .clear-search-btn:hover {
-            color: #7b2cbf;
-        }
-
-        .search-btn {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            font-weight: 600;
-        }
-
-        .search-btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-
-        .table-container {
-            background: transparent;
-            border-radius: 15px;
-            border: none;
-            overflow: hidden;
-        }
-
-        .table-wrapper {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .games-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .games-table th {
-            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
-            color: white;
-            padding: 12px 10px;
-            text-align: left;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            font-size: 12px;
-        }
-
-        .games-table td {
-            padding: 8px 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 11px;
-        }
-
-        .games-table td span {
-            background: rgba(135, 206, 250, 0.95);
-            color: #333;
-            padding: 4px 12px;
-            border-radius: 20px;
-            display: inline-block;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            font-weight: 500;
-        }
-
-        .games-table td span.selected {
-            background: rgba(30, 60, 150, 0.95);
-            color: #fff;
-        }
-
-        .games-table td span.special-pink {
-            background: rgba(255, 182, 193, 0.95);
-        }
-
-        .games-table tr.selected-row {
-            background: rgba(100, 180, 255, 0.15);
-        }
-
-        .games-table tr:hover {
-            background: rgba(0, 212, 255, 0.1);
-        }
-
-        .games-table input[type="checkbox"] {
-            transform: scale(1.3);
-            cursor: pointer;
-            accent-color: #00d4ff;
-        }
-
-        .selected-games {
-            background: transparent;
-        }
-
-        .selected-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .selected-ids-container {
-            min-height: 150px;
-            max-height: 200px;
-            overflow-y: auto;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 10px;
-            background: transparent;
-        }
-
-        #selectedIds {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #selectedIds li {
-            padding: 6px 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        #selectedIds li:last-child {
-            border-bottom: none;
-        }
-
-        #selectedIds li .game-name {
-            background: rgba(255, 255, 255, 0.95);
-            color: #333;
-            padding: 4px 12px;
-            border-radius: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            flex: 1;
-            margin-right: 10px;
-            font-weight: 500;
-        }
-
-        #selectedIds li .cancel-btn {
-            color: #ff6b6b;
-            cursor: pointer;
-            margin-left: 10px;
-            font-weight: bold;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 14px;
-        }
-
-        #selectedIds li .cancel-btn:hover {
-            color: #ff0000;
-        }
-
-        .empty-hint {
-            background: rgba(255, 255, 255, 0.9);
-            color: #666;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            text-align: center;
-            display: inline-block;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            font-weight: 500;
-        }
-
-        .copy-btn {
-            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-
-        .copy-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
-        }
-
-        @media (max-width: 768px) {
-            .games-container {
-                flex-direction: column;
-                flex-wrap: wrap;
-            }
-
-            .left-panel, .right-panel {
-                min-width: 100%;
-                width: 100%;
-            }
-
-            .selected-games {
-                position: static;
-            }
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>游戏预选 - 微修的Blog</title>
+    <meta name="description" content="游戏预选清单：勾选想要的游戏并复制序号发给客服，按内存卡容量合理搭配。">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="微修的Blog">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="游戏预选 - 微修的Blog">
+    <meta property="og:description" content="游戏预选清单：勾选想要的游戏并复制序号发给客服，按内存卡容量合理搭配。">
+    <meta property="og:locale" content="zh_CN">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23007AFF'/%3E%3Cpath d='M32 14c-4 0-7 3-7 7v10c0 4 3 7 7 7s7-3 7-7V21c0-4-3-7-7-7zm-13 17v4c0 7 6 13 13 13s13-6 13-13v-4h-4v4a9 9 0 0 1-18 0v-4h-4zm12 13v6h2v-6h-2z' fill='%23fff'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
-    <div class="starfield" id="starfield"></div>
-
     <nav>
         <div class="nav-container">
-            <div class="logo">微修通讯的预选预选</div>  
-            <div class="menu-toggle" id="menuToggle">
+            <button class="menu-toggle" id="menuToggle" aria-label="打开菜单" aria-expanded="false" aria-controls="navLinks">
                 <span></span>
                 <span></span>
                 <span></span>
-            </div>
+            </button>
+            <a class="logo" href="index.html">微修的Blog</a>
             <div class="nav-links" id="navLinks">
                 <a href="index.html">首页</a>
                 <a href="getting-started.html">入坑指南</a>
@@ -285,12 +38,27 @@
                 <a href="games.html" class="active">游戏预选</a>
                 <a href="faq.html">常见问题</a>
             </div>
+            <div class="nav-auth">
+                <button id="authLoginBtn" class="btn btn-secondary btn-sm" onclick="showAuthModal('login')">登录</button>
+                <div id="authUserMenu" class="user-menu" style="display: none;">
+                    <div class="user-info" onclick="toggleUserDropdown()">
+                        <span id="authUserNickname" class="user-nickname"></span>
+                        <span id="authCustomerBadge" class="customer-badge" style="display: none;">客户</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div id="userDropdown" class="user-dropdown" style="display: none;">
+                        <div id="authUserKeys" class="user-keys" style="display: none;"></div>
+                        <button id="authActivateBtn" class="btn btn-secondary btn-sm" onclick="showActivateModal()">激活订单</button>
+                        <button class="btn btn-secondary btn-sm" onclick="logout()">退出</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 
     <main>
         <div class="page-header">
-            <h1>📝 游戏预选</h1>
+            <h1>游戏预选</h1>
             <p>勾选您想要的游戏，复制序号发给客服，256GB只能预装180GB以下的游戏，512GB只能预装420GB以下的游戏</p>
         </div>
 
@@ -299,16 +67,17 @@
                 <div class="selected-ids-container">
                     <ul id="selectedIds"></ul>
                 </div>
-                <div class="selected-ids-full" id="selectedIdsFull" style="display: none; background: rgba(255, 255, 255, 0.95); color: #7b2cbf; padding: 12px 20px; border-radius: 20px; font-size: 0.9rem; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-weight: 600; cursor: text; user-select: all; word-wrap: break-word; line-height: 1.6; max-height: 200px; overflow-y: auto;">
+                <div class="selected-ids-full" id="selectedIdsFull" style="display: none;">
                     暂未选择游戏
                 </div>
                 <div class="selected-header">
-                    <div class="selected-ids-summary" id="selectedIdsSummary" style="background: rgba(255, 255, 255, 0.95); color: #7b2cbf; padding: 6px 15px; border-radius: 20px; font-size: 0.85rem; margin: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-weight: 600; cursor: pointer; line-height: 1.5; transition: all 0.3s ease; max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <div class="selected-ids-summary" id="selectedIdsSummary">
                         <span id="summaryText">暂未选择游戏</span>
                         <span id="expandIcon" style="margin-left: 6px; font-size: 0.7rem; opacity: 0.6;">▼</span>
                     </div>
-                    <button class="copy-btn" id="copyBtn">复制序号</button>
+                    <button class="copy-btn" id="copyBtn">复制序号</button><p class="selection-hint">点击复制按钮，把序号发给客服</p>
                 </div>
+                
             </div>
 
             <div class="search-box">
@@ -338,184 +107,51 @@
     </main>
 
     <footer>
-        <p>© 2024 微修通讯的Blog | taobao店：微修通讯 | 站长：sjz</p>
-        <p style="margin-top: 10px; font-size: 0.9rem;">本站仅供学习交流，请支持正版游戏</p>
+        <p>© <span data-current-year>2024</span> 微修通讯的Blog | taobao店：微修通讯 | 站长：sjz</p>
+        <p>本站仅供学习交流，请支持正版游戏</p>
     </footer>
 
     <button class="back-to-top" id="backToTop">↑</button>
 
     <script src="games-data.js"></script>
     <script>
-        var starfield = document.getElementById('starfield');
         
-        var constellation = document.createElement('div');
-        constellation.className = 'constellation';
-        
-        var constellationStars = [
-            { x: 20, y: 30 },
-            { x: 50, y: 25 },
-            { x: 80, y: 35 },
-            { x: 110, y: 50 },
-            { x: 140, y: 70 },
-            { x: 160, y: 100 },
-            { x: 130, y: 130 }
-        ];
-        
-        for (var c = 0; c < constellationStars.length; c++) {
-            var cStar = document.createElement('div');
-            cStar.className = 'constellation-star';
-            cStar.style.left = constellationStars[c].x + 'px';
-            cStar.style.top = constellationStars[c].y + 'px';
-            cStar.style.width = '4px';
-            cStar.style.height = '4px';
-            cStar.style.animationDelay = (c * 0.5) + 's';
-            constellation.appendChild(cStar);
-        }
-        
-        var constellationLines = [
-            { x1: 20, y1: 30, x2: 50, y2: 25 },
-            { x1: 50, y1: 25, x2: 80, y2: 35 },
-            { x1: 80, y1: 35, x2: 110, y2: 50 },
-            { x1: 110, y1: 50, x2: 140, y2: 70 },
-            { x1: 140, y1: 70, x2: 160, y2: 100 },
-            { x1: 160, y1: 100, x2: 130, y2: 130 },
-            { x1: 130, y1: 130, x2: 110, y2: 50 }
-        ];
-        
-        for (var l = 0; l < constellationLines.length; l++) {
-            var line = document.createElement('div');
-            line.className = 'constellation-line';
-            var dx = constellationLines[l].x2 - constellationLines[l].x1;
-            var dy = constellationLines[l].y2 - constellationLines[l].y1;
-            var length = Math.sqrt(dx * dx + dy * dy);
-            var angle = Math.atan2(dy, dx) * 180 / Math.PI;
-            line.style.left = constellationLines[l].x1 + 'px';
-            line.style.top = constellationLines[l].y1 + 'px';
-            line.style.width = length + 'px';
-            line.style.transform = 'rotate(' + angle + 'deg)';
-            constellation.appendChild(line);
-        }
-        
-        starfield.appendChild(constellation);
-        
-        var nebula = document.createElement('div');
-        nebula.className = 'nebula';
-        
-        var nebulaGlows = [
-            { x: 30, y: 30, size: 180, color: 'rgba(75, 0, 130, 0.3)' },
-            { x: 50, y: 60, size: 150, color: 'rgba(138, 43, 226, 0.25)' },
-            { x: 70, y: 40, size: 160, color: 'rgba(147, 112, 219, 0.2)' }
-        ];
-        
-        for (var g = 0; g < nebulaGlows.length; g++) {
-            var glow = document.createElement('div');
-            glow.className = 'nebula-glow';
-            glow.style.left = nebulaGlows[g].x + 'px';
-            glow.style.top = nebulaGlows[g].y + 'px';
-            glow.style.width = nebulaGlows[g].size + 'px';
-            glow.style.height = nebulaGlows[g].size + 'px';
-            glow.style.background = 'radial-gradient(circle, ' + nebulaGlows[g].color + ', transparent)';
-            nebula.appendChild(glow);
-        }
-        
-        var nebulaCores = [
-            { x: 80, y: 70, size: 80, color1: 'rgba(186, 85, 211, 0.6)', color2: 'rgba(75, 0, 130, 0.3)' },
-            { x: 100, y: 90, size: 60, color1: 'rgba(218, 112, 214, 0.5)', color2: 'rgba(138, 43, 226, 0.2)' },
-            { x: 120, y: 80, size: 50, color1: 'rgba(255, 182, 193, 0.4)', color2: 'rgba(186, 85, 211, 0.2)' }
-        ];
-        
-        for (var nc = 0; nc < nebulaCores.length; nc++) {
-            var core = document.createElement('div');
-            core.className = 'nebula-core';
-            core.style.left = nebulaCores[nc].x + 'px';
-            core.style.top = nebulaCores[nc].y + 'px';
-            core.style.width = nebulaCores[nc].size + 'px';
-            core.style.height = nebulaCores[nc].size + 'px';
-            core.style.background = 'radial-gradient(circle at 30% 30%, ' + nebulaCores[nc].color1 + ', ' + nebulaCores[nc].color2 + ', transparent)';
-            nebula.appendChild(core);
-        }
-        
-        var nebulaClouds = [
-            { x: 60, y: 50, size: 100, color: 'rgba(147, 112, 219, 0.4)' },
-            { x: 90, y: 80, size: 120, color: 'rgba(138, 43, 226, 0.35)' },
-            { x: 110, y: 60, size: 90, color: 'rgba(186, 85, 211, 0.4)' },
-            { x: 130, y: 100, size: 80, color: 'rgba(153, 50, 204, 0.35)' },
-            { x: 70, y: 110, size: 70, color: 'rgba(148, 0, 211, 0.3)' },
-            { x: 140, y: 70, size: 60, color: 'rgba(139, 0, 139, 0.35)' },
-            { x: 80, y: 130, size: 75, color: 'rgba(75, 0, 130, 0.3)' },
-            { x: 150, y: 90, size: 55, color: 'rgba(218, 112, 214, 0.3)' }
-        ];
-        
-        for (var n = 0; n < nebulaClouds.length; n++) {
-            var cloud = document.createElement('div');
-            cloud.className = 'nebula-cloud';
-            cloud.style.left = nebulaClouds[n].x + 'px';
-            cloud.style.top = nebulaClouds[n].y + 'px';
-            cloud.style.width = nebulaClouds[n].size + 'px';
-            cloud.style.height = nebulaClouds[n].size + 'px';
-            cloud.style.background = 'radial-gradient(ellipse at ' + (30 + Math.random() * 40) + '% ' + (30 + Math.random() * 40) + '%, ' + nebulaClouds[n].color + ', transparent)';
-            cloud.style.filter = 'blur(' + (5 + Math.random() * 10) + 'px)';
-            nebula.appendChild(cloud);
-        }
-        
-        starfield.appendChild(nebula);
-        
-        for (var i = 0; i < 150; i++) {
-            var star = document.createElement('div');
-            star.className = 'star';
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 100 + '%';
-            star.style.width = Math.random() * 3 + 1 + 'px';
-            star.style.height = star.style.width;
-            star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
-            star.style.animationDelay = Math.random() * 5 + 's';
-            starfield.appendChild(star);
-        }
 
-        for (var j = 0; j < 5; j++) {
-            var shootingStar = document.createElement('div');
-            shootingStar.className = 'shooting-star';
-            shootingStar.style.left = (Math.random() * 80 + 20) + '%';
-            shootingStar.style.top = Math.random() * 40 + '%';
-            shootingStar.style.animationDelay = (j * 3 + Math.random() * 5) + 's';
-            shootingStar.style.animationDuration = (Math.random() * 2 + 3) + 's';
-            starfield.appendChild(shootingStar);
-        }
+        /* ---------- 勾选状态持久化：切换页面 / 刷新后自动恢复 ---------- */
+        var SELECTED_STORAGE_KEY = 'jack_selected_games_v1';
 
-        for (var k = 0; k < 8; k++) {
-            var asteroid = document.createElement('div');
-            asteroid.className = 'asteroid';
-            asteroid.style.left = Math.random() * 100 + '%';
-            asteroid.style.top = Math.random() * 100 + '%';
-            var size = Math.random() * 8 + 3;
-            asteroid.style.width = size + 'px';
-            asteroid.style.height = size * 0.8 + 'px';
-            asteroid.style.setProperty('--float-duration', (Math.random() * 30 + 20) + 's');
-            asteroid.style.setProperty('--drift-x', (Math.random() * 200 - 100) + 'px');
-            asteroid.style.setProperty('--drift-y', (Math.random() * 200 - 100) + 'px');
-            asteroid.style.animationDelay = Math.random() * 10 + 's';
-            starfield.appendChild(asteroid);
-        }
+        function loadSelectedGames() {
+            try {
+                var raw = localStorage.getItem(SELECTED_STORAGE_KEY);
+                if (!raw) return [];
+                var parsed = JSON.parse(raw);
+                if (!Array.isArray(parsed)) return [];
 
-        var menuToggle = document.getElementById('menuToggle');
-        var navLinks = document.getElementById('navLinks');
-        menuToggle.onclick = function() {
-            navLinks.classList.toggle('active');
-        };
-
-        var backToTop = document.getElementById('backToTop');
-        window.onscroll = function() {
-            if (window.scrollY > 300) {
-                backToTop.classList.add('visible');
-            } else {
-                backToTop.classList.remove('visible');
+                // 只保留仍然存在于游戏清单里的序号（防止数据更新后残留旧序号）
+                var valid = [];
+                for (var i = 0; i < parsed.length; i++) {
+                    for (var j = 0; j < games.length; j++) {
+                        if (String(games[j].id) === String(parsed[i])) {
+                            valid.push(games[j].id);
+                            break;
+                        }
+                    }
+                }
+                return valid;
+            } catch (e) {
+                return [];
             }
-        };
-        backToTop.onclick = function() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
+        }
 
-        var selectedGameIds = [];
+        function saveSelectedGames() {
+            try {
+                localStorage.setItem(SELECTED_STORAGE_KEY, JSON.stringify(selectedGameIds));
+            } catch (e) {
+                /* 隐私模式或存储已满时静默失败 */
+            }
+        }
+
+        var selectedGameIds = loadSelectedGames();
         var gameTbody = document.getElementById('gameTbody');
         var selectedIdsElement = document.getElementById('selectedIds');
         var selectAllCheckbox = document.getElementById('selectAll');
@@ -636,6 +272,15 @@
             }
             
             updateSelectedIds();
+
+            // 同步"全选"框状态（恢复勾选后不会显示成未选中）
+            if (selectAllCheckbox) {
+                var allBoxes = document.querySelectorAll('.game-checkbox');
+                var checkedBoxes = document.querySelectorAll('.game-checkbox:checked');
+                selectAllCheckbox.checked = allBoxes.length > 0 && allBoxes.length === checkedBoxes.length;
+            }
+
+            saveSelectedGames();
         }
 
         function updateSelectedIds() {
@@ -968,5 +613,7 @@
             init();
         }
     </script>
+    <script src="app.js?v=5" defer></script>
+    <script src="auth.js?v=5" defer></script>
 </body>
 </html>

@@ -217,7 +217,7 @@ function showActivateModal() {
         <div class="auth-modal-content">
             <button class="auth-close" onclick="closeActivateModal()">&times;</button>
             <h2>${title}</h2>
-            <p style="color: #a0a0a0; margin-bottom: 20px; font-size: 0.9rem;">
+            <p style="color: var(--label-2); margin-bottom: 20px; font-size: 0.9rem;">
                 输入您的订单号和Switch序列号后4位，激活后可查看专属内容。<br>
                 一个订单最多绑定3个序列号。${isCustomer ? `<br>当前已有 ${serialCount} 个密钥。` : ''}
             </p>
@@ -274,13 +274,19 @@ async function loadComments() {
     const container = document.getElementById('commentsList');
     if (!container) return;
 
+    // 直接双击 HTML 文件预览时没有后端，给出友好提示
+    if (window.location.protocol === 'file:') {
+        container.innerHTML = '<p style="color: var(--label-3);">本地预览模式：评论功能需部署到 Cloudflare 后使用</p>';
+        return;
+    }
+
     const pageId = document.body.dataset.pageId || window.location.pathname.replace('/', '') || 'index';
 
     try {
         const data = await api(`/api/comments?page=${pageId}`);
         renderComments(data.comments);
     } catch (e) {
-        container.innerHTML = '<p style="color: #a0a0a0;">加载评论失败</p>';
+        container.innerHTML = '<p style="color: var(--label-2);">加载评论失败</p>';
     }
 }
 
@@ -289,7 +295,7 @@ function renderComments(comments) {
     if (!container) return;
 
     if (!comments || comments.length === 0) {
-        container.innerHTML = '<p style="color: #a0a0a0;">暂无评论，快来抢沙发吧！</p>';
+        container.innerHTML = '<p style="color: var(--label-2);">暂无评论，快来抢沙发吧！</p>';
         return;
     }
 
