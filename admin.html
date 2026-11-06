@@ -337,6 +337,7 @@
 
             <div id="tabStats">
                 <div class="stat-grid" id="statGrid"></div>
+                <div class="content-section" style="margin-top:12px"><h3 class="list-header" style="margin:0 0 6px">近 7 天访问趋势</h3><div id="visitChart"></div></div>
             </div>
 
             <div id="tabPages" style="display:none">
@@ -1263,6 +1264,46 @@
         }
 
         /* ---------- 概览 ---------- */
+        function renderVisitChart(rows) {
+            var box = $('visitChart');
+            if (!box) return;
+            var days = [];
+            var byDay = {};
+            (rows || []).forEach(function (r) {
+                byDay[r.day] = { web: r.web || 0, sw: r.sw || 0 };
+            });
+            for (var i = 6; i >= 0; i--) {
+                var d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+                days.push({ day: d, label: d.slice(5), web: (byDay[d] || {}).web || 0, sw: (byDay[d] || {}).sw || 0 });
+            }
+            var max = Math.max.apply(null, days.map(function (d) { return Math.max(d.web, d.sw); }).concat([1]));
+            var W = 320, H = 120, pad = 26;
+            var stepX = (W - pad * 2) / 6;
+            function pts(key) {
+                return days.map(function (d, i) {
+                    var x = pad + i * stepX;
+                    var y = H - pad - (d[key] / max) * (H - pad * 2);
+                    return x.toFixed(1) + ',' + y.toFixed(1);
+                }).join(' ');
+            }
+            var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto">';
+            svg += '<line x1="' + pad + '" y1="' + (H - pad) + '" x2="' + (W - pad) + '" y2="' + (H - pad) + '" stroke="#E5E5EA" stroke-width="1"/>';
+            svg += '<polyline fill="none" stroke="#007AFF" stroke-width="2" points="' + pts('web') + '"/>';
+            svg += '<polyline fill="none" stroke="#AF52DE" stroke-width="2" stroke-dasharray="4 3" points="' + pts('sw') + '"/>';
+            days.forEach(function (d, i) {
+                var x = pad + i * stepX;
+                svg += '<text x="' + x + '" y="' + (H - 8) + '" font-size="9" text-anchor="middle" fill="#8E8E93">' + d.label + '</text>';
+            });
+            svg += '</svg>';
+            var total = days.reduce(function (n, d) { return n + d.web; }, 0);
+            var totalSw = days.reduce(function (n, d) { return n + d.sw; }, 0);
+            box.innerHTML = svg +
+                '<p class="hint-line" style="margin-top:6px">' +
+                '<span style="color:#007AFF">■ 网页 ' + total + '</span> &nbsp; ' +
+                '<span style="color:#AF52DE">▨ 客户端 ' + totalSw + '</span>' +
+                '</p>';
+        }
+
         function loadStats() {
             api('/api/admin/stats')
                 .then(function (s) {
