@@ -355,6 +355,7 @@
             <div id="tabUsers" style="display:none">
                 <div class="adm-toolbar">
                     <h2 class="list-header" style="flex:1;padding:0">用户列表</h2>
+                    <button class="adm-btn" onclick="broadcastMessage()">群发消息</button>
                     <button class="adm-btn" onclick="loadUsers()">刷新</button>
                 </div>
                 <div class="content-section" id="userList"></div>
@@ -1933,6 +1934,46 @@
                 .catch(function (e) {
                     if (e.status === 401 || e.status === 403) showLogin();
                     else toast(e.message, true);
+                });
+        }
+
+        /* ---------- 站内消息：一对一 / 群发 ---------- */
+        function askMessage() {
+            var title = window.prompt('消息标题（可留空）', '');
+            if (title === null) return null;
+            var content = window.prompt('消息内容（必填，1000 字以内）', '');
+            if (content === null || !content.trim()) {
+                toast('内容不能为空', true);
+                return null;
+            }
+            return { title: (title || '').trim(), content: content.trim() };
+        }
+
+        function sendMessage(userId, nickname) {
+            var msg = askMessage();
+            if (!msg) return;
+            api('/api/admin/messages', {
+                method: 'POST',
+                body: JSON.stringify({ user_id: userId, title: msg.title, content: msg.content }),
+            })
+                .then(function () {
+                    toast('已发送给 ' + (nickname || userId));
+                })
+                .catch(function (e) {
+                    toast('发送失败：' + e.message, true);
+                });
+        }
+
+        function broadcastMessage() {
+            var msg = askMessage();
+            if (!msg) return;
+            if (!confirm('群发会发给所有已注册用户，确定吗？')) return;
+            api('/api/admin/messages/all', { method: 'POST', body: JSON.stringify(msg) })
+                .then(function (res) {
+                    toast('已群发给 ' + (res.sent || 0) + ' 个用户');
+                })
+                .catch(function (e) {
+                    toast('群发失败：' + e.message, true);
                 });
         }
 
