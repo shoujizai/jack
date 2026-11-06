@@ -191,6 +191,7 @@ say(!!dbId, 'D1 数据库 id', dbId.slice(0, 8) + '…');
 say(!!jwtSecret, 'JWT_SECRET 已配置');
 
 const bindings = [];
+bindings.push({ type: 'ai', name: 'AI' });
 if (dbId) bindings.push({ type: 'd1', name: 'DB', id: dbId });
 if (jwtSecret) bindings.push({ type: 'plain_text', name: 'JWT_SECRET', text: jwtSecret });
 if (orderUrl) bindings.push({ type: 'plain_text', name: 'ORDER_JSON_URL', text: orderUrl });
