@@ -159,7 +159,7 @@ function updateAuthUI() {
 function recoverPassword() {
         var account = prompt('请输入账号（手机号 或 邮箱）');
         if (!account) return;
-        var orderNo = prompt('请输入淘宝订单号');
+        var orderNo = prompt('请输入订单号');
         if (!orderNo) return;
         var newPass = prompt('请设置新密码（至少 6 位）');
         if (!newPass) return;
@@ -208,7 +208,7 @@ function recoverPassword() {
                     <input type="text" id="authEmail" placeholder="手机号或邮箱" required autocomplete="username">
                 </div>
                 <div class="auth-field">
-                    ${type === 'register' ? '<div class="auth-field"><label>淘宝订单号</label><input type="text" id="authOrderNo" placeholder="请填写淘宝订单号" required></div>' : ''}
+                    ${type === 'register' ? '<div class="auth-field"><label>订单号</label><input type="text" id="authOrderNo" placeholder="请填写订单号" required></div>' : ''}
             <label>密码</label>
                     <input type="password" id="authPassword" placeholder="请输入密码" required minlength="6">
                 </div>
