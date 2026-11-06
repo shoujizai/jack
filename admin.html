@@ -409,7 +409,7 @@
                             <textarea id="aiPromptBox" style="min-height:140px;font-size:13px" placeholder="例如：你是微修博客助手，只回答 Switch 大气层与模拟器问题，回答不超过 80 字…"></textarea>
                         </div>
                         <button class="adm-btn primary" onclick="saveAiPrompt()">保存提示词</button>
-                        <button class="adm-btn" onclick="loadAiPrompt()">读取当前</button>
+                        <button class="adm-btn" onclick="resetAiPrompt()">恢复默认</button>
                         <span id="aiPromptStatus" class="hint-line"></span>
                     </details>
                 </div>
@@ -2016,9 +2016,16 @@
         function loadAiPrompt() {
             api('/api/admin/ai/prompt')
                 .then(function (d) {
-                    $('aiPromptBox').value = d.prompt || '';
-                    $('aiPromptStatus').textContent = d.prompt ? '（已自定义）' : '（使用默认规则）';
+                    var isCustom = !!(d.prompt && d.prompt.trim());
+                    $('aiPromptBox').value = isCustom ? d.prompt : (d.default_prompt || '');
+                    $('aiPromptStatus').textContent = isCustom ? '（已自定义，可修改后保存）' : '（当前为默认规则，可修改后保存）';
                 })
+                .catch(function (e) { toast(e.message, true); });
+        }
+
+        function resetAiPrompt() {
+            api('/api/admin/ai/prompt', { method: 'POST', body: JSON.stringify({ prompt: '' }) })
+                .then(function () { toast('已恢复默认规则'); loadAiPrompt(); })
                 .catch(function (e) { toast(e.message, true); });
         }
 
