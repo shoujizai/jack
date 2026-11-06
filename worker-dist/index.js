@@ -17,6 +17,13 @@ const ROLE_BY_EMAIL = {
 function normalizeEmail(email) {
     return email ? String(email).trim().toLowerCase() : '';
 }
+/* 有效角色：数据库覆盖优先，其次白名单，最后 player */
+function effectiveRole(user) {
+    const override = String(user && user.role_override || '').toLowerCase();
+    if (override === 'admin' || override === 'premium' || override === 'player')
+        return override;
+    return (user && getRole(user.email)) || 'player';
+}
 function getRole(email) {
     const key = normalizeEmail(email);
     return ROLE_BY_EMAIL[key] || null;
@@ -197,6 +204,12 @@ async function ensureSchema(env) {
         // 老库补充字段（已存在会报错，忽略即可）
         try {
             await env.DB.prepare('ALTER TABLE users ADD COLUMN banned_until INTEGER').run();
+            try {
+                await env.DB.prepare('ALTER TABLE users ADD COLUMN role_override TEXT').run();
+            }
+            catch (e) {
+                /* 列已存在 */
+            }
         }
         catch (e) {
             /* duplicate column name，忽略 */
@@ -345,7 +358,7 @@ export default {
                         nickname: user.nickname,
                         is_customer: user.is_customer === 1,
                         is_admin: isAdminEmail(user.email),
-                        role: getRole(user.email),
+                        role: effectiveRole(user),
                         is_premium: hasPremiumAccess(user),
                     },
                 });
@@ -361,7 +374,7 @@ export default {
                     nickname: user.nickname,
                     is_customer: user.is_customer === 1,
                     is_admin: isAdminEmail(user.email),
-                    role: getRole(user.email),
+                    role: effectiveRole(user),
                     is_premium: hasPremiumAccess(user),
                     registration_open: REGISTRATION_OPEN,
                     order_id: user.order_id,
@@ -601,7 +614,7 @@ export default {
                 if (admin instanceof Response)
                     return admin;
                 const rows = await env.DB.prepare('SELECT id, email, nickname, is_customer, order_id, serial_numbers, created_at, last_login, banned_until FROM users ORDER BY id DESC').all();
-                const users = (rows.results || []).map((u) => ({ ...u, role: getRole(u.email) }));
+                const users = (rows.results || []).map((u) => ({ ...u, role: effectiveRole(u) }));
                 return jsonResponse({ users });
             }
             if (path === '/api/admin/users' && request.method === 'PATCH') {
@@ -616,9 +629,10 @@ export default {
                 const nick = has('nickname') ? String(body.nickname).slice(0, 40) : null;
                 const isCustomer = typeof body.is_customer === 'boolean' ? (body.is_customer ? 1 : 0) : null;
                 const bannedUntil = typeof body.banned_until === 'number' ? body.banned_until : null;
+                const roleOverride = typeof body.role === 'string' && ['premium', 'player'].indexOf(body.role) !== -1 ? body.role : null;
                 const orderId = typeof body.order_id === 'string' ? body.order_id.trim() : null;
                 const serials = typeof body.serial_numbers === 'string' ? body.serial_numbers.trim() : null;
-                if (nick === null && isCustomer === null && bannedUntil === null && orderId === null && serials === null) {
+                if (nick === null && isCustomer === null && bannedUntil === null && orderId === null && serials === null && roleOverride === null) {
                     return errorResponse('没有需要修改的字段');
                 }
                 // 单条固定 SQL，用 COALESCE 实现"只改传了的字段"，值全部走参数绑定
@@ -627,8 +641,9 @@ export default {
                         is_customer = COALESCE(?, is_customer),
                         banned_until = COALESCE(?, banned_until),
                         order_id = COALESCE(?, order_id),
-                        serial_numbers = COALESCE(?, serial_numbers)
-                     WHERE id = ?`).bind(nick, isCustomer, bannedUntil, orderId, serials, id).run();
+                        serial_numbers = COALESCE(?, serial_numbers),
+                        role_override = COALESCE(?, role_override)
+                     WHERE id = ?`).bind(nick, isCustomer, bannedUntil, orderId, serials, roleOverride, id).run();
                 return jsonResponse({ success: true });
             }
             if (path === '/api/admin/users' && request.method === 'DELETE') {
