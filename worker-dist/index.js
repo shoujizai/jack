@@ -221,6 +221,7 @@ async function ensureSchema(env) {
             created_at INTEGER DEFAULT (strftime('%s','now'))
         )`,
         `CREATE TABLE IF NOT EXISTS activate_failures (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, ts INTEGER)`,
+        `CREATE TABLE IF NOT EXISTS ai_usage (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, day TEXT, ts INTEGER)`,
         `CREATE TABLE IF NOT EXISTS register_failures (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, ts INTEGER)`,
         `CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -391,6 +392,12 @@ export default {
                         return errorResponse('该手机号已注册', 403);
                 }
                 const rawPhoneReg = String(body.phone || '').trim();
+                // 昵称唯一
+                if (nickRaw) {
+                    const nickDup = await env.DB.prepare('SELECT id FROM users WHERE nickname = ?').bind(nickRaw).first();
+                    if (nickDup)
+                        return errorResponse('该昵称已被使用');
+                }
                 const passwordHash = await hashPassword(body.password);
                 try {
                     const result = await env.DB.prepare('INSERT INTO users (email, password_hash, nickname, phone, order_id) VALUES (?, ?, ?, ?, ?)').bind((function () {
@@ -1012,8 +1019,85 @@ export default {
                 await env.DB.prepare('DELETE FROM users WHERE id = ?').bind(user.id).run();
                 return jsonResponse({ success: true, message: '账号已注销' });
             }
-            /* ================= 站内消息 ================= */
-            // 用户：拉取自己的消息（含未读数）
+            /* ================= AI 聊天 ================= */
+            /* ================= AI 聊天 ================= */
+            if (path === '/api/ai' && request.method === 'POST') {
+                const body = await request.json();
+                const messages = Array.isArray(body.messages) ? body.messages : [];
+                const lastUser = messages.filter((m) => m && m.role === 'user').slice(-1)[0];
+                const question = String((lastUser && lastUser.content) || '').slice(0, 500).trim();
+                if (!question)
+                    return errorResponse('请输入问题');
+                const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+                const dayKey = new Date().toISOString().slice(0, 10);
+                try {
+                    const used = await env.DB.prepare('SELECT COUNT(*) AS n FROM ai_usage WHERE key = ? AND day = ?').bind(ip, dayKey).first();
+                    if ((used?.n || 0) >= 30)
+                        return errorResponse('今天的对话次数用完了，明天再来吧', 429);
+                    await env.DB.prepare('INSERT INTO ai_usage (key, day, ts) VALUES (?, ?, ?)').bind(ip, dayKey, Math.floor(Date.now() / 1000)).run();
+                }
+                catch (e) { }
+                let context = '';
+                try {
+                    const keyword = question.replace(/[^\u4e00-\u9fa5A-Za-z0-9]/g, '').slice(0, 10);
+                    if (keyword) {
+                        const rows = await env.DB.prepare('SELECT title, blocks FROM pages WHERE title LIKE ? OR blocks LIKE ? LIMIT 3').bind('%' + keyword + '%', '%' + keyword + '%').all();
+                        context = (rows.results || [])
+                            .map((p) => {
+                            let text = '';
+                            try {
+                                const bs = JSON.parse(p.blocks || '[]');
+                                text = bs.map((b) => b.text || b.title || '').filter(Boolean).join('\n').slice(0, 700);
+                            }
+                            catch (e) { }
+                            return text ? '【' + p.title + '】\n' + text : '';
+                        })
+                            .filter(Boolean)
+                            .join('\n\n');
+                    }
+                }
+                catch (e) { }
+                const system = [
+                    '你是微修 Blog 的站内助手，用中文简短回答（150 字以内）。',
+                    '优先依据本站资料回答；没有资料就凭常识回答，并说明站内没有详细说明。',
+                    '可以回答 Switch 大气层 Atmosphere、模拟器、插件、游戏安装等问题，给出具体步骤。',
+                    '可以正常闲聊，但不要编造链接、价格、订单号、联系方式。',
+                    '遇到政治、医疗、法律等话题礼貌拒绝。',
+                    context ? '\n【本站资料】\n' + context : '',
+                ].filter(Boolean).join('\n');
+                const ai = env.AI;
+                if (!ai)
+                    return errorResponse('AI 服务尚未启用', 503);
+                const MODELS = [
+                    '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
+                    '@cf/meta/llama-3.1-8b-instruct-fast',
+                    '@cf/qwen/qwen1.5-14b-chat-awq',
+                    '@cf/mistral/mistral-7b-instruct-v0.2',
+                ];
+                const chat = messages.slice(-6).map((m) => ({
+                    role: m.role === 'assistant' ? 'assistant' : 'user',
+                    content: String(m.content || '').slice(0, 500),
+                }));
+                let reply = null;
+                let lastErr = '';
+                for (const model of MODELS) {
+                    try {
+                        reply = await ai.run(model, {
+                            messages: [{ role: 'system', content: system }, ...chat],
+                            max_tokens: 400,
+                        });
+                        if (reply && reply.response)
+                            break;
+                    }
+                    catch (e) {
+                        lastErr = e?.message || 'error';
+                        reply = null;
+                    }
+                }
+                if (!reply || !reply.response)
+                    return errorResponse('AI 暂时不可用：' + lastErr, 500);
+                return jsonResponse({ success: true, reply: String(reply.response).trim() });
+            }
             if (path === '/api/messages' && request.method === 'GET') {
                 const user = await getUserFromRequest(request, env);
                 if (!user)
