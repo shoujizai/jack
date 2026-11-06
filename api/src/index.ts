@@ -716,7 +716,7 @@ export default {
                 const admin = await requireAdmin(request, env);
                 if (admin instanceof Response) return admin;
                 const rows = await env.DB.prepare(
-                    'SELECT id, email, nickname, is_customer, order_id, serial_numbers, created_at, last_login, banned_until FROM users ORDER BY id DESC'
+                    'SELECT id, email, nickname, is_customer, order_id, serial_numbers, created_at, last_login, banned_until, role_override FROM users ORDER BY id DESC'
                 ).all();
                 const users = (rows.results || []).map((u: any) => ({ ...u, role: effectiveRole(u) }));
                 return jsonResponse({ users });
