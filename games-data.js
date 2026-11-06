@@ -194,7 +194,7 @@ var games = [
     { id: "196", name: "啪嗒砰1+2重制版", size: 1.32 },
     { id: "197", name: "烹饪大亨三合一3", size: 1.20 },
     { id: "198", name: "破败王者 英雄联盟", size: 10.31 },
-    { id: "199", name: "潜水员戴夫", size: 4.82 },
+    { id: "199", name: "潜水员戴夫", size: 6.07 },
     { id: "200", name: "热血三国志", size: 11.76 },
     { id: "201", name: "人类：一败涂地", size: 1.60 },
     { id: "202", name: "人中之龙：极", size: 22.93 },
@@ -263,6 +263,14 @@ var games = [
     { id: "265", name: "钓鱼之星：世界之旅", size: 2.63 },
     { id: "266", name: "钓鱼传奇", size: 1.40 },
     { id: "267", name: "终极钓鱼模拟器", size: 3.38 },
+    { id: "268", name: "超级兔子人", size: 1.04 },
+    { id: "269", name: "怪物猎人：物语2破灭之翼", size: 15.70 },
+    { id: "270", name: "文明7", size: 4.76 },
+    { id: "271", name: "谢天谢地你来了", size: 1.09 },
+    { id: "272", name: "节奏健身", size: 1.34 },
+    { id: "273", name: "一起健身吧", size: 1.93 },
+    { id: "274", name: "尊巴健身", size: 6.32 },
+    { id: "275", name: "节奏天国：奇迹之星", size: 3.55 },
     { id: "300", name: "我的秘密", size: 0.28 },
     { id: "301", name: "My Memory of US", size: 2.50 },
     { id: "302", name: "战国LJ", size: 7.44 },
@@ -356,6 +364,8 @@ var games = [
     { id: "390", name: "与魔共舞：我的颂歌", size: 2.91 },
     { id: "391", name: "蒸汽监狱FD", size: 3.15 },
     { id: "392", name: "终远的维尔休 EpiC lycoris", size: 14.89 },
-    { id: "393", name: "终远的维尔休-错误与救赎-", size: 5.54 }
+    { id: "393", name: "终远的维尔休-错误与救赎-", size: 5.54 },
+    { id: "500", name: "gta5侠盗猎车手移植版", size: 67.03 },
+    { id: "501", name: "马克思佩恩Max Payne移植版", size: 1.73 }
 ];
 
