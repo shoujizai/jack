@@ -485,17 +485,7 @@
             }
         }
 
-        if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-            window.addEventListener('error', function (e) {
-                var where = e && e.filename ? String(e.filename).split('/').pop() + ':' + e.lineno : '';
-                showJsError(e && e.message, where);
-            });
-            window.addEventListener('unhandledrejection', function (e) {
-                var reason = e && e.reason ? e.reason.message || String(e.reason) : '';
-                showJsError('未处理的错误：' + reason, '');
-            });
-        }
-
+        
         /* ==========================================================
            后台管理逻辑
            ========================================================== */
@@ -957,7 +947,6 @@
             if (go === 'pages' || go === 'users' || go === 'comments' || go === 'stats') {
                 switchTab(go);
             }
-            showInstallBtn();
         }
 
         /* ---------- PWA：装成电脑端 / 安卓端程序 ---------- */
@@ -972,32 +961,8 @@
             return navigator.standalone === true;
         }
 
-        function showInstallBtn() {
-            var btn = $('installBtn');
-            if (!btn || isStandalone()) return;
-            btn.style.display = 'inline-block';
-        }
-
-        function installApp() {
-            if (deferredInstall) {
-                deferredInstall.prompt();
-                var choice = deferredInstall.userChoice;
-                deferredInstall = null;
-                if (choice && choice.then) {
-                    choice.then(function () {}).catch(function () {});
-                }
-                return;
-            }
-            var ua = navigator.userAgent || '';
-            if (/iPhone|iPad|iPod/i.test(ua)) {
-                toast('iPhone 上点「分享」→「添加到主屏幕」即可安装', false);
-            } else if (isStandalone()) {
-                toast('已经是独立程序模式了');
-            } else {
-                toast('在浏览器菜单里选「安装应用」或「添加到主屏幕」', false);
-            }
-        }
-
+        
+        
         function registerServiceWorker() {
             if (!('serviceWorker' in navigator)) return;
             var okProtocol =
@@ -1018,7 +983,6 @@
             window.addEventListener('beforeinstallprompt', function (e) {
                 e.preventDefault();
                 deferredInstall = e;
-                showInstallBtn();
             });
             window.addEventListener('appinstalled', function () {
                 toast('已安装，之后从桌面图标直接打开');
