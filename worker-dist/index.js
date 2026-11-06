@@ -337,6 +337,17 @@ export default {
                 }
                 // 注册开关：当前只允许白名单邮箱注册
                 /* 已开放注册，不再限制邮箱白名单 */
+                // 昵称规则：中文 ≤6 字，其他 ≤10 字符
+                const nickRaw = String(body.nickname || '').trim();
+                if (nickRaw) {
+                    const cjk = (nickRaw.match(/[\u4e00-\u9fa5]/g) || []).length;
+                    if (cjk > 0 && cjk > 6)
+                        return errorResponse("昵称最多 6 个中文字");
+                    if (cjk === 0 && nickRaw.length > 10)
+                        return errorResponse("昵称最多 10 个字符");
+                    if (nickRaw.length > 12)
+                        return errorResponse("昵称太长了");
+                }
                 const rawOrderCheck = String(body.order_no || '').trim();
                 const rawPhoneCheck = String(body.phone || '').trim();
                 const LOCK_WINDOW = 12 * 60; // 12 分钟
@@ -897,34 +908,55 @@ export default {
                 }
                 return jsonResponse({ success: true, added: ok, failed });
             }
+            /* 管理：手动添加订单号 */
+            if (path === '/api/admin/orders' && request.method === 'POST') {
+                const admin = await requireAdmin(request, env);
+                if (admin instanceof Response)
+                    return admin;
+                const body = await request.json();
+                const list = String(body.order_no || '')
+                    .split(/[\s,;]+/)
+                    .map((x) => x.trim())
+                    .filter((x) => /^\d{10,24}$/.test(x));
+                if (!list.length)
+                    return errorResponse('请填写有效的订单号');
+                let added = 0;
+                for (const no of list) {
+                    try {
+                        const r = await env.DB.prepare('INSERT OR IGNORE INTO orders (order_no) VALUES (?)').bind(no).run();
+                        if (r.meta && r.meta.changes > 0)
+                            added++;
+                    }
+                    catch (e) {
+                        /* 重复 */
+                    }
+                }
+                return jsonResponse({ success: true, added, total: list.length });
+            }
             /* ================= 找回密码 ================= */
+            /* 找回密码：昵称 + （手机号 或 邮箱） → 重设密码 */
             if (path === '/api/recover' && request.method === 'POST') {
                 const body = await request.json();
+                const nickname = String(body.nickname || '').trim();
                 const account = String(body.account || '').trim();
-                const orderNo = String(body.order_no || '').trim();
                 const newPassword = String(body.new_password || '');
-                if (!account || !orderNo)
-                    return errorResponse('请填写账号和订单号');
+                if (!nickname)
+                    return errorResponse('请填写昵称');
+                if (!account)
+                    return errorResponse('请填写手机号或邮箱');
                 if (newPassword.length < 6)
                     return errorResponse('新密码至少 6 位');
-                if (!/^1\d{10}$/.test(account) && account.indexOf('@') === -1) {
-                    return errorResponse('账号请填手机号或邮箱');
-                }
                 const isPhone = /^1\d{10}$/.test(account);
                 const stmt = isPhone
-                    ? env.DB.prepare('SELECT * FROM users WHERE phone = ?').bind(account)
-                    : env.DB.prepare('SELECT * FROM users WHERE lower(email) = lower(?)').bind(account);
-                const user = await stmt.first();
-                if (!user)
-                    return errorResponse('账号或订单号不匹配', 403);
-                if (!user.order_id || String(user.order_id).trim() !== orderNo) {
-                    return errorResponse('账号或订单号不匹配', 403);
-                }
+                    ? env.DB.prepare('SELECT id FROM users WHERE nickname = ? AND phone = ?').bind(nickname, account)
+                    : env.DB.prepare('SELECT id FROM users WHERE nickname = ? AND lower(email) = lower(?)').bind(nickname, account);
+                const found = await stmt.first();
+                if (!found)
+                    return errorResponse('昵称与账号不匹配', 403);
                 const hash = await hashPassword(newPassword);
-                await env.DB.prepare('UPDATE users SET password_hash = ? WHERE id = ?').bind(hash, user.id).run();
+                await env.DB.prepare('UPDATE users SET password_hash = ? WHERE id = ?').bind(hash, found.id).run();
                 return jsonResponse({ success: true, message: '密码已重置，请用新密码登录' });
             }
-            /* 用户自助注销：删账号、释放订单号、清理消息与评论 */
             if (path === '/api/me' && request.method === 'DELETE') {
                 const user = await getUserFromRequest(request, env);
                 if (!user)
