@@ -592,7 +592,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
                 };
             }
             el.style.display = 'inline-block';
-            el.innerHTML = '<span class="msg-envelope">✉️</span>' + (count > 1 ? '<sup style="font-size:11px;color:#FF3B30;">' + count + '</sup>' : '');
+            el.innerHTML = '<span class="msg-envelope"><svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:-3px" aria-label="信封"><rect x="2" y="5" width="20" height="14" rx="3" fill="#FFB300"/><path d="M2.8 6.6 12 13l9.2-6.4" fill="none" stroke="#8A5A00" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' + (count > 1 ? '<sup style="font-size:11px;color:#FF3B30;">' + count + '</sup>' : '');
             el.title = count + ' 条未读消息';
         } else if (swapped) {
             el.innerHTML = savedHtml || '';
@@ -762,7 +762,7 @@ document.addEventListener('DOMContentLoaded', initAuth);
         entry.className = hit.exit.className || '';
         entry.style.cssText =
             'width:100%;text-align:left;background:transparent;border:none;padding:10px 14px;font:inherit;cursor:pointer;color:inherit;';
-        entry.textContent = '✉️ 我的消息' + (window.__inboxUnread ? '（' + window.__inboxUnread + ' 条未读）' : '');
+        entry.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:-3px" aria-label="信封"><rect x="2" y="5" width="20" height="14" rx="3" fill="#FFB300"/><path d="M2.8 6.6 12 13l9.2-6.4" fill="none" stroke="#8A5A00" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> 我的消息' + (window.__inboxUnread ? '（' + window.__inboxUnread + ' 条未读）' : '');
         entry.onclick = function (ev) {
             ev.preventDefault();
             ev.stopPropagation();
