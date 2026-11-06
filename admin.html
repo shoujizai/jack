@@ -2271,6 +2271,8 @@
                     .then(function () { fetching = false; });
             }
 
+            window.__visitEnsure = ensure;
+
             var tries = 0;
             var timer = setInterval(function () {
                 tries++;
@@ -2322,6 +2324,20 @@
             document.addEventListener('touchstart', begin, { passive: true });
             document.addEventListener('touchend', finish, { passive: true });
         })();
+
+    
+        /* ===== 概览每 5 分钟自动刷新（AUTO_REFRESH_5MIN） ===== */
+        setInterval(function () {
+            var app = $('appView');
+            if (!app || app.style.display === 'none') return;
+            var active = document.querySelector('.adm-tab.active');
+            if (!active || active.dataset.tab !== 'stats') return;
+            try {
+                window.__lastStats = null;
+                loadStats();
+                if (window.__visitEnsure) setTimeout(window.__visitEnsure, 1500);
+            } catch (e) {}
+        }, 300000);
 
     </script>
 </body>
