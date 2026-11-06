@@ -470,27 +470,36 @@
         }
 
         function init() {
-            // 先从后台接口读取游戏列表（读不到就用本地 games-data.js 兜底）
-            fetch('https://api.jacksjz.qzz.io/api/games')
-                .then(function (r) {
-                    return r.ok ? r.json() : null;
-                })
-                .then(function (data) {
-                    if (data && Array.isArray(data.games) && data.games.length) {
-                        window.games = data.games.map(function (g) {
+            // 先用本地 games-data.js 立刻渲染（秒开、不怕接口挂）
+            startUi();
+            // 再尝试用接口的数据刷新（3 秒超时，失败就保持本地数据）
+            try {
+                var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                if (ctrl) setTimeout(function () { ctrl.abort(); }, 3000);
+                fetch('https://api.jacksjz.qzz.io/api/games', ctrl ? { signal: ctrl.signal } : undefined)
+                    .then(function (r) {
+                        return r.ok ? r.json() : null;
+                    })
+                    .then(function (data) {
+                        if (!data || !Array.isArray(data.games) || !data.games.length) return;
+                        var fresh = data.games.map(function (g) {
                             return { id: g.id, name: g.name, size: Number(g.size) || 0 };
                         });
+                        window.games = fresh;
                         try {
-                            games = window.games;
+                            games = fresh;
                         } catch (e) {
                             /* 忽略 */
                         }
-                    }
-                })
-                .catch(function () {
-                    /* 用本地数据 */
-                })
-                .then(startUi);
+                        initGameTable();
+                        updateStats();
+                    })
+                    .catch(function () {
+                        /* 接口不可用：保持本地数据，不打扰用户 */
+                    });
+            } catch (e) {
+                /* 忽略 */
+            }
         }
 
         function startUi() {
