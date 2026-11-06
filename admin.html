@@ -331,6 +331,7 @@
                 <button class="adm-tab" data-tab="pages" onclick="switchTab('pages')">页面</button>
                 <button class="adm-tab" data-tab="comments" onclick="switchTab('comments')">评论</button>
                 <button class="adm-tab" data-tab="users" onclick="switchTab('users')">用户</button>
+                <button class="adm-tab" data-tab="games" onclick="switchTab('games')">游戏</button>
             </div>
 
             <div id="tabStats">
@@ -357,6 +358,32 @@
                     <button class="adm-btn" onclick="loadUsers()">刷新</button>
                 </div>
                 <div class="content-section" id="userList"></div>
+            </div>
+
+            <!-- 游戏列表：编辑静态文件 games-data.js 的生成器（不需要接口） -->
+            <div id="tabGames" style="display:none">
+                <div class="content-section">
+                    <p style="margin:0 0 6px">当前线上游戏数：<b id="gamesCount">—</b> 个</p>
+                    <p class="hint-line" style="margin:0 0 12px">
+                        这个页面帮你生成 <code>games-data.js</code> 的内容。改完复制，去 GitHub 网页粘贴提交，CF 会自动部署，不需要接口。
+                    </p>
+
+                    <div class="adm-field">
+                        <label>新增游戏（一行一个，支持「名称|大小」或「名称 大小」）</label>
+                        <textarea id="gamesInput" style="min-height:110px" placeholder="示例：&#10;小小梦魇|12.5&#10;空洞骑士 3.2&#10;只写名称也行，大小默认 0"></textarea>
+                    </div>
+                    <div class="adm-toolbar" style="margin-bottom:12px">
+                        <button class="adm-btn primary" onclick="buildGamesFile()">生成新的 games-data.js</button>
+                        <button class="adm-btn" onclick="copyGamesFile()">复制内容</button>
+                        <button class="adm-btn" onclick="loadGamesData()">重新读取线上</button>
+                        <a class="adm-btn" href="https://github.com/shoujizai/jack/edit/main/games-data.js" target="_blank" rel="noopener">去 GitHub 编辑</a>
+                    </div>
+                    <div class="import-status" id="gamesStatus"></div>
+                    <div class="adm-field">
+                        <label>生成结果（全选复制 → 覆盖 GitHub 上的 games-data.js）</label>
+                        <textarea id="gamesOutput" style="min-height:180px;font-family:ui-monospace,monospace;font-size:12px"></textarea>
+                    </div>
+                </div>
             </div>
 
             <div id="tabComments" style="display:none">
@@ -991,8 +1018,9 @@
 
         /* ---------- 标签页 ---------- */
         function switchTab(name) {
-            ['stats', 'pages', 'comments', 'users'].forEach(function (n) {
-                $('tab' + n[0].toUpperCase() + n.slice(1)).style.display = 'none';
+            ['stats', 'pages', 'comments', 'users', 'games'].forEach(function (n) {
+                var el = $('tab' + n[0].toUpperCase() + n.slice(1));
+                if (el) el.style.display = 'none';
             });
             document.querySelectorAll('.adm-tab').forEach(function (b) {
                 b.classList.toggle('active', b.dataset.tab === name);
@@ -1004,6 +1032,133 @@
             if (name === 'pages') loadPages();
             if (name === 'comments') loadCommentsAdmin();
             if (name === 'users') loadUsers();
+            if (name === 'games') loadGamesData();
+        }
+
+        /* ---------- 游戏列表生成器（改静态文件 games-data.js，不需要接口） ---------- */
+        var gamesCache = [];
+
+        function setGamesStatus(text, kind) {
+            var el = $('gamesStatus');
+            if (!el) return;
+            el.className = 'import-status' + (kind ? ' ' + kind : '');
+            el.textContent = text || '';
+            el.style.display = text ? 'block' : 'none';
+        }
+
+        function parseGamesFile(text) {
+            var m = text.match(/var\s+games\s*=\s*(\[[\s\S]*?\]);/);
+            if (!m) return null;
+            try {
+                return new Function('return ' + m[1])();
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function loadGamesData() {
+            $('gamesCount').textContent = '读取中…';
+            fetch('games-data.js?t=' + Date.now())
+                .then(function (r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.text();
+                })
+                .then(function (text) {
+                    var list = parseGamesFile(text);
+                    if (!list) throw new Error('文件格式无法识别');
+                    gamesCache = list;
+                    $('gamesCount').textContent = list.length;
+                    setGamesStatus('已读取线上 ' + list.length + ' 个游戏', 'info');
+                })
+                .catch(function (e) {
+                    $('gamesCount').textContent = '读取失败';
+                    setGamesStatus('读取 games-data.js 失败：' + e.message, 'err');
+                });
+        }
+
+        function nextGameId(list) {
+            var max = 0;
+            list.forEach(function (g) {
+                var n = parseInt(String(g.id), 10);
+                if (!isNaN(n) && /^\d+$/.test(String(g.id))) max = Math.max(max, n);
+            });
+            return String(max + 1).padStart(3, '0');
+        }
+
+        function toGamesFile(list) {
+            var lines = list.map(function (g) {
+                var name = String(g.name).replace(/"/g, '\\"');
+                var size = Number(g.size) || 0;
+                return '  { id: "' + g.id + '", name: "' + name + '", size: ' + size.toFixed(2) + ' }';
+            });
+            return 'var games = [\n' + lines.join(',\n') + '\n];\n';
+        }
+
+        function buildGamesFile() {
+            var raw = $('gamesInput').value || '';
+            var lines = raw
+                .split('\n')
+                .map(function (l) {
+                    return l.trim();
+                })
+                .filter(Boolean);
+            if (!lines.length) {
+                setGamesStatus('先在输入框里写几行，例如：小小梦魇|12.5', 'err');
+                return;
+            }
+            var added = [];
+            lines.forEach(function (line) {
+                var name = '';
+                var size = 0;
+                var parts = line.split('|');
+                if (parts.length >= 2) {
+                    name = parts[0].trim();
+                    size = parseFloat(parts[1]);
+                } else {
+                    var m = line.match(/^(.*?)\s+([\d.]+)$/);
+                    if (m) {
+                        name = m[1].trim();
+                        size = parseFloat(m[2]);
+                    } else {
+                        name = line;
+                    }
+                }
+                if (!name) return;
+                if (isNaN(size)) size = 0;
+                added.push({ id: nextGameId(gamesCache.concat(added)), name: name, size: Math.round(size * 100) / 100 });
+            });
+            if (!added.length) {
+                setGamesStatus('没有解析出游戏名', 'err');
+                return;
+            }
+            var all = gamesCache.concat(added);
+            $('gamesOutput').value = toGamesFile(all);
+            setGamesStatus(
+                '已生成：原有 ' + gamesCache.length + ' + 新增 ' + added.length + ' = ' + all.length + ' 个。复制下面内容，覆盖 GitHub 上的 games-data.js 即可。',
+                'ok'
+            );
+        }
+
+        function copyGamesFile() {
+            var text = $('gamesOutput').value;
+            if (!text) {
+                setGamesStatus('先点「生成新的 games-data.js」', 'err');
+                return;
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(
+                    function () {
+                        setGamesStatus('已复制。去 GitHub 粘贴覆盖 games-data.js，提交后约 1 分钟生效。', 'ok');
+                    },
+                    function () {
+                        $('gamesOutput').focus();
+                        $('gamesOutput').select();
+                    }
+                );
+            } else {
+                $('gamesOutput').focus();
+                $('gamesOutput').select();
+            }
         }
 
         /* ---------- 概览 ---------- */
