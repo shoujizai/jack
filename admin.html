@@ -2218,35 +2218,31 @@
         }
         registerServiceWorker();
     
-        /* ===== 概览访问卡片（VISIT_CARDS_V3，用缓存立即渲染） ===== */
+        /* ===== 概览访问卡片（VISIT_CARDS_V4，独立容器） ===== */
         (function () {
-            function render(s) {
-                var g = $('statGrid');
-                if (!g || !s) return;
-                if (g.querySelector('[data-visit]')) return;
-                g.insertAdjacentHTML(
-                    'beforeend',
-                    '<div class="stat" data-visit><b>' + (s.online_now || 0) + '</b><span>当前在线</span></div>' +
-                    '<div class="stat" data-visit><b>' + (s.visitors_today || 0) + '</b><span>今日访客</span></div>' +
-                    '<div class="stat" data-visit><b>' + (s.pv_today || 0) + '</b><span>今日浏览</span></div>' +
-                    '<div class="stat" data-visit><b>' + (s.visitors_yesterday || 0) + '</b><span>昨日访客</span></div>' +
-                    '<div class="stat" data-visit><b>' + (s.visitors_logged || 0) + ' / ' + (s.visitors_guest || 0) + '</b><span>登录 / 游客</span></div>'
-                );
+            function grid() {
+                var g = document.getElementById('visitGrid');
+                if (g) return g;
+                var base = document.getElementById('statGrid');
+                if (!base || !base.parentNode) return null;
+                g = document.createElement('div');
+                g.id = 'visitGrid';
+                g.className = 'stat-grid';
+                g.style.marginTop = '6px';
+                base.parentNode.insertBefore(g, base.nextSibling);
+                return g;
             }
 
-            // 捕获 stats 响应，供后续复用
-            var _api = api;
-            api = function (path, opts) {
-                return _api(path, opts).then(function (d) {
-                    if (String(path).indexOf('/api/admin/stats') === 0) {
-                        window.__lastStats = d;
-                    }
-                    return d;
-                });
-            };
-
-            // 主动拉一次 + 轮询补齐，确保一定出现
-            var fetching = false;
+            function render(s) {
+                var g = grid();
+                if (!g || !s) return;
+                g.innerHTML =
+                    '<div class="stat"><b>' + (s.online_now || 0) + '</b><span>当前在线</span></div>' +
+                    '<div class="stat"><b>' + (s.visitors_today || 0) + '</b><span>今日访客</span></div>' +
+                    '<div class="stat"><b>' + (s.pv_today || 0) + '</b><span>今日浏览</span></div>' +
+                    '<div class="stat"><b>' + (s.visitors_yesterday || 0) + '</b><span>昨日访客</span></div>' +
+                    '<div class="stat"><b>' + (s.visitors_logged || 0) + ' / ' + (s.visitors_guest || 0) + '</b><span>登录 / 游客</span></div>';
+            }
 
             function cached() {
                 try {
@@ -2257,17 +2253,11 @@
                 }
             }
 
+            var fetching = false;
             function ensure() {
-                var g = $('statGrid');
-                if (!g || g.querySelector('[data-visit]')) return;
-                if (window.__lastStats) {
-                    render(window.__lastStats);
-                    return;
-                }
-                // 先用上次缓存垫底，页面不会空白
-                var c = cached();
+                var c = window.__lastStats || cached();
                 if (c) render(c);
-                if (fetching) return;
+                if (c || fetching) return;
                 fetching = true;
                 api('/api/admin/stats')
                     .then(function (s) {
@@ -2281,7 +2271,6 @@
                     .then(function () { fetching = false; });
             }
 
-            // 只在前 5 秒内尝试补齐，之后不再轮询
             var tries = 0;
             var timer = setInterval(function () {
                 tries++;
