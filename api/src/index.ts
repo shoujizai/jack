@@ -282,6 +282,7 @@ async function ensureSchema(env: Env): Promise<boolean> {
             created_at INTEGER DEFAULT (strftime('%s','now'))
         )`,
         `CREATE TABLE IF NOT EXISTS activate_failures (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, ts INTEGER)`,
+        `CREATE TABLE IF NOT EXISTS ai_chats (id INTEGER PRIMARY KEY AUTOINCREMENT, question TEXT, reply TEXT, ip TEXT, created_at INTEGER DEFAULT (strftime('%s','now')))`,
         `CREATE TABLE IF NOT EXISTS ai_usage (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, day TEXT, ts INTEGER)`,
         `CREATE TABLE IF NOT EXISTS register_failures (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, ts INTEGER)`,
         `CREATE TABLE IF NOT EXISTS messages (
@@ -1206,7 +1207,13 @@ export default {
                     }
                 }
                 if (!reply || !reply.response) return errorResponse('AI 暂时不可用：' + lastErr, 500);
-                return jsonResponse({ success: true, reply: String(reply.response).trim() });
+                const finalReply = String(reply.response).trim();
+                try {
+                    await env.DB.prepare('INSERT INTO ai_chats (question, reply, ip) VALUES (?, ?, ?)')
+                        .bind(question, finalReply.slice(0, 2000), ip)
+                        .run();
+                } catch (e) {}
+                return jsonResponse({ success: true, reply: finalReply });
             }
             if (path === '/api/messages' && request.method === 'GET') {
                 const user = await getUserFromRequest(request, env);
