@@ -220,12 +220,12 @@ function recoverPassword() {
                 ${type === 'register' ? `
                     <div class="auth-field">
                         <label>昵称（可选）</label>
-                        <input type="text" id="authNickname" placeholder="昵称（中文≤6字，英文≤10字符）" maxlength="12">
+                        <input type="text" id="authNickname" placeholder="昵称（必填，中文≤6字/英文≤10）" maxlength="12" required>
                     </div>
                 ` : ''}
                 <div class="auth-field">
                     <label>${type === 'register' ? '手机号' : '手机号 / 邮箱'}</label>
-                    <input type="text" id="authEmail" placeholder="手机号或邮箱" required>
+                    <input type="text" id="authEmail" placeholder="昵称 / 手机号 / 邮箱" required>
                 </div>
                 <div class="auth-field">
                     ${type === 'register' ? '<div class="auth-field"><label>订单号（选填，填了立即激活）</label><input type="text" id="authOrderNo" placeholder="有订单号就填，没有可以空着"></div>' : ''}
@@ -257,7 +257,8 @@ async function handleAuthSubmit(event, type) {
     const email = document.getElementById('authEmail').value.trim();
     const isPhoneNo = /^1\d{10}$/.test(email);
     const isMail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
-    if (!isPhoneNo && !isMail) {
+    const isNick = email.length >= 1 && email.length <= 12;
+    if (!isPhoneNo && !isMail && !isNick) {
         alert('手机号或邮箱格式不正确');
         return;
     }
