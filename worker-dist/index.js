@@ -1032,9 +1032,10 @@ export default {
                 return jsonResponse({ success: true, message: '账号已注销' });
             }
             /* 访问采集：网页端与客户端共用 */
-            if (path === '/api/hit' && request.method === 'POST') {
-                const body = await request.json().catch(() => ({}));
-                const source = String(body.source || 'web').toLowerCase() === 'switch' ? 'switch' : 'web';
+            if (path === '/api/hit' && (request.method === 'POST' || request.method === 'GET')) {
+                const body = request.method === 'POST' ? await request.json().catch(() => ({})) : {};
+                const qSource = url.searchParams.get('source') || '';
+                const source = (String(body.source || qSource || 'web').toLowerCase() === 'switch') ? 'switch' : 'web';
                 const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
                 const ua = request.headers.get('User-Agent') || '';
                 const day = new Date().toISOString().slice(0, 10);
@@ -1047,6 +1048,10 @@ export default {
                         .run();
                 }
                 catch (e) { }
+                if (request.method === 'GET') {
+                    const gif = Uint8Array.from([71, 73, 70, 56, 57, 97, 1, 0, 1, 0, 128, 0, 0, 0, 0, 0, 255, 255, 255, 33, 249, 4, 1, 0, 0, 0, 0, 44, 0, 0, 0, 0, 1, 0, 1, 0, 0, 2, 2, 68, 1, 0, 59]);
+                    return new Response(gif, { status: 200, headers: { 'Content-Type': 'image/gif', 'Cache-Control': 'no-store' } });
+                }
                 return jsonResponse({ ok: true });
             }
             /* ================= AI 聊天 ================= */
