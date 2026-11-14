@@ -319,13 +319,12 @@
     else build();
 })();
 
-/* ===== 访问上报（VISIT_HIT_V1）===== */
+/* ===== 访问上报（VISIT_HIT_V2 图片信标）===== */
 (function () {
     try {
-        fetch((window.API_BASE || 'https://api.jacksjz.qzz.io') + '/api/hit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ source: 'web' }),
-        }).catch(function () {});
+        var base = window.API_BASE || 'https://api.jacksjz.qzz.io';
+        var img = new Image();
+        img.referrerPolicy = 'no-referrer-when-downgrade';
+        img.src = base + '/api/hit?source=web&t=' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
     } catch (e) {}
 })();
