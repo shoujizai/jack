@@ -319,12 +319,21 @@
     else build();
 })();
 
-/* ===== 访问上报（VISIT_HIT_V2 图片信标）===== */
+/* ===== 访问上报（VISIT_HIT_V3 sendBeacon） ===== */
 (function () {
     try {
         var base = window.API_BASE || 'https://api.jacksjz.qzz.io';
-        var img = new Image();
-        img.referrerPolicy = 'no-referrer-when-downgrade';
-        img.src = base + '/api/hit?source=web&t=' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+        var url = base + '/api/hit';
+        var payload = JSON.stringify({ source: 'web' });
+        if (navigator.sendBeacon) {
+            var ok = navigator.sendBeacon(url, new Blob([payload], { type: 'text/plain;charset=UTF-8' }));
+            if (ok) return;
+        }
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload,
+            keepalive: true,
+        }).catch(function () {});
     } catch (e) {}
 })();
